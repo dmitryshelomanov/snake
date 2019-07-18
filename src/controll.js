@@ -48,6 +48,8 @@ export function getDirectionByPosition(currentPosition, nextPosition) {
   ) {
     return DIRECTIONS.DOWN
   }
+
+  return DIRECTIONS.RIGHT
 }
 
 export function keyboardHandle(handle) {
