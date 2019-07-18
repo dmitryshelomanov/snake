@@ -1,0 +1,28 @@
+body {
+  font-family: sans-serif;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.board {
+  display: flex;
+  margin-bottom: 15px;
+  position: absolute;
+  color: white;
+  font-weight: bold;
+  padding: 15px;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}
+
+canvas {
+  background: white;
+  align-self: center;
+}
