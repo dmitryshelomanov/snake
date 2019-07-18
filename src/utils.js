@@ -86,3 +86,7 @@ export function getNeighborsByPosition([x, y]) {
     hasRightNeighbour ? [x + 1, y] : undefined, // right
   ]
 }
+
+export function randomId() {
+  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString()
+}

@@ -16,7 +16,7 @@ function restorePath(end, start, parent) {
   return path
 }
 
-export function breadthFirstSearch({ w, h }, startIndex, endIndex, isBlocked) {
+export function breadthFirstSearch(startIndex, endIndex, isBlocked) {
   const queue = [startIndex]
   const processed = new Map()
   const parent = {}
@@ -45,7 +45,9 @@ export function breadthFirstSearch({ w, h }, startIndex, endIndex, isBlocked) {
   }
 
   return {
-    path: restorePath(endIndex, startIndex, parent).map(getPositionByIndex),
+    path: isTraverse
+      ? restorePath(endIndex, startIndex, parent).map(getPositionByIndex)
+      : [],
     processed: Array.from(processed.keys()).map(getPositionByIndex),
   }
 }
