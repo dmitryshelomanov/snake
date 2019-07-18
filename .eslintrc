@@ -1,0 +1,12 @@
+{
+  "extends": "atomix-base",
+  "rules": {
+    "prefer-promise-reject-errors": "off",
+    "no-param-reassign": "off",
+    "unicorn/no-process-exit": "off"
+  },
+  "globals": {
+    "requestAnimationFrame": true,
+    "document": true
+  }
+}
