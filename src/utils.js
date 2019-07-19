@@ -1,4 +1,4 @@
-import { cellSize, pageHeight, pageWidth, boardLength } from './config'
+import { cellSize, pageHeight, pageWidth } from './config'
 
 /**
   cellSize = 20
@@ -62,29 +62,6 @@ export function getPositionByIndex(index) {
   const x = index - y * w
 
   return [x, y]
-}
-
-export function getRowByPosition([x, y]) {
-  return y
-}
-
-export function getColByPosition([x, y]) {
-  return x
-}
-
-export function getNeighborsByPosition([x, y]) {
-  const { w, h } = getLocalSize(pageWidth, pageHeight)
-  const hasLeftNeighbour = x - 1 >= 0
-  const hasRightNeighbour = x + 1 < w
-  const hasTopNeighbour = y - 1 >= 0
-  const hasDownNeighbour = y + 1 < h
-
-  return [
-    hasTopNeighbour ? [x, y - 1] : undefined, // top
-    hasLeftNeighbour ? [x - 1, y] : undefined, // left
-    hasDownNeighbour ? [x, y + 1] : undefined, // down
-    hasRightNeighbour ? [x + 1, y] : undefined, // right
-  ]
 }
 
 export function randomId() {
