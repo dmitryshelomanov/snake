@@ -6,15 +6,7 @@ body {
   align-content: center;
   width: 100vw;
   height: 100vh;
-}
-
-.board {
-  display: flex;
-  margin-bottom: 15px;
-  position: absolute;
-  color: white;
-  font-weight: bold;
-  padding: 15px;
+  flex-direction: column;
 }
 
 p {
@@ -25,4 +17,14 @@ p {
 canvas {
   background: white;
   align-self: center;
+}
+
+.board {
+  display: flex;
+  color: black;
+  padding: 25px;
+}
+
+.board > #score {
+  font-weight: bold;
 }
