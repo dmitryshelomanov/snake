@@ -3,7 +3,8 @@
   "rules": {
     "prefer-promise-reject-errors": "off",
     "no-param-reassign": "off",
-    "unicorn/no-process-exit": "off"
+    "unicorn/no-process-exit": "off",
+    "no-mixed-operators": "off"
   },
   "globals": {
     "requestAnimationFrame": true,

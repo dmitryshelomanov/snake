@@ -5,10 +5,9 @@ import {
   getIndexByPosition,
   getPositionByIndex,
 } from './utils'
-import { drawSquare, drawGrid, clearCell } from './renderer'
+import { drawSquare, drawGrid } from './renderer'
 import { pageHeight, pageWidth, interval } from './config'
 import {
-  DIRECTIONS,
   createTimeController,
   getNextPositionByDirection,
   getDirectionByPosition,
@@ -24,8 +23,10 @@ import {
   tailSnake,
   addPeaceOfSnake,
   setDirection,
+  eatTarget,
 } from './snake'
-import { breadthFirstSearch } from './algorithms'
+import { breadthFirstSearch, Graph } from './algorithms'
+import { setScore } from './score'
 import 'reset-css'
 
 function main(canvas, ctx) {
@@ -36,11 +37,22 @@ function main(canvas, ctx) {
     isPressed: false,
     snake: buildSnake(randomPosition()),
     apple: randomPosition(),
+    graph: new Graph(localSize),
   }
 
   const nextTick = createTimeController(interval)
 
   convigureCanvas(canvas, localSize, globalSize)
+
+  function renderSnake() {
+    drawSnake(ctx, state.snake, (index) => {})
+  }
+
+  function canTraverse(index) {
+    const [x, y] = getPositionByIndex(index)
+
+    return !state.snake.body.find(([x1, y1]) => x1 === x && y1 === y)
+  }
 
   nextTick.start(() => {
     clearSnake(ctx, state.snake)
@@ -48,11 +60,8 @@ function main(canvas, ctx) {
     const result = breadthFirstSearch(
       getIndexByPosition(headSnake(state.snake)),
       getIndexByPosition(state.apple),
-      (index) => {
-        const [x, y] = getPositionByIndex(index)
-
-        return state.snake.body.find(([x1, y1]) => x1 === x && y1 === y)
-      }
+      state.graph,
+      canTraverse
     )
 
     const nextPosition =
@@ -71,6 +80,9 @@ function main(canvas, ctx) {
     oneToOneCollision(nextPosition, state.apple, () => {
       state.apple = randomPosition()
 
+      eatTarget(state.snake)
+      setScore(state.snake.score)
+
       const peaceOfSnake = getNextPositionByDirection(
         nextPosition,
         state.snake.dir
@@ -79,19 +91,17 @@ function main(canvas, ctx) {
       addPeaceOfSnake(state.snake, peaceOfSnake)
     })
 
-    drawSnake(ctx, state.snake)
+    renderSnake()
 
     oneToManyCollision(
       headSnake(state.snake),
       tailSnake(state.snake),
       (crashed) => {
-        console.log('crash', { head: headSnake(state.snake), crashed })
-
         clearSnake(ctx, state.snake)
 
         state.snake.isCrash = true
 
-        drawSnake(ctx, state.snake)
+        renderSnake()
 
         nextTick.pause()
       }
