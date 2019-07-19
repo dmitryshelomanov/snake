@@ -1,2 +1,2 @@
-export * from './build-graph'
+export * from './graph'
 export * from './breadth-first-search'

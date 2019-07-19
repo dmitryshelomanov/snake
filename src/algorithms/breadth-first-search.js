@@ -1,8 +1,4 @@
-import {
-  getNeighborsByPosition,
-  getIndexByPosition,
-  getPositionByIndex,
-} from '../utils'
+import { getPositionByIndex } from '../utils'
 
 function restorePath(end, start, parent) {
   const path = [end]
@@ -16,7 +12,7 @@ function restorePath(end, start, parent) {
   return path
 }
 
-export function breadthFirstSearch(startIndex, endIndex, isBlocked) {
+export function breadthFirstSearch(startIndex, endIndex, graph, canTraverse) {
   const queue = [startIndex]
   const processed = new Map()
   const parent = {}
@@ -24,18 +20,16 @@ export function breadthFirstSearch(startIndex, endIndex, isBlocked) {
 
   while (!isTraverse && queue.length > 0) {
     const currentIndex = queue.shift()
-    const neighbors = getNeighborsByPosition(getPositionByIndex(currentIndex))
+    const neighbors = graph.getNeighbors(currentIndex)
 
     for (let i = 0; i < neighbors.length; i++) {
       if (neighbors[i]) {
-        const neighbourIndex = getIndexByPosition(neighbors[i])
+        if (canTraverse(neighbors[i]) && !processed.has(neighbors[i])) {
+          queue.push(neighbors[i])
+          processed.set(neighbors[i], true)
+          parent[neighbors[i]] = currentIndex
 
-        if (!processed.has(neighbourIndex) && !isBlocked(neighbourIndex)) {
-          queue.push(neighbourIndex)
-          processed.set(neighbourIndex, true)
-          parent[neighbourIndex] = currentIndex
-
-          if (endIndex === neighbourIndex) {
+          if (endIndex === neighbors[i]) {
             isTraverse = true
             break
           }
