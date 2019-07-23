@@ -6,7 +6,6 @@ body {
   align-content: center;
   width: 100vw;
   height: 100vh;
-  flex-direction: column;
 }
 
 p {
@@ -22,9 +21,22 @@ canvas {
 .board {
   display: flex;
   color: black;
-  padding: 25px;
 }
 
-.board > #score {
+.board > p {
+  margin-bottom: 10px;
+}
+
+.board > p:nth-child(2) {
   font-weight: bold;
+}
+
+.board-list {
+  min-width: 100px;
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  margin: 0 15px;
+  height: auto;
+  align-self: flex-start;
 }
