@@ -1,8 +1,10 @@
+import { KEYS } from './keyboard'
+
 export const DIRECTIONS = {
-  LEFT: 37,
-  RIGHT: 39,
-  TOP: 38,
-  DOWN: 40,
+  LEFT: KEYS.LEFT_ARROW,
+  RIGHT: KEYS.RIGHT_ARROW,
+  TOP: KEYS.TOP_ARROW,
+  DOWN: KEYS.DOWN_ARROW,
 }
 
 export function getNextPositionByDirection([x, y], dir) {
@@ -50,16 +52,6 @@ export function getDirectionByPosition(currentPosition, nextPosition) {
   }
 
   return DIRECTIONS.RIGHT
-}
-
-export function keyboardHandle(handle) {
-  document.addEventListener('keyup', (e) => {
-    e.preventDefault()
-
-    if (Object.values(DIRECTIONS).includes(e.keyCode)) {
-      handle(e.keyCode)
-    }
-  })
 }
 
 export function createTimeController(interval) {
