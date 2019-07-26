@@ -22,14 +22,14 @@ export function breadthFirstSearch(startIndex, endIndex, graph, canTraverse) {
     const currentIndex = queue.shift()
     const neighbors = graph.getNeighbors(currentIndex)
 
-    for (let i = 0; i < neighbors.length; i++) {
-      if (neighbors[i]) {
-        if (canTraverse(neighbors[i]) && !processed.has(neighbors[i])) {
-          queue.push(neighbors[i])
-          processed.set(neighbors[i], true)
-          parent[neighbors[i]] = currentIndex
+    for (const element of neighbors) {
+      if (element) {
+        if (canTraverse(element) && !processed.has(element)) {
+          queue.push(element)
+          processed.set(element, true)
+          parent[element] = currentIndex
 
-          if (endIndex === neighbors[i]) {
+          if (endIndex === element) {
             isTraverse = true
             break
           }
@@ -42,6 +42,6 @@ export function breadthFirstSearch(startIndex, endIndex, graph, canTraverse) {
     path: isTraverse
       ? restorePath(endIndex, startIndex, parent).map(getPositionByIndex)
       : [],
-    processed: Array.from(processed.keys()).map(getPositionByIndex),
+    processed: [...processed.keys()].map(getPositionByIndex),
   }
 }

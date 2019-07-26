@@ -1,4 +1,8 @@
-import { convertLocalPositionToGlobal, randomId } from './utils'
+import {
+  convertLocalPositionToGlobal,
+  randomId,
+  getIndexByPosition,
+} from './utils'
 import { borderSize, cellSize } from './config'
 import { drawSquare } from './renderer'
 import { DIRECTIONS } from './controll'
@@ -9,7 +13,7 @@ export class Snake {
       id: randomId(),
       body: [headPosition, [headPosition[0] + 1, headPosition[1]]],
       isCrash: false,
-      dir: DIRECTIONS.RIGHT,
+      direction: DIRECTIONS.RIGHT,
       weight: 1,
       score: 0,
       updater,
@@ -26,18 +30,18 @@ export function moveSnake(snake, nextPosition) {
   }
 }
 
-export function clearSnake(ctx, snake) {
+export function clearSnake(context, snake) {
   for (let i = 0; i < snake.body.length; i++) {
     const size = cellSize - borderSize * 4
     const [x, y] = convertLocalPositionToGlobal(snake.body[i])
 
-    ctx.clearRect(x + borderSize + 2, y + borderSize + 2, size, size)
+    context.clearRect(x + borderSize + 2, y + borderSize + 2, size, size)
   }
 }
 
-export function clearSnakes(ctx, snakes = []) {
+export function clearSnakes(context, snakes = []) {
   snakes.forEach((snake) => {
-    clearSnake(ctx, snake)
+    clearSnake(context, snake)
   })
 }
 
@@ -49,19 +53,20 @@ export function tailSnake(snake) {
   return snake.body.slice(1, snake.body.length - 1)
 }
 
-export function drawSnake(ctx, snake) {
+export function drawSnake(context, snake, callback) {
   for (let i = 0; i < snake.body.length; i++) {
     const isHead = i === snake.body.length - 1
     const color = isHead ? snake.colors.head : snake.colors.tail
     const crashedColor = isHead ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.6)'
 
-    drawSquare(ctx, snake.body[i], snake.isCrash ? crashedColor : color)
+    callback(getIndexByPosition(snake.body[i]), snake)
+    drawSquare(context, snake.body[i], snake.isCrash ? crashedColor : color)
   }
 }
 
-export function renderSnakes(ctx, snakes = []) {
+export function renderSnakes(context, snakes = [], callback) {
   snakes.forEach((snake) => {
-    drawSnake(ctx, snake)
+    drawSnake(context, snake, callback)
   })
 }
 
@@ -69,8 +74,8 @@ export function addPeaceOfSnake(snake, peaceOfSnake) {
   snake.body.push(peaceOfSnake)
 }
 
-export function setDirection(snake, dir) {
-  snake.dir = dir
+export function setDirection(snake, direction) {
+  snake.direction = direction
 }
 
 export function eatTarget(snake) {
