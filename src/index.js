@@ -3,7 +3,6 @@ import {
   getGlobalSize,
   randomPosition,
   getIndexByPosition,
-  getPositionByIndex,
 } from './utils'
 import { drawSquare, drawGrid } from './renderer'
 import { pageHeight, pageWidth, interval } from './config'
@@ -28,6 +27,7 @@ import {
 import { breadthFirstSearch, Graph } from './algorithms'
 import { setScore } from './score'
 import { keyboradFactory, KEYS } from './keyboard'
+import { renderGUI } from './GUI'
 import 'reset-css'
 
 function buildAI() {
@@ -38,9 +38,7 @@ function buildAI() {
     },
     updater: (self, nextState) => {
       function canTraverse(index) {
-        const [x, y] = getPositionByIndex(index)
-
-        return !self.body.find(([x1, y1]) => x1 === x && y1 === y)
+        return typeof nextState.gameMap.get(index) === 'undefined'
       }
 
       const result = breadthFirstSearch(
@@ -51,7 +49,8 @@ function buildAI() {
       )
 
       const nextPosition =
-        result.path[0] || getNextPositionByDirection(headSnake(self), self.dir)
+        result.path[0] ||
+        getNextPositionByDirection(headSnake(self), self.direction)
 
       setDirection(self, getDirectionByPosition(headSnake(self), nextPosition))
 
@@ -69,31 +68,48 @@ function buildUserSnake() {
       tail: 'rgba(0, 132, 255, 0.7)',
     },
     updater: (self) => {
-      const headPosition = getNextPositionByDirection(headSnake(self), self.dir)
+      const headPosition = getNextPositionByDirection(
+        headSnake(self),
+        self.direction
+      )
       const nextPosition = checkBounds(headPosition)
 
       moveSnake(self, nextPosition)
 
-      if (gameInput.isDown(KEYS.RIGHT_ARROW) && self.dir !== DIRECTIONS.LEFT) {
+      if (
+        gameInput.isDown(KEYS.RIGHT_ARROW) &&
+        self.direction !== DIRECTIONS.LEFT
+      ) {
         setDirection(self, DIRECTIONS.RIGHT)
       }
 
-      if (gameInput.isDown(KEYS.DOWN_ARROW) && self.dir !== DIRECTIONS.TOP) {
+      if (
+        gameInput.isDown(KEYS.DOWN_ARROW) &&
+        self.direction !== DIRECTIONS.TOP
+      ) {
         setDirection(self, DIRECTIONS.DOWN)
       }
 
-      if (gameInput.isDown(KEYS.LEFT_ARROW) && self.dir !== DIRECTIONS.RIGHT) {
+      if (
+        gameInput.isDown(KEYS.LEFT_ARROW) &&
+        self.direction !== DIRECTIONS.RIGHT
+      ) {
         setDirection(self, DIRECTIONS.LEFT)
       }
 
-      if (gameInput.isDown(KEYS.TOP_ARROW) && self.dir !== DIRECTIONS.DOWN) {
+      if (
+        gameInput.isDown(KEYS.TOP_ARROW) &&
+        self.direction !== DIRECTIONS.DOWN
+      ) {
         setDirection(self, DIRECTIONS.TOP)
       }
     },
   })
 }
 
-function main(canvas, ctx) {
+function main(canvas, context) {
+  renderGUI()
+
   const localSize = getLocalSize(pageWidth, pageHeight)
   const globalSize = getGlobalSize(localSize.w, localSize.h)
 
@@ -101,6 +117,7 @@ function main(canvas, ctx) {
     apple: randomPosition(),
     graph: new Graph(localSize),
     snakes: [buildAI(), buildUserSnake()],
+    gameMap: new Map(),
   }
 
   const nextTick = createTimeController(interval)
@@ -116,31 +133,48 @@ function main(canvas, ctx) {
 
       const peaceOfSnake = getNextPositionByDirection(
         headSnake(snake),
-        snake.dir
+        snake.direction
       )
 
       addPeaceOfSnake(snake, peaceOfSnake)
     })
   }
 
+  function checkCollision(snake) {
+    const headIndex = getIndexByPosition(headSnake(snake))
+    const isCrash = state.gameMap.get(headIndex) === 1
+
+    if (isCrash) {
+      snake.isCrash = true
+    }
+  }
+
   nextTick.start(() => {
-    clearSnakes(ctx, state.snakes)
+    nextTick.pause()
+    clearSnakes(context, state.snakes)
 
     state.snakes.forEach((snake) => {
-      snake.updater(snake, state)
+      if (!snake.isCrash) {
+        snake.updater(snake, state)
+      }
     })
 
     state.snakes.forEach(eatApple)
+    state.snakes.forEach(checkCollision)
 
-    renderSnakes(ctx, state.snakes)
+    state.gameMap.clear()
 
-    drawSquare(ctx, state.apple, 'rgb(238, 68, 0)')
+    renderSnakes(context, state.snakes, (i) => {
+      state.gameMap.set(i, 1)
+    })
+
+    drawSquare(context, state.apple, 'rgb(238, 68, 0)')
   })
 
-  drawGrid(ctx)
+  drawGrid(context)
 }
 
 const canvas = document.querySelector('canvas')
-const ctx = canvas.getContext('2d')
+const context = canvas.getContext('2d')
 
-main(canvas, ctx)
+main(canvas, context)

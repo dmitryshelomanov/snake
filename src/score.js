@@ -13,9 +13,9 @@ export function setScore(snakeId, { score, color }) {
     wrapper.classList.add('board')
     wrapper.style.color = color
 
-    titleWrapper.appendChild(title)
-    wrapper.appendChild(titleWrapper)
-    wrapper.appendChild(scoreCounterWrapper)
+    titleWrapper.append(title)
+    wrapper.append(titleWrapper)
+    wrapper.append(scoreCounterWrapper)
 
     scores[`snake-${snakeId}`] = {
       wrapper,
@@ -23,8 +23,8 @@ export function setScore(snakeId, { score, color }) {
       scoreCounterWrapper,
     }
 
-    scoreBoardList.appendChild(wrapper)
+    scoreBoardList.append(wrapper)
   }
 
-  scores[`snake-${snakeId}`].scoreCounterWrapper.innerText = score
+  scores[`snake-${snakeId}`].scoreCounterWrapper.textContent = score
 }

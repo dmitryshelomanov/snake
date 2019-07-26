@@ -32,21 +32,21 @@ export function checkCollision([x, y], [x1, y1]) {
 }
 
 export function oneToManyCollision(targetPosition, otherPositions, callback) {
-  for (let i = 0; i < otherPositions.length; i++) {
-    const isCrash = checkCollision(targetPosition, otherPositions[i])
+  for (const element of otherPositions) {
+    const isCrash = checkCollision(targetPosition, element)
 
     if (isCrash) {
-      callback(otherPositions[i])
+      callback(element)
 
       break
     }
   }
 }
 
-export function oneToOneCollision(obj1, obj2, callback) {
-  const isCrash = checkCollision(obj1, obj2)
+export function oneToOneCollision(object1, object2, callback) {
+  const isCrash = checkCollision(object1, object2)
 
   if (isCrash) {
-    callback(obj1)
+    callback(object1)
   }
 }

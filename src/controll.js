@@ -7,8 +7,8 @@ export const DIRECTIONS = {
   DOWN: KEYS.DOWN_ARROW,
 }
 
-export function getNextPositionByDirection([x, y], dir) {
-  switch (dir) {
+export function getNextPositionByDirection([x, y], direction) {
+  switch (direction) {
     case DIRECTIONS.LEFT:
       return [x - 1, y]
     case DIRECTIONS.RIGHT:
