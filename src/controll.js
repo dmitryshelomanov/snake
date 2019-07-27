@@ -1,11 +1,5 @@
-import { KEYS } from './keyboard'
-
-export const DIRECTIONS = {
-  LEFT: KEYS.LEFT_ARROW,
-  RIGHT: KEYS.RIGHT_ARROW,
-  TOP: KEYS.TOP_ARROW,
-  DOWN: KEYS.DOWN_ARROW,
-}
+import { DIRECTIONS } from './config'
+import { getGameState, GAME_STATE, onPlay, onStop } from './model'
 
 export function getNextPositionByDirection([x, y], direction) {
   switch (direction) {
@@ -58,15 +52,15 @@ export function createTimeController(interval) {
   let callback = null
   let now = null
   let then = Date.now()
-  let isPause = false
 
   function loop() {
     now = Date.now()
     const delta = now - then
+    const isPLay = getGameState() === GAME_STATE.IS_PLAY
 
     requestAnimationFrame(loop)
 
-    if (delta > interval && !isPause) {
+    if (delta > interval && isPLay) {
       then = now - (delta % interval)
 
       if (callback) {
@@ -81,10 +75,10 @@ export function createTimeController(interval) {
       requestAnimationFrame(loop)
     },
     pause: () => {
-      isPause = true
+      onStop()
     },
     play: () => {
-      isPause = false
+      onPlay()
     },
   }
 }
