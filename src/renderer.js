@@ -47,7 +47,7 @@ export function renderText(context, text, position) {
   context.fillText(text, x + (cellSize - width) / 2, y + cellSize / 2)
 }
 
-export function clearCell(context, cells) {
+export function clearCells(context, cells) {
   for (const element of cells) {
     const size = cellSize - borderSize * 4
     const [x, y] = convertLocalPositionToGlobal(element)

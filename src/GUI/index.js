@@ -1,8 +1,9 @@
 import React from 'react'
 import ReactDom from 'react-dom'
+import { SideBar } from './side-bar'
 
 function App() {
-  return <div>Hello parsel</div>
+  return <SideBar />
 }
 
 const root = document.querySelector('#root')

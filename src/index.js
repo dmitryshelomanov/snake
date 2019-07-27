@@ -1,110 +1,112 @@
-import {
-  getLocalSize,
-  getGlobalSize,
-  randomPosition,
-  getIndexByPosition,
-} from './utils'
-import { drawSquare, drawGrid } from './renderer'
-import { pageHeight, pageWidth, interval } from './config'
+/* eslint-disable unicorn/prevent-abbreviations */
+import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
+import { drawSquare, drawGrid, clearCells } from './renderer'
+import { pageHeight, pageWidth, interval, DIRECTIONS } from './config'
 import {
   createTimeController,
   getNextPositionByDirection,
   getDirectionByPosition,
-  DIRECTIONS,
 } from './controll'
 import { oneToOneCollision, checkBounds } from './collision'
 import { convigureCanvas } from './canvas'
-import {
-  moveSnake,
-  Snake,
-  headSnake,
-  addPeaceOfSnake,
-  setDirection,
-  eatTarget,
-  renderSnakes,
-  clearSnakes,
-} from './snake'
+import { headSnake } from './model/snake'
 import { breadthFirstSearch, Graph } from './algorithms'
-import { setScore } from './score'
 import { keyboradFactory, KEYS } from './keyboard'
 import { renderGUI } from './GUI'
+import {
+  getAppleState,
+  getSnakesState,
+  getGameMapState,
+  onEatApple,
+  onMoveSnake,
+  onSetDirectionForSnake,
+  getCollisionState,
+  onClearGameMap,
+  onUpdateGameMap,
+  onCrashSnake,
+} from './model'
+import { clearSnakes, renderSnakes } from './snake'
 import 'reset-css'
 
-function buildAI() {
-  return Snake.build(randomPosition(), {
-    colors: {
-      head: 'rgb(0, 221, 0)',
-      tail: 'rgb(152, 251, 152)',
-    },
-    updater: (self, nextState) => {
-      function canTraverse(index) {
-        return typeof nextState.gameMap.get(index) === 'undefined'
-      }
+const gameInput = keyboradFactory()
 
-      const result = breadthFirstSearch(
-        getIndexByPosition(headSnake(self)),
-        getIndexByPosition(nextState.apple),
-        nextState.graph,
-        canTraverse
-      )
+const updaters = {
+  ai: (self, nextState) => {
+    const gameMapState = getGameMapState()
 
-      const nextPosition =
-        result.path[0] ||
-        getNextPositionByDirection(headSnake(self), self.direction)
+    function canTraverse(index) {
+      return typeof gameMapState[index] === 'undefined'
+    }
 
-      setDirection(self, getDirectionByPosition(headSnake(self), nextPosition))
+    const apple = getAppleState()
 
-      moveSnake(self, nextPosition)
-    },
-  })
-}
+    const result = breadthFirstSearch(
+      getIndexByPosition(headSnake(self)),
+      getIndexByPosition(apple),
+      nextState.graph,
+      canTraverse
+    )
 
-function buildUserSnake() {
-  const gameInput = keyboradFactory()
+    const nextPosition =
+      result.path[0] ||
+      getNextPositionByDirection(headSnake(self), self.direction)
 
-  return Snake.build(randomPosition(), {
-    colors: {
-      head: 'rgb(0, 132, 255)',
-      tail: 'rgba(0, 132, 255, 0.7)',
-    },
-    updater: (self) => {
-      const headPosition = getNextPositionByDirection(
-        headSnake(self),
-        self.direction
-      )
-      const nextPosition = checkBounds(headPosition)
+    onSetDirectionForSnake({
+      id: self.id,
+      direction: getDirectionByPosition(headSnake(self), nextPosition),
+    })
 
-      moveSnake(self, nextPosition)
+    onMoveSnake({ id: self.id, nextPosition })
+  },
+  user: (self) => {
+    const headPosition = getNextPositionByDirection(
+      headSnake(self),
+      self.direction
+    )
+    const nextPosition = checkBounds(headPosition)
 
-      if (
-        gameInput.isDown(KEYS.RIGHT_ARROW) &&
-        self.direction !== DIRECTIONS.LEFT
-      ) {
-        setDirection(self, DIRECTIONS.RIGHT)
-      }
+    onMoveSnake({ id: self.id, nextPosition })
 
-      if (
-        gameInput.isDown(KEYS.DOWN_ARROW) &&
-        self.direction !== DIRECTIONS.TOP
-      ) {
-        setDirection(self, DIRECTIONS.DOWN)
-      }
+    if (
+      gameInput.isDown(KEYS.RIGHT_ARROW) &&
+      self.direction !== DIRECTIONS.LEFT
+    ) {
+      onSetDirectionForSnake({
+        id: self.id,
+        direction: DIRECTIONS.RIGHT,
+      })
+    }
 
-      if (
-        gameInput.isDown(KEYS.LEFT_ARROW) &&
-        self.direction !== DIRECTIONS.RIGHT
-      ) {
-        setDirection(self, DIRECTIONS.LEFT)
-      }
+    if (
+      gameInput.isDown(KEYS.DOWN_ARROW) &&
+      self.direction !== DIRECTIONS.TOP
+    ) {
+      onSetDirectionForSnake({
+        id: self.id,
+        direction: DIRECTIONS.DOWN,
+      })
+    }
 
-      if (
-        gameInput.isDown(KEYS.TOP_ARROW) &&
-        self.direction !== DIRECTIONS.DOWN
-      ) {
-        setDirection(self, DIRECTIONS.TOP)
-      }
-    },
-  })
+    if (
+      gameInput.isDown(KEYS.LEFT_ARROW) &&
+      self.direction !== DIRECTIONS.RIGHT
+    ) {
+      onSetDirectionForSnake({
+        id: self.id,
+        direction: DIRECTIONS.LEFT,
+      })
+    }
+
+    if (
+      gameInput.isDown(KEYS.TOP_ARROW) &&
+      self.direction !== DIRECTIONS.DOWN
+    ) {
+      onSetDirectionForSnake({
+        id: self.id,
+        direction: DIRECTIONS.TOP,
+      })
+    }
+  },
 }
 
 function main(canvas, context) {
@@ -114,10 +116,9 @@ function main(canvas, context) {
   const globalSize = getGlobalSize(localSize.w, localSize.h)
 
   const state = {
-    apple: randomPosition(),
     graph: new Graph(localSize),
-    snakes: [buildAI(), buildUserSnake()],
-    gameMap: new Map(),
+    prevSnakes: [],
+    prevApple: [0, 0],
   }
 
   const nextTick = createTimeController(interval)
@@ -125,50 +126,53 @@ function main(canvas, context) {
   convigureCanvas(canvas, localSize, globalSize)
 
   function eatApple(snake) {
-    oneToOneCollision(headSnake(snake), state.apple, () => {
-      state.apple = randomPosition()
-
-      eatTarget(snake)
-      setScore(snake.id, { score: snake.score, color: snake.colors.head })
-
+    oneToOneCollision(headSnake(snake), getAppleState(), () => {
       const peaceOfSnake = getNextPositionByDirection(
         headSnake(snake),
         snake.direction
       )
 
-      addPeaceOfSnake(snake, peaceOfSnake)
+      onEatApple({ id: snake.id, peaceOfSnake })
     })
   }
 
   function checkCollision(snake) {
+    const gameMap = getGameMapState()
     const headIndex = getIndexByPosition(headSnake(snake))
-    const isCrash = state.gameMap.get(headIndex) === 1
+    const isCrash = gameMap[headIndex] === 1
 
     if (isCrash) {
-      snake.isCrash = true
+      onCrashSnake(snake.id)
     }
   }
 
   nextTick.start(() => {
-    nextTick.pause()
-    clearSnakes(context, state.snakes)
+    const apple = getAppleState()
 
-    state.snakes.forEach((snake) => {
+    clearSnakes(context, state.prevSnakes)
+    clearCells(context, [state.prevApple])
+
+    getSnakesState().forEach((snake) => {
       if (!snake.isCrash) {
-        snake.updater(snake, state)
+        updaters[snake.id](snake, state)
       }
     })
 
-    state.snakes.forEach(eatApple)
-    state.snakes.forEach(checkCollision)
+    const snakes = getSnakesState()
 
-    state.gameMap.clear()
+    state.prevSnakes = snakes
+    state.prevApple = apple
 
-    renderSnakes(context, state.snakes, (i) => {
-      state.gameMap.set(i, 1)
+    snakes.forEach(eatApple)
+    snakes.forEach(checkCollision)
+
+    onClearGameMap()
+
+    renderSnakes(context, snakes, (i) => {
+      onUpdateGameMap(i)
     })
 
-    drawSquare(context, state.apple, 'rgb(238, 68, 0)')
+    drawSquare(context, apple, 'rgb(238, 68, 0)')
   })
 
   drawGrid(context)

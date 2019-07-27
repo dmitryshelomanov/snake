@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-event-key */
 export const KEYS = {
   LEFT_ARROW: 65,
   RIGHT_ARROW: 68,
@@ -13,8 +14,8 @@ export function keyboradFactory() {
 
     pressedKeys = {}
 
-    if (Object.values(KEYS).includes(event.key)) {
-      pressedKeys[event.key] = true
+    if (Object.values(KEYS).includes(event.keyCode)) {
+      pressedKeys[event.keyCode] = true
     }
   })
 
