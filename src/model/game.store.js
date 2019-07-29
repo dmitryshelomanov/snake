@@ -1,4 +1,5 @@
 import { createStore } from 'effector'
+import { breadthFirstSearch } from '../algorithms'
 import { randomPosition } from '../utils'
 import { Snake } from './snake'
 
@@ -9,15 +10,9 @@ export const GAME_STATE = {
 
 export const $gameStateStore = createStore(GAME_STATE.IS_PLAY)
 
-export const getGameState = () => $gameStateStore.getState()
-
 export const $appleStore = createStore(randomPosition())
 
-export const getAppleState = () => $appleStore.getState()
-
 export const $gameMapStore = createStore({})
-
-export const getGameMapState = () => $gameMapStore.getState()
 
 export const $snakesStore = createStore([
   Snake.build(randomPosition(), {
@@ -36,11 +31,31 @@ export const $snakesStore = createStore([
   }),
 ])
 
-export const getSnakesState = () => $snakesStore.getState()
-
-export const getSnakeState = (id) =>
-  getSnakesState().find((snake) => snake.id === id)
-
 export const $gameCollisionStore = createStore(true)
 
-export const getCollisionState = () => $gameCollisionStore.getState()
+export const $snakeIterator = createStore(
+  Array.from(
+    { length: $snakesStore.getState().length },
+    (_, i) => $snakesStore.getState()[i].id
+  )
+)
+
+export const $algorithmsStore = createStore({
+  active: 'breadth',
+  list: [
+    {
+      id: 'breadth',
+      alg: breadthFirstSearch,
+      name: 'Breadth first search',
+    },
+    {
+      id: 'depth',
+      alg: breadthFirstSearch,
+      name: 'Depth first search',
+    },
+  ],
+})
+
+export const $activeAlgorithmStore = $algorithmsStore.map((algorithms) =>
+  algorithms.list.find((alg) => alg.id === algorithms.active)
+)
