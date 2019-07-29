@@ -5,6 +5,7 @@ import {
   $appleStore,
   $snakesStore,
   $gameMapStore,
+  $algorithmsStore,
 } from './game.store'
 import {
   onPlay,
@@ -16,6 +17,7 @@ import {
   onClearGameMap,
   onUpdateGameMap,
   onCrashSnake,
+  onChangeAlgorithm,
 } from './game.events'
 import {
   setScore,
@@ -77,4 +79,11 @@ $gameMapStore
     [index]: 1,
   }))
   .on(onClearGameMap, () => ({}))
+  .reset(onRestart)
+
+$algorithmsStore
+  .on(onChangeAlgorithm, (state, id) => ({
+    ...state,
+    active: id,
+  }))
   .reset(onRestart)
