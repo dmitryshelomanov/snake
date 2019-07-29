@@ -1,7 +1,13 @@
 import React from 'react'
 import styled from 'styled-components'
 import { useStore } from 'effector-react'
-import { $gameCollisionStateStore, onSetCollisionState } from '../model'
+import {
+  $gameCollisionStateStore,
+  $userInGameStore,
+  onSetCollisionState,
+  onAddUserToGame,
+  onRemoveUserFromGame,
+} from '../model'
 import { Title, Checkbox } from './common'
 
 export const Wrapper = styled.ul`
@@ -28,9 +34,18 @@ export const Name = styled.label`
 
 export function Settings() {
   const collisionState = useStore($gameCollisionStateStore)
+  const userInGameStore = useStore($userInGameStore)
 
   function onSetCollision() {
     onSetCollisionState(!collisionState)
+  }
+
+  function handleChangeUserInGameState() {
+    if (userInGameStore) {
+      onRemoveUserFromGame()
+    } else {
+      onAddUserToGame()
+    }
   }
 
   return (
@@ -44,6 +59,14 @@ export function Settings() {
             onChange={onSetCollision}
           />
           <Name htmlFor="collision">handle collision state</Name>
+        </SettingWrapper>
+        <SettingWrapper>
+          <Checkbox
+            id="withUser"
+            checked={userInGameStore}
+            onChange={handleChangeUserInGameState}
+          />
+          <Name htmlFor="withUser">add user (you) to game</Name>
         </SettingWrapper>
       </Wrapper>
     </>
