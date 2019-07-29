@@ -1,11 +1,12 @@
 /* eslint-disable unicorn/prevent-abbreviations */
 import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
-import { drawSquare, drawGrid, clearCells } from './renderer'
+import { drawSquare, drawGrid, clearCells, renderBrick } from './renderer'
 import { pageHeight, pageWidth, interval, DIRECTIONS } from './config'
 import {
   createTimeController,
   getNextPositionByDirection,
   getDirectionByPosition,
+  registerClickEventToCanvas,
 } from './controll'
 import { oneToOneCollision, checkBounds } from './collision'
 import { convigureCanvas } from './canvas'
@@ -17,15 +18,18 @@ import {
   getAppleState,
   getSnakesState,
   getGameMapState,
-  onEatApple,
-  onMoveSnake,
-  onSetDirectionForSnake,
   getActiveAlgorithmStore,
+  getGameCollisionState,
+  getBrickState,
   onClearGameMap,
   onUpdateGameMap,
   onCrashSnake,
+  onEatApple,
+  onMoveSnake,
+  onSetDirectionForSnake,
 } from './model'
 import { clearSnakes, renderSnakes } from './snake'
+import { renderBricks, clearBricks } from './brick'
 import 'reset-css'
 
 const gameInput = keyboradFactory()
@@ -34,9 +38,10 @@ const updaters = {
   ai: (self, nextState) => {
     const { alg: traverseAlgorithm } = getActiveAlgorithmStore()
     const gameMapState = getGameMapState()
+    const collisionState = getGameCollisionState()
 
     function canTraverse(index) {
-      return typeof gameMapState[index] === 'undefined'
+      return !collisionState ? true : typeof gameMapState[index] === 'undefined'
     }
 
     const apple = getAppleState()
@@ -112,6 +117,7 @@ const updaters = {
 
 function main(canvas, context) {
   renderGUI()
+  registerClickEventToCanvas(canvas)
 
   const localSize = getLocalSize(pageWidth, pageHeight)
   const globalSize = getGlobalSize(localSize.w, localSize.h)
@@ -120,6 +126,7 @@ function main(canvas, context) {
     graph: new Graph(localSize),
     prevSnakes: [],
     prevApple: [0, 0],
+    prevBriks: [],
   }
 
   const nextTick = createTimeController(interval)
@@ -138,42 +145,59 @@ function main(canvas, context) {
   }
 
   function checkCollision(snake) {
-    const gameMap = getGameMapState()
-    const headIndex = getIndexByPosition(headSnake(snake))
-    const isCrash = gameMap[headIndex] === 1
+    const collisionState = getGameCollisionState()
 
-    if (isCrash) {
-      onCrashSnake(snake.id)
+    if (collisionState) {
+      const gameMap = getGameMapState()
+      const headIndex = getIndexByPosition(headSnake(snake))
+      const isCrash = gameMap[headIndex] === 1
+
+      if (isCrash) {
+        onCrashSnake(snake.id)
+      }
     }
   }
 
-  nextTick.start(() => {
-    const apple = getAppleState()
-
-    clearSnakes(context, state.prevSnakes)
-    clearCells(context, [state.prevApple])
-
-    getSnakesState().forEach((snake) => {
-      if (!snake.isCrash) {
-        updaters[snake.id](snake, state)
-      }
-    })
-
-    const snakes = getSnakesState()
-
-    state.prevSnakes = snakes
-    state.prevApple = apple
-
-    snakes.forEach(eatApple)
-    snakes.forEach(checkCollision)
-
-    onClearGameMap()
-
-    renderSnakes(context, snakes, (i) => {
+  nextTick.start((isPLay, wasFirstRender) => {
+    function updateGameMap(i) {
       onUpdateGameMap(i)
-    })
+    }
 
-    drawSquare(context, apple, 'rgb(238, 68, 0)')
+    function cearGameMap(i) {
+      onClearGameMap(i)
+    }
+
+    clearBricks(context, state.prevBriks, cearGameMap)
+
+    const bricks = getBrickState()
+
+    state.prevBriks = bricks
+
+    renderBricks(context, bricks, updateGameMap)
+
+    if (!wasFirstRender || isPLay) {
+      const apple = getAppleState()
+
+      getSnakesState().forEach((snake) => {
+        if (!snake.isCrash) {
+          updaters[snake.id](snake, state)
+        }
+      })
+
+      const snakes = getSnakesState()
+
+      snakes.forEach(eatApple)
+      snakes.forEach(checkCollision)
+
+      clearSnakes(context, state.prevSnakes, cearGameMap)
+      clearCells(context, [state.prevApple], cearGameMap)
+
+      state.prevSnakes = snakes
+      state.prevApple = apple
+
+      renderSnakes(context, snakes, updateGameMap)
+      drawSquare(context, apple, 'rgb(238, 68, 0)')
+    }
   })
 
   drawGrid(context)

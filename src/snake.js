@@ -2,18 +2,19 @@ import { convertLocalPositionToGlobal, getIndexByPosition } from './utils'
 import { borderSize, cellSize } from './config'
 import { drawSquare } from './renderer'
 
-export function clearSnake(context, snake) {
+export function clearSnake(context, snake, callback) {
   for (let i = 0; i < snake.body.length; i++) {
     const size = cellSize - borderSize * 4
     const [x, y] = convertLocalPositionToGlobal(snake.body[i])
 
+    callback(getIndexByPosition(snake.body[i]))
     context.clearRect(x + borderSize + 2, y + borderSize + 2, size, size)
   }
 }
 
-export function clearSnakes(context, snakes = []) {
+export function clearSnakes(context, snakes = [], callback) {
   snakes.forEach((snake) => {
-    clearSnake(context, snake)
+    clearSnake(context, snake, callback)
   })
 }
 

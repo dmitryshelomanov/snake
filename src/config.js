@@ -1,8 +1,8 @@
 import { KEYS } from './keyboard'
 
 export const cellSize = 25
-export const pageWidth = window.innerWidth
-export const pageHeight = window.innerHeight
+export const pageWidth = 700
+export const pageHeight = 600
 export const fps = 60
 export const borderSize = 1
 export const interval = 100

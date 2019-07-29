@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { ScoreBoard } from './score-board'
 import { AlgorighmsList } from './algorightms-list'
+import { Settings } from './settings'
 
 export const Wrapper = styled.div`
   padding: 20px;
@@ -19,6 +20,7 @@ export function RightPanel() {
     <Wrapper>
       <ScoreBoard />
       <AlgorighmsList />
+      <Settings />
     </Wrapper>
   )
 }

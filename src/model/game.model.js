@@ -1,4 +1,5 @@
-import { randomPosition } from '../utils'
+import { merge } from 'effector'
+import { randomPosition, getPositionByIndex } from '../utils'
 import {
   $gameStateStore,
   GAME_STATE,
@@ -6,6 +7,8 @@ import {
   $snakesStore,
   $gameMapStore,
   $algorithmsStore,
+  $gameCollisionStateStore,
+  $brickStore,
 } from './game.store'
 import {
   onPlay,
@@ -18,6 +21,9 @@ import {
   onUpdateGameMap,
   onCrashSnake,
   onChangeAlgorithm,
+  onSetCollisionState,
+  onAddBrick,
+  onRemoveBrick,
 } from './game.events'
 import {
   setScore,
@@ -74,11 +80,14 @@ $snakesStore
   .reset(onRestart)
 
 $gameMapStore
-  .on(onUpdateGameMap, (state, index) => ({
+  .on(merge([onUpdateGameMap, onAddBrick]), (state, index) => ({
     ...state,
     [index]: 1,
   }))
-  .on(onClearGameMap, () => ({}))
+  .on(merge([onClearGameMap, onRemoveBrick]), (state, index) => ({
+    ...state,
+    [index]: undefined,
+  }))
   .reset(onRestart)
 
 $algorithmsStore
@@ -87,3 +96,13 @@ $algorithmsStore
     active: id,
   }))
   .reset(onRestart)
+
+$gameCollisionStateStore.on(onSetCollisionState, (_, state) => state)
+
+$brickStore
+  .on(onAddBrick, (bricks, index) => [...bricks, getPositionByIndex(index)])
+  .on(onRemoveBrick, (bricks, index) => {
+    const [x, y] = getPositionByIndex(index)
+
+    return bricks.filter(([x1, y1]) => x1 !== x || y1 !== y)
+  })
