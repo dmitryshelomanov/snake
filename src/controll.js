@@ -2,11 +2,12 @@ import { DIRECTIONS, cellSize } from './config'
 import {
   getGameState,
   getGameMapState,
-  GAME_STATE,
   onPlay,
   onStop,
   onAddBrick,
   onRemoveBrick,
+  PLACE_TYPE,
+  GAME_STATE,
 } from './model'
 import { getIndexByPosition } from './utils'
 
@@ -96,20 +97,64 @@ export function createTimeController(interval) {
 }
 
 export function registerClickEventToCanvas(canvas) {
-  canvas.addEventListener('click', (event) => {
-    const gameMapState = getGameMapState()
+  let isMouseDown = false
+  let isRemove = false
+
+  function getTargetIndex(event) {
     const x = event.pageX - canvas.offsetLeft
     const y = event.pageY - canvas.offsetTop
     const targetPosition = [
       Math.floor((x + (cellSize % x) / cellSize) / cellSize),
       Math.floor((y + (cellSize % y) / cellSize) / cellSize),
     ]
-    const index = getIndexByPosition(targetPosition)
 
-    if (gameMapState[index] === 1) {
-      onRemoveBrick(index)
-    } else {
+    return getIndexByPosition(targetPosition)
+  }
+
+  function addBrick(index) {
+    const gameMapState = getGameMapState()
+
+    if (gameMapState[index] === PLACE_TYPE.EMPTY) {
       onAddBrick(index)
+    }
+  }
+
+  function removeBrick(index) {
+    const gameMapState = getGameMapState()
+
+    if (gameMapState[index] === PLACE_TYPE.BRICK) {
+      onRemoveBrick(index)
+    }
+  }
+
+  canvas.addEventListener('mousedown', (event) => {
+    const gameMapState = getGameMapState()
+    const index = getTargetIndex(event)
+
+    if (gameMapState[index] === PLACE_TYPE.BRICK) {
+      isRemove = true
+      removeBrick(index)
+    } else {
+      isRemove = false
+      addBrick(index)
+    }
+
+    isMouseDown = true
+  })
+
+  canvas.addEventListener('mouseup', () => {
+    isMouseDown = false
+  })
+
+  canvas.addEventListener('mousemove', (event) => {
+    if (isMouseDown) {
+      const index = getTargetIndex(event)
+
+      if (isRemove) {
+        removeBrick(index)
+      } else {
+        addBrick(index)
+      }
     }
   })
 }

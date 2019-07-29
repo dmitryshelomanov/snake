@@ -2,13 +2,14 @@ import { merge } from 'effector'
 import { randomPosition, getPositionByIndex } from '../utils'
 import {
   $gameStateStore,
-  GAME_STATE,
   $appleStore,
   $snakesStore,
   $gameMapStore,
   $algorithmsStore,
   $gameCollisionStateStore,
   $brickStore,
+  PLACE_TYPE,
+  GAME_STATE,
 } from './game.store'
 import {
   onPlay,
@@ -80,9 +81,13 @@ $snakesStore
   .reset(onRestart)
 
 $gameMapStore
-  .on(merge([onUpdateGameMap, onAddBrick]), (state, index) => ({
+  .on(onUpdateGameMap, (state, { index, placeType }) => ({
     ...state,
-    [index]: 1,
+    [index]: placeType,
+  }))
+  .on(onAddBrick, (state, index) => ({
+    ...state,
+    [index]: PLACE_TYPE.BRICK,
   }))
   .on(merge([onClearGameMap, onRemoveBrick]), (state, index) => ({
     ...state,
@@ -106,3 +111,4 @@ $brickStore
 
     return bricks.filter(([x1, y1]) => x1 !== x || y1 !== y)
   })
+  .reset(onRestart)
