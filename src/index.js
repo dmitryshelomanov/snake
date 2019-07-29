@@ -10,7 +10,7 @@ import {
 import { oneToOneCollision, checkBounds } from './collision'
 import { convigureCanvas } from './canvas'
 import { headSnake } from './model/snake'
-import { breadthFirstSearch, Graph } from './algorithms'
+import { Graph } from './algorithms'
 import { keyboradFactory, KEYS } from './keyboard'
 import { renderGUI } from './GUI'
 import {
@@ -20,7 +20,7 @@ import {
   onEatApple,
   onMoveSnake,
   onSetDirectionForSnake,
-  getCollisionState,
+  getActiveAlgorithmStore,
   onClearGameMap,
   onUpdateGameMap,
   onCrashSnake,
@@ -32,6 +32,7 @@ const gameInput = keyboradFactory()
 
 const updaters = {
   ai: (self, nextState) => {
+    const { alg: traverseAlgorithm } = getActiveAlgorithmStore()
     const gameMapState = getGameMapState()
 
     function canTraverse(index) {
@@ -40,7 +41,7 @@ const updaters = {
 
     const apple = getAppleState()
 
-    const result = breadthFirstSearch(
+    const result = traverseAlgorithm(
       getIndexByPosition(headSnake(self)),
       getIndexByPosition(apple),
       nextState.graph,
