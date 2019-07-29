@@ -8,6 +8,13 @@ export const GAME_STATE = {
   IS_PAUSE: 2,
 }
 
+export const PLACE_TYPE = {
+  EMPTY: undefined,
+  GAME_OBJECT: 1,
+  BRICK: 2,
+  FOOD: 3,
+}
+
 export const $gameStateStore = createStore(GAME_STATE.IS_PLAY)
 
 export const $appleStore = createStore(randomPosition())

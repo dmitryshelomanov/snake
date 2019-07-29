@@ -57,3 +57,8 @@ export function clearCells(context, cells, callback) {
     context.clearRect(x + borderSize + 2, y + borderSize + 2, size, size)
   }
 }
+
+export function renderApple(context, apple, callback) {
+  callback(getIndexByPosition(apple))
+  drawSquare(context, apple, 'rgb(238, 68, 0)')
+}
