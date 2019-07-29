@@ -31,7 +31,7 @@ export const $snakesStore = createStore([
   }),
 ])
 
-export const $gameCollisionStore = createStore(true)
+export const $gameCollisionStateStore = createStore(true)
 
 export const $snakeIterator = createStore(
   Array.from(
@@ -59,3 +59,5 @@ export const $algorithmsStore = createStore({
 export const $activeAlgorithmStore = $algorithmsStore.map((algorithms) =>
   algorithms.list.find((alg) => alg.id === algorithms.active)
 )
+
+export const $brickStore = createStore([])
