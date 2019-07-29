@@ -3,6 +3,7 @@ import {
   convertLocalPositionToGlobal,
   getLocalSize,
   getGlobalSize,
+  getIndexByPosition,
 } from './utils'
 
 export function drawSquare(context, position, color = 'rgb(152, 251, 152)') {
@@ -47,11 +48,12 @@ export function renderText(context, text, position) {
   context.fillText(text, x + (cellSize - width) / 2, y + cellSize / 2)
 }
 
-export function clearCells(context, cells) {
+export function clearCells(context, cells, callback) {
   for (const element of cells) {
     const size = cellSize - borderSize * 4
     const [x, y] = convertLocalPositionToGlobal(element)
 
+    callback(getIndexByPosition(element))
     context.clearRect(x + borderSize + 2, y + borderSize + 2, size, size)
   }
 }

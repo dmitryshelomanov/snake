@@ -14,3 +14,8 @@ export const onClearGameMap = createEvent('clear game map')
 export const onUpdateGameMap = createEvent('upadte game map')
 
 export const onChangeAlgorithm = createEvent('change algoright')
+
+export const onSetCollisionState = createEvent('set collision state')
+
+export const onAddBrick = createEvent('add brick')
+export const onRemoveBrick = createEvent('remove brick')

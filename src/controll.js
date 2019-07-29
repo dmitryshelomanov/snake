@@ -1,5 +1,14 @@
-import { DIRECTIONS } from './config'
-import { getGameState, GAME_STATE, onPlay, onStop } from './model'
+import { DIRECTIONS, cellSize } from './config'
+import {
+  getGameState,
+  getGameMapState,
+  GAME_STATE,
+  onPlay,
+  onStop,
+  onAddBrick,
+  onRemoveBrick,
+} from './model'
+import { getIndexByPosition } from './utils'
 
 export function getNextPositionByDirection([x, y], direction) {
   switch (direction) {
@@ -52,6 +61,7 @@ export function createTimeController(interval) {
   let callback = null
   let now = null
   let then = Date.now()
+  let wasFirstRender = false
 
   function loop() {
     now = Date.now()
@@ -60,12 +70,14 @@ export function createTimeController(interval) {
 
     requestAnimationFrame(loop)
 
-    if (delta > interval && isPLay) {
+    if (delta > interval) {
       then = now - (delta % interval)
 
       if (callback) {
-        callback()
+        callback(isPLay, wasFirstRender)
       }
+
+      wasFirstRender = true
     }
   }
 
@@ -81,4 +93,23 @@ export function createTimeController(interval) {
       onPlay()
     },
   }
+}
+
+export function registerClickEventToCanvas(canvas) {
+  canvas.addEventListener('click', (event) => {
+    const gameMapState = getGameMapState()
+    const x = event.pageX - canvas.offsetLeft
+    const y = event.pageY - canvas.offsetTop
+    const targetPosition = [
+      Math.floor((x + (cellSize % x) / cellSize) / cellSize),
+      Math.floor((y + (cellSize % y) / cellSize) / cellSize),
+    ]
+    const index = getIndexByPosition(targetPosition)
+
+    if (gameMapState[index] === 1) {
+      onRemoveBrick(index)
+    } else {
+      onAddBrick(index)
+    }
+  })
 }

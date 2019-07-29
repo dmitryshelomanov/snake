@@ -17,3 +17,8 @@ export const Radio = styled.input.attrs({ type: 'radio' })`
   margin: 0;
   margin-right: 15px;
 `
+
+export const Checkbox = styled.input.attrs({ type: 'checkbox' })`
+  margin: 0;
+  margin-right: 15px;
+`
