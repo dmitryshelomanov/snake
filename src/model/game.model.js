@@ -8,6 +8,8 @@ import {
   $algorithmsStore,
   $gameCollisionStateStore,
   $brickStore,
+  $userInGameStore,
+  $snakeIterator,
   PLACE_TYPE,
   GAME_STATE,
 } from './game.store'
@@ -25,6 +27,8 @@ import {
   onSetCollisionState,
   onAddBrick,
   onRemoveBrick,
+  onAddUserToGame,
+  onRemoveUserFromGame,
 } from './game.events'
 import {
   setScore,
@@ -32,7 +36,18 @@ import {
   setDirection,
   addPeaceOfSnake,
   setCrash,
+  Snake,
 } from './snake'
+
+function getUserSnake() {
+  return Snake.build(randomPosition(), {
+    colors: {
+      head: 'rgb(0, 132, 255)',
+      tail: 'rgba(0, 132, 255, 0.7)',
+    },
+    id: 'user',
+  })
+}
 
 $gameStateStore
   .on(onPlay, () => GAME_STATE.IS_PLAY)
@@ -78,6 +93,10 @@ $snakesStore
       return snake
     })
   )
+  .on(onAddUserToGame, (snakes) => [...snakes, getUserSnake()])
+  .on(onRemoveUserFromGame, (snakes) =>
+    snakes.filter((snake) => snake.id !== 'user')
+  )
   .reset(onRestart)
 
 $gameMapStore
@@ -111,4 +130,16 @@ $brickStore
 
     return bricks.filter(([x1, y1]) => x1 !== x || y1 !== y)
   })
+  .reset(onRestart)
+
+$userInGameStore
+  .on(onAddUserToGame, () => true)
+  .on(onRemoveUserFromGame, () => false)
+  .reset(onRestart)
+
+$snakeIterator
+  .on(onAddUserToGame, (snakeIds) => [...snakeIds, 'user'])
+  .on(onRemoveUserFromGame, (snakeIds) =>
+    snakeIds.filter((id) => id !== 'user')
+  )
   .reset(onRestart)

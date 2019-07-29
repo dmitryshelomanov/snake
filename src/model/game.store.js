@@ -29,13 +29,6 @@ export const $snakesStore = createStore([
     },
     id: 'ai',
   }),
-  Snake.build(randomPosition(), {
-    colors: {
-      head: 'rgb(0, 132, 255)',
-      tail: 'rgba(0, 132, 255, 0.7)',
-    },
-    id: 'user',
-  }),
 ])
 
 export const $gameCollisionStateStore = createStore(true)
@@ -68,3 +61,5 @@ export const $activeAlgorithmStore = $algorithmsStore.map((algorithms) =>
 )
 
 export const $brickStore = createStore([])
+
+export const $userInGameStore = createStore(false)
