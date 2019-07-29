@@ -137,14 +137,16 @@ function main(canvas, context) {
   convigureCanvas(canvas, localSize, globalSize)
 
   function eatApple(snake) {
-    oneToOneCollision(headSnake(snake), getAppleState(), () => {
-      const peaceOfSnake = getNextPositionByDirection(
-        headSnake(snake),
-        snake.direction
-      )
+    if (!snake.isCrash) {
+      oneToOneCollision(headSnake(snake), getAppleState(), () => {
+        const peaceOfSnake = getNextPositionByDirection(
+          headSnake(snake),
+          snake.direction
+        )
 
-      onEatApple({ id: snake.id, peaceOfSnake })
-    })
+        onEatApple({ id: snake.id, peaceOfSnake })
+      })
+    }
   }
 
   function checkCollision(snake) {
@@ -163,7 +165,7 @@ function main(canvas, context) {
     }
   }
 
-  nextTick.start((isPLay, wasFirstRender) => {
+  nextTick.start((isPLay) => {
     function updateGameMap(placeType) {
       return (index) => {
         onUpdateGameMap({ index, placeType })
@@ -182,9 +184,9 @@ function main(canvas, context) {
 
     renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
 
-    if (!wasFirstRender || isPLay) {
-      const apple = getAppleState()
+    const apple = getAppleState()
 
+    if (isPLay) {
       getSnakesState().forEach((snake) => {
         if (!snake.isCrash) {
           updaters[snake.id](snake, state)
@@ -195,16 +197,18 @@ function main(canvas, context) {
 
       snakes.forEach(eatApple)
       snakes.forEach(checkCollision)
-
-      clearSnakes(context, state.prevSnakes, cearGameMap)
-      clearCells(context, [state.prevApple], cearGameMap)
-
-      state.prevSnakes = snakes
-      state.prevApple = apple
-
-      renderSnakes(context, snakes, updateGameMap(PLACE_TYPE.GAME_OBJECT))
-      renderApple(context, apple, updateGameMap(PLACE_TYPE.FOOD))
     }
+
+    const snakes = getSnakesState()
+
+    clearCells(context, [state.prevApple], cearGameMap)
+    clearSnakes(context, state.prevSnakes, cearGameMap)
+
+    state.prevSnakes = snakes
+    state.prevApple = apple
+
+    renderApple(context, apple, updateGameMap(PLACE_TYPE.FOOD))
+    renderSnakes(context, snakes, updateGameMap(PLACE_TYPE.GAME_OBJECT))
   })
 
   drawGrid(context)

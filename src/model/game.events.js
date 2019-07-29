@@ -19,3 +19,6 @@ export const onSetCollisionState = createEvent('set collision state')
 
 export const onAddBrick = createEvent('add brick')
 export const onRemoveBrick = createEvent('remove brick')
+
+export const onAddUserToGame = createEvent('add user to game')
+export const onRemoveUserFromGame = createEvent('remove user from game')

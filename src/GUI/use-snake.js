@@ -5,7 +5,11 @@ export function useSnakeIsCrahedState(snakeId) {
   const isCrash = useStoreMap({
     store: $snakesStore,
     keys: [snakeId],
-    fn: (snakes, [id]) => snakes.find((s) => s.id === id).isCrash,
+    fn: (snakes, [id]) => {
+      const snake = snakes.find((s) => s.id === id)
+
+      return snake ? snake.isCrash : undefined
+    },
   })
 
   return isCrash
@@ -15,7 +19,11 @@ export function useSnakeScoreState(snakeId) {
   const score = useStoreMap({
     store: $snakesStore,
     keys: [snakeId],
-    fn: (snakes, [id]) => snakes.find((s) => s.id === id).score,
+    fn: (snakes, [id]) => {
+      const snake = snakes.find((s) => s.id === id)
+
+      return snake ? snake.score : undefined
+    },
   })
 
   return score
