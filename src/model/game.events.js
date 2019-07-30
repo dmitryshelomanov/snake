@@ -22,3 +22,7 @@ export const onRemoveBrick = createEvent('remove brick')
 
 export const onAddUserToGame = createEvent('add user to game')
 export const onRemoveUserFromGame = createEvent('remove user from game')
+
+export const onSetAiPathVisibleToTarget = createEvent(
+  'set visible path to target'
+)

@@ -63,3 +63,5 @@ export const $activeAlgorithmStore = $algorithmsStore.map((algorithms) =>
 export const $brickStore = createStore([])
 
 export const $userInGameStore = createStore(false)
+
+export const $showAIPathToTargetStore = createStore(false)
