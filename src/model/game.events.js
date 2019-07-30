@@ -26,3 +26,5 @@ export const onRemoveUserFromGame = createEvent('remove user from game')
 export const onSetAiPathVisibleToTarget = createEvent(
   'set visible path to target'
 )
+
+export const onSetIndexesVisible = createEvent('set visible indexes')
