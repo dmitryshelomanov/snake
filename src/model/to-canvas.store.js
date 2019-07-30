@@ -7,6 +7,7 @@ import {
   $gameCollisionStateStore,
   $brickStore,
   $showAIPathToTargetStore,
+  $indexesVisibleStore,
 } from './game.store'
 
 export const getGameState = () => $gameStateStore.getState()
@@ -25,3 +26,5 @@ export const getBrickState = () => $brickStore.getState()
 
 export const getShowAIPathToTargetState = () =>
   $showAIPathToTargetStore.getState()
+
+export const getIndexesVisibleStore = () => $indexesVisibleStore.getState()

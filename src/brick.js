@@ -1,10 +1,17 @@
-import { drawSquare } from './renderer'
+import { drawSquare, renderText } from './renderer'
 import { borderSize, cellSize } from './config'
 import { convertLocalPositionToGlobal, getIndexByPosition } from './utils'
+import { getIndexesVisibleStore } from './model'
 
 export function renderBrick(context, brick, callback) {
-  callback(getIndexByPosition(brick))
+  const index = getIndexByPosition(brick)
+
+  callback(index)
   drawSquare(context, brick, { color: '#d2b3b3' })
+
+  if (getIndexesVisibleStore()) {
+    renderText(context, index, brick)
+  }
 }
 
 export function renderBricks(context, briks, callback) {

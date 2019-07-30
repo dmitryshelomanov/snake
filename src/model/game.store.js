@@ -65,3 +65,5 @@ export const $brickStore = createStore([])
 export const $userInGameStore = createStore(false)
 
 export const $showAIPathToTargetStore = createStore(false)
+
+export const $indexesVisibleStore = createStore(false)
