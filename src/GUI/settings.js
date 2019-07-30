@@ -5,10 +5,12 @@ import {
   $gameCollisionStateStore,
   $userInGameStore,
   $showAIPathToTargetStore,
+  $indexesVisibleStore,
   onSetCollisionState,
   onAddUserToGame,
   onRemoveUserFromGame,
   onSetAiPathVisibleToTarget,
+  onSetIndexesVisible,
 } from '../model'
 import { Title, Checkbox } from './common'
 
@@ -38,6 +40,7 @@ export function Settings() {
   const collisionState = useStore($gameCollisionStateStore)
   const userInGameStore = useStore($userInGameStore)
   const showAIPathToTargetStore = useStore($showAIPathToTargetStore)
+  const indexesVisibleStore = useStore($indexesVisibleStore)
 
   function onSetCollision() {
     onSetCollisionState(!collisionState)
@@ -45,6 +48,10 @@ export function Settings() {
 
   function onSetAiPathVisible() {
     onSetAiPathVisibleToTarget(!showAIPathToTargetStore)
+  }
+
+  function onSetIndexesVisibleState() {
+    onSetIndexesVisible(!indexesVisibleStore)
   }
 
   function handleChangeUserInGameState() {
@@ -82,6 +89,14 @@ export function Settings() {
             onChange={onSetAiPathVisible}
           />
           <Name htmlFor="path">show ai path to target</Name>
+        </SettingWrapper>
+        <SettingWrapper>
+          <Checkbox
+            id="indexesvisible"
+            checked={indexesVisibleStore}
+            onChange={onSetIndexesVisibleState}
+          />
+          <Name htmlFor="indexesvisible">visible indexes</Name>
         </SettingWrapper>
       </Wrapper>
     </>

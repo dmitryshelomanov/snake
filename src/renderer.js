@@ -5,6 +5,7 @@ import {
   getGlobalSize,
   getIndexByPosition,
 } from './utils'
+import { getIndexesVisibleStore } from './model'
 
 export function drawSquare(
   context,
@@ -47,14 +48,20 @@ export function renderText(context, text, position) {
   const [x, y] = convertLocalPositionToGlobal(position)
 
   context.fillStyle = 'black'
-  context.font = '12px Arial'
+  context.font = '12px Arial bold'
 
   context.fillText(text, x + (cellSize - width) / 2, y + cellSize / 2)
 }
 
 export function renderApple(context, apple, callback) {
+  const index = getIndexByPosition(apple)
+
   callback(getIndexByPosition(apple))
   drawSquare(context, apple, { color: 'rgb(238, 68, 0)' })
+
+  if (getIndexesVisibleStore()) {
+    renderText(context, index, apple)
+  }
 }
 
 function differenceBetweenPath([x, y], [x1, y1]) {
