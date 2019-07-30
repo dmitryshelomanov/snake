@@ -10,6 +10,7 @@ import {
   $brickStore,
   $userInGameStore,
   $snakeIterator,
+  $showAIPathToTargetStore,
   PLACE_TYPE,
   GAME_STATE,
 } from './game.store'
@@ -29,6 +30,7 @@ import {
   onRemoveBrick,
   onAddUserToGame,
   onRemoveUserFromGame,
+  onSetAiPathVisibleToTarget,
 } from './game.events'
 import {
   setScore,
@@ -142,4 +144,8 @@ $snakeIterator
   .on(onRemoveUserFromGame, (snakeIds) =>
     snakeIds.filter((id) => id !== 'user')
   )
+  .reset(onRestart)
+
+$showAIPathToTargetStore
+  .on(onSetAiPathVisibleToTarget, (_, state) => state)
   .reset(onRestart)

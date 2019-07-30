@@ -4,9 +4,11 @@ import { useStore } from 'effector-react'
 import {
   $gameCollisionStateStore,
   $userInGameStore,
+  $showAIPathToTargetStore,
   onSetCollisionState,
   onAddUserToGame,
   onRemoveUserFromGame,
+  onSetAiPathVisibleToTarget,
 } from '../model'
 import { Title, Checkbox } from './common'
 
@@ -35,9 +37,14 @@ export const Name = styled.label`
 export function Settings() {
   const collisionState = useStore($gameCollisionStateStore)
   const userInGameStore = useStore($userInGameStore)
+  const showAIPathToTargetStore = useStore($showAIPathToTargetStore)
 
   function onSetCollision() {
     onSetCollisionState(!collisionState)
+  }
+
+  function onSetAiPathVisible() {
+    onSetAiPathVisibleToTarget(!showAIPathToTargetStore)
   }
 
   function handleChangeUserInGameState() {
@@ -67,6 +74,14 @@ export function Settings() {
             onChange={handleChangeUserInGameState}
           />
           <Name htmlFor="withUser">add user (you) to game</Name>
+        </SettingWrapper>
+        <SettingWrapper>
+          <Checkbox
+            id="path"
+            checked={showAIPathToTargetStore}
+            onChange={onSetAiPathVisible}
+          />
+          <Name htmlFor="path">show ai path to target</Name>
         </SettingWrapper>
       </Wrapper>
     </>

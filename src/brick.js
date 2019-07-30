@@ -20,9 +20,3 @@ export function clearBrick(context, brick, callback) {
   callback(getIndexByPosition(brick))
   context.clearRect(x + borderSize + 2, y + borderSize + 2, size, size)
 }
-
-export function clearBricks(context, briks, callback) {
-  for (const brick of briks) {
-    clearBrick(context, brick, callback)
-  }
-}

@@ -52,3 +52,29 @@ export function renderApple(context, apple, callback) {
   callback(getIndexByPosition(apple))
   drawSquare(context, apple, 'rgb(238, 68, 0)')
 }
+
+function differenceBetweenPath([x, y], [x1, y1]) {
+  const diff = Math.abs(x1 + y1 - (x + y))
+
+  if (diff !== 1) {
+    return [x, y]
+  }
+
+  return [x1, y1]
+}
+
+export function renderPath(context, paths = []) {
+  for (let i = 0; i < paths.length - 1; i++) {
+    const [x, y] = convertLocalPositionToGlobal(paths[i])
+    const [x1, y1] = convertLocalPositionToGlobal(
+      differenceBetweenPath(paths[i], paths[i + 1])
+    )
+
+    context.beginPath()
+    context.strokeStyle = 'rgb(255, 255, 0)'
+    context.lineWidth = 2
+    context.moveTo(x + cellSize / 2, y + cellSize / 2)
+    context.lineTo(x1 + cellSize / 2, y1 + cellSize / 2)
+    context.stroke()
+  }
+}
