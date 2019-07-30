@@ -58,7 +58,8 @@ export function getDirectionByPosition(currentPosition, nextPosition) {
   return DIRECTIONS.RIGHT
 }
 
-export function createTimeController(interval) {
+export function createTimeController(fps) {
+  const fpsInterval = 1000 / fps
   let callback = null
   let now = null
   let then = Date.now()
@@ -71,8 +72,8 @@ export function createTimeController(interval) {
 
     requestAnimationFrame(loop)
 
-    if (delta > interval) {
-      then = now - (delta % interval)
+    if (delta > fpsInterval) {
+      then = now - (delta % fpsInterval)
 
       if (callback) {
         callback(isPLay, wasFirstRender)
