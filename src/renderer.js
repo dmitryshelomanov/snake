@@ -8,34 +8,34 @@ import {
 
 export function drawSquare(context, position, color = 'rgb(152, 251, 152)') {
   const [x, y] = convertLocalPositionToGlobal(position)
+  const size = cellSize - borderSize * 2
 
   context.fillStyle = color
-  context.fillRect(
-    x + borderSize + 2,
-    y + borderSize + 2,
-    cellSize - borderSize * 4,
-    cellSize - borderSize * 4
-  )
+  context.fillRect(x + borderSize * 2, y + borderSize * 2, size, size)
 }
 
-export function drawGrid(context) {
+export function buildGrid(context) {
+  const grid = new Path2D()
   const localSize = getLocalSize(pageWidth, pageHeight)
   const globalSize = getGlobalSize(localSize.w, localSize.h)
 
-  context.lineWidth = borderSize
-  context.strokeStyle = 'rgba(0, 0, 0, 0.2)'
-
   for (let i = 0; i <= localSize.w; i++) {
-    context.moveTo(i * cellSize + borderSize, 0)
-    context.lineTo(i * cellSize + borderSize, globalSize.h)
+    grid.moveTo(i * cellSize + borderSize, 0)
+    grid.lineTo(i * cellSize + borderSize, globalSize.h)
   }
 
   for (let i = 0; i <= localSize.h; i++) {
-    context.moveTo(0, i * cellSize + borderSize)
-    context.lineTo(globalSize.w, i * cellSize + borderSize)
+    grid.moveTo(0, i * cellSize + borderSize)
+    grid.lineTo(globalSize.w, i * cellSize + borderSize)
   }
 
-  context.stroke()
+  return {
+    grid,
+    applyStyles: () => {
+      context.lineWidth = borderSize
+      context.strokeStyle = 'rgba(0, 0, 0, 0.2)'
+    },
+  }
 }
 
 export function renderText(context, text, position) {
@@ -46,16 +46,6 @@ export function renderText(context, text, position) {
   context.font = '12px Arial'
 
   context.fillText(text, x + (cellSize - width) / 2, y + cellSize / 2)
-}
-
-export function clearCells(context, cells, callback) {
-  for (const element of cells) {
-    const size = cellSize - borderSize * 4
-    const [x, y] = convertLocalPositionToGlobal(element)
-
-    callback(getIndexByPosition(element))
-    context.clearRect(x + borderSize + 2, y + borderSize + 2, size, size)
-  }
 }
 
 export function renderApple(context, apple, callback) {

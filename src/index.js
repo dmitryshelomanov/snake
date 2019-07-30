@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/prevent-abbreviations */
 import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
-import { drawGrid, clearCells, renderApple } from './renderer'
-import { pageHeight, pageWidth, interval, DIRECTIONS } from './config'
+import { buildGrid, renderApple } from './renderer'
+import { pageHeight, pageWidth, fps, DIRECTIONS } from './config'
 import {
   createTimeController,
   getNextPositionByDirection,
@@ -29,8 +29,8 @@ import {
   onMoveSnake,
   onSetDirectionForSnake,
 } from './model'
-import { clearSnakes, renderSnakes } from './snake'
-import { renderBricks, clearBricks } from './brick'
+import { renderSnakes } from './snake'
+import { renderBricks } from './brick'
 import 'reset-css'
 
 const gameInput = keyboradFactory()
@@ -122,6 +122,7 @@ function main(canvas, context) {
   renderGUI()
   registerClickEventToCanvas(canvas)
 
+  const gridData = buildGrid(context)
   const localSize = getLocalSize(pageWidth, pageHeight)
   const globalSize = getGlobalSize(localSize.w, localSize.h)
 
@@ -132,7 +133,7 @@ function main(canvas, context) {
     prevBriks: [],
   }
 
-  const nextTick = createTimeController(interval)
+  const nextTick = createTimeController(fps)
 
   convigureCanvas(canvas, localSize, globalSize)
 
@@ -165,6 +166,24 @@ function main(canvas, context) {
     }
   }
 
+  function clearCell(position) {
+    const index = getIndexByPosition(position)
+
+    onClearGameMap(index)
+  }
+
+  function clearGame() {
+    context.clearRect(0, 0, globalSize.w, globalSize.h)
+    clearCell([state.prevApple])
+    state.prevSnakes.forEach((snake) => {
+      snake.body.forEach(clearCell)
+    })
+  }
+
+  function clearBricks() {
+    state.prevBriks.forEach(clearCell)
+  }
+
   nextTick.start((isPLay) => {
     function updateGameMap(placeType) {
       return (index) => {
@@ -172,11 +191,7 @@ function main(canvas, context) {
       }
     }
 
-    function cearGameMap(i) {
-      onClearGameMap(i)
-    }
-
-    clearBricks(context, state.prevBriks, cearGameMap)
+    clearBricks()
 
     const bricks = getBrickState()
 
@@ -199,19 +214,19 @@ function main(canvas, context) {
       snakes.forEach(checkCollision)
     }
 
-    const snakes = getSnakesState()
+    clearGame()
 
-    clearCells(context, [state.prevApple], cearGameMap)
-    clearSnakes(context, state.prevSnakes, cearGameMap)
+    const snakes = getSnakesState()
 
     state.prevSnakes = snakes
     state.prevApple = apple
 
     renderApple(context, apple, updateGameMap(PLACE_TYPE.FOOD))
     renderSnakes(context, snakes, updateGameMap(PLACE_TYPE.GAME_OBJECT))
-  })
 
-  drawGrid(context)
+    gridData.applyStyles()
+    context.stroke(gridData.grid)
+  })
 }
 
 const canvas = document.querySelector('canvas')
