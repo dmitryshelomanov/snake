@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/prevent-abbreviations */
 import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
-import { buildGrid, renderApple } from './renderer'
+import { buildGrid, renderApple, renderPath } from './renderer'
 import { pageHeight, pageWidth, fps, DIRECTIONS } from './config'
 import {
   createTimeController,
@@ -22,6 +22,7 @@ import {
   getActiveAlgorithmStore,
   getGameCollisionState,
   getBrickState,
+  getShowAIPathToTargetState,
   onClearGameMap,
   onUpdateGameMap,
   onCrashSnake,
@@ -55,6 +56,8 @@ const updaters = {
       nextState.graph,
       canTraverse
     )
+
+    nextState.path = result.path
 
     const nextPosition =
       result.path[0] ||
@@ -131,6 +134,7 @@ function main(canvas, context) {
     prevSnakes: [],
     prevApple: [0, 0],
     prevBriks: [],
+    path: [],
   }
 
   const nextTick = createTimeController(fps)
@@ -185,19 +189,13 @@ function main(canvas, context) {
   }
 
   nextTick.start((isPLay) => {
+    const showAIPathToTargetState = getShowAIPathToTargetState()
+
     function updateGameMap(placeType) {
       return (index) => {
         onUpdateGameMap({ index, placeType })
       }
     }
-
-    clearBricks()
-
-    const bricks = getBrickState()
-
-    state.prevBriks = bricks
-
-    renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
 
     const apple = getAppleState()
 
@@ -214,7 +212,12 @@ function main(canvas, context) {
       snakes.forEach(checkCollision)
     }
 
+    const bricks = getBrickState()
+
+    state.prevBriks = bricks
+
     clearGame()
+    clearBricks()
 
     const snakes = getSnakesState()
 
@@ -222,7 +225,12 @@ function main(canvas, context) {
     state.prevApple = apple
 
     renderApple(context, apple, updateGameMap(PLACE_TYPE.FOOD))
+    renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
     renderSnakes(context, snakes, updateGameMap(PLACE_TYPE.GAME_OBJECT))
+
+    if (showAIPathToTargetState) {
+      renderPath(context, state.path)
+    }
 
     gridData.applyStyles()
     context.stroke(gridData.grid)
