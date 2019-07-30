@@ -4,7 +4,7 @@ import { convertLocalPositionToGlobal, getIndexByPosition } from './utils'
 
 export function renderBrick(context, brick, callback) {
   callback(getIndexByPosition(brick))
-  drawSquare(context, brick, '#d2b3b3')
+  drawSquare(context, brick, { color: '#d2b3b3' })
 }
 
 export function renderBricks(context, briks, callback) {
