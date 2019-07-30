@@ -8,7 +8,9 @@ export function drawSnake(context, snake, callback) {
     const crashedColor = isHead ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.6)'
 
     callback(getIndexByPosition(snake.body[i]), snake)
-    drawSquare(context, snake.body[i], snake.isCrash ? crashedColor : color)
+    drawSquare(context, snake.body[i], {
+      color: snake.isCrash ? crashedColor : color,
+    })
   }
 }
 

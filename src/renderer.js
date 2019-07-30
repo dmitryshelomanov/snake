@@ -6,7 +6,11 @@ import {
   getIndexByPosition,
 } from './utils'
 
-export function drawSquare(context, position, color = 'rgb(152, 251, 152)') {
+export function drawSquare(
+  context,
+  position,
+  { color = 'rgb(152, 251, 152)' }
+) {
   const [x, y] = convertLocalPositionToGlobal(position)
   const size = cellSize - borderSize * 2
 
@@ -50,7 +54,7 @@ export function renderText(context, text, position) {
 
 export function renderApple(context, apple, callback) {
   callback(getIndexByPosition(apple))
-  drawSquare(context, apple, 'rgb(238, 68, 0)')
+  drawSquare(context, apple, { color: 'rgb(238, 68, 0)' })
 }
 
 function differenceBetweenPath([x, y], [x1, y1]) {
