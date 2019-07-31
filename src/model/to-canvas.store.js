@@ -8,6 +8,7 @@ import {
   $brickStore,
   $showAIPathToTargetStore,
   $indexesVisibleStore,
+  $processedItemsVisibleStore,
 } from './game.store'
 
 export const getGameState = () => $gameStateStore.getState()
@@ -28,3 +29,6 @@ export const getShowAIPathToTargetState = () =>
   $showAIPathToTargetStore.getState()
 
 export const getIndexesVisibleStore = () => $indexesVisibleStore.getState()
+
+export const getProcessedItemsVisibleState = () =>
+  $processedItemsVisibleStore.getState()

@@ -28,3 +28,7 @@ export const onSetAiPathVisibleToTarget = createEvent(
 )
 
 export const onSetIndexesVisible = createEvent('set visible indexes')
+
+export const onSetProcessedItemsVisible = createEvent(
+  'set processed visible state'
+)
