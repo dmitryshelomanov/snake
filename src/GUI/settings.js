@@ -6,11 +6,13 @@ import {
   $userInGameStore,
   $showAIPathToTargetStore,
   $indexesVisibleStore,
+  $processedItemsVisibleStore,
   onSetCollisionState,
   onAddUserToGame,
   onRemoveUserFromGame,
   onSetAiPathVisibleToTarget,
   onSetIndexesVisible,
+  onSetProcessedItemsVisible,
 } from '../model'
 import { Title, Checkbox } from './common'
 
@@ -41,6 +43,7 @@ export function Settings() {
   const userInGameStore = useStore($userInGameStore)
   const showAIPathToTargetStore = useStore($showAIPathToTargetStore)
   const indexesVisibleStore = useStore($indexesVisibleStore)
+  const processedItemsVisibleSate = useStore($processedItemsVisibleStore)
 
   function onSetCollision() {
     onSetCollisionState(!collisionState)
@@ -52,6 +55,10 @@ export function Settings() {
 
   function onSetIndexesVisibleState() {
     onSetIndexesVisible(!indexesVisibleStore)
+  }
+
+  function onSetProcessedVisibleState() {
+    onSetProcessedItemsVisible(!processedItemsVisibleSate)
   }
 
   function handleChangeUserInGameState() {
@@ -97,6 +104,14 @@ export function Settings() {
             onChange={onSetIndexesVisibleState}
           />
           <Name htmlFor="indexesvisible">visible indexes</Name>
+        </SettingWrapper>
+        <SettingWrapper>
+          <Checkbox
+            id="processed"
+            checked={processedItemsVisibleSate}
+            onChange={onSetProcessedVisibleState}
+          />
+          <Name htmlFor="processed">show processed cells</Name>
         </SettingWrapper>
       </Wrapper>
     </>

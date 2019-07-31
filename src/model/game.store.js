@@ -67,3 +67,5 @@ export const $userInGameStore = createStore(false)
 export const $showAIPathToTargetStore = createStore(false)
 
 export const $indexesVisibleStore = createStore(false)
+
+export const $processedItemsVisibleStore = createStore(false)
