@@ -86,7 +86,7 @@ export function createTimeController(fps) {
   return {
     start: (fn) => {
       callback = fn
-      requestAnimationFrame(loop)
+      loop()
     },
     pause: () => {
       onStop()
