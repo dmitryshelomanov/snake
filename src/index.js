@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/prevent-abbreviations */
 import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
-import { buildGrid, renderApple, renderPath } from './renderer'
+import { buildGrid, renderApple, renderPath, drawSquare } from './renderer'
 import { pageHeight, pageWidth, fps, DIRECTIONS } from './config'
 import {
   createTimeController,
@@ -29,6 +29,7 @@ import {
   onEatApple,
   onMoveSnake,
   onSetDirectionForSnake,
+  getProcessedItemsVisibleState,
 } from './model'
 import { renderSnakes } from './snake'
 import { renderBricks } from './brick'
@@ -58,6 +59,7 @@ const updaters = {
     )
 
     nextState.path = result.path
+    nextState.processed = result.processed
 
     const nextPosition =
       result.path[0] ||
@@ -135,6 +137,7 @@ function main(canvas, context) {
     prevApple: [0, 0],
     prevBriks: [],
     path: [],
+    processed: [],
   }
 
   const nextTick = createTimeController(fps)
@@ -188,6 +191,12 @@ function main(canvas, context) {
     state.prevBriks.forEach(clearCell)
   }
 
+  function renderProcessedCell() {
+    state.processed.forEach((position) => {
+      drawSquare(context, position, { color: 'rgba(175, 238, 238, 0.3)' })
+    })
+  }
+
   nextTick.start((isPLay) => {
     const showAIPathToTargetState = getShowAIPathToTargetState()
 
@@ -223,6 +232,10 @@ function main(canvas, context) {
 
     state.prevSnakes = snakes
     state.prevApple = apple
+
+    if (getProcessedItemsVisibleState()) {
+      renderProcessedCell()
+    }
 
     renderApple(context, apple, updateGameMap(PLACE_TYPE.FOOD))
     renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))

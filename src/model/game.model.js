@@ -12,6 +12,7 @@ import {
   $snakeIterator,
   $showAIPathToTargetStore,
   $indexesVisibleStore,
+  $processedItemsVisibleStore,
   PLACE_TYPE,
   GAME_STATE,
 } from './game.store'
@@ -33,6 +34,7 @@ import {
   onRemoveUserFromGame,
   onSetAiPathVisibleToTarget,
   onSetIndexesVisible,
+  onSetProcessedItemsVisible,
 } from './game.events'
 import {
   setScore,
@@ -154,4 +156,8 @@ $showAIPathToTargetStore
 
 $indexesVisibleStore
   .on(onSetIndexesVisible, (_, state) => state)
+  .reset(onRestart)
+
+$processedItemsVisibleStore
+  .on(onSetProcessedItemsVisible, (_, state) => state)
   .reset(onRestart)
