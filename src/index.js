@@ -11,7 +11,7 @@ import {
 import { oneToOneCollision, checkBounds } from './collision'
 import { convigureCanvas } from './canvas'
 import { headSnake } from './model/snake'
-import { Graph } from './algorithms'
+import { Graph, depthFirstSearch, breadthFirstSearch } from './algorithms'
 import { keyboradFactory, KEYS } from './keyboard'
 import { renderGUI } from './GUI'
 import {
@@ -34,6 +34,10 @@ import {
 import { renderSnakes } from './snake'
 import { renderBricks } from './brick'
 import 'reset-css'
+
+// console.log(depthFirstSearch(0, 8, new Graph({ w: 3, h: 3 }), () => true))
+
+// console.log(breadthFirstSearch(0, 8, new Graph({ w: 3, h: 3 }), () => true))
 
 const gameInput = keyboradFactory()
 
@@ -64,6 +68,8 @@ const updaters = {
     const nextPosition =
       result.path[0] ||
       getNextPositionByDirection(headSnake(self), self.direction)
+
+    console.log({ path: result.path })
 
     onSetDirectionForSnake({
       id: self.id,
