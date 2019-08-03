@@ -1,8 +1,7 @@
 /* eslint-disable no-loop-func */
-import { getPositionByIndex } from '../utils'
 import { restorePath } from './restore-path'
 
-export function depthFirstSearch(startIndex, endIndex, graph, canTraverse) {
+export function depthFirstSearch(startIndex, endIndex, graph, { canTraverse }) {
   const stack = [startIndex]
   const processed = new Map([[startIndex, true]])
   const parent = {}
@@ -10,25 +9,27 @@ export function depthFirstSearch(startIndex, endIndex, graph, canTraverse) {
 
   while (!isTraverse && stack.length > 0) {
     const currentIndex = stack.shift()
+    const neigbors = graph.getNeighbors(currentIndex)
 
-    graph
-      .getNeighbors(currentIndex)
-      .filter((index) => !processed.has(index) && canTraverse(index))
-      .forEach((index) => {
-        parent[index] = currentIndex
-        stack.unshift(index)
-        processed.set(index, true)
+    // eslint-disable-next-line unicorn/no-for-loop
+    for (let i = 0; i < neigbors.length; i++) {
+      const next = neigbors[i]
 
-        if (index === endIndex) {
+      if (canTraverse(next) && !processed.has(next)) {
+        parent[next] = currentIndex
+        stack.unshift(next)
+        processed.set(next, true)
+
+        if (endIndex === next) {
           isTraverse = true
+          break
         }
-      })
+      }
+    }
   }
 
   return {
-    path: isTraverse
-      ? restorePath(endIndex, startIndex, parent).map(getPositionByIndex)
-      : [],
-    processed: [...processed.keys()].map(getPositionByIndex),
+    path: isTraverse ? restorePath(endIndex, startIndex, parent) : [],
+    processed: [...processed.keys()],
   }
 }
