@@ -1,5 +1,5 @@
 import { createStore } from 'effector'
-import { breadthFirstSearch, depthFirstSearch } from '../algorithms'
+import { breadthFirstSearch, depthFirstSearch, dijkstra } from '../algorithms'
 import { randomPosition } from '../utils'
 import { Snake } from './snake'
 
@@ -52,6 +52,11 @@ export const $algorithmsStore = createStore({
       id: 'depth',
       alg: depthFirstSearch,
       name: 'Depth first search',
+    },
+    {
+      id: 'dijkstra',
+      alg: dijkstra,
+      name: 'Dijkstra algorighm',
     },
   ],
 })
