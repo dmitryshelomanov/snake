@@ -1,7 +1,12 @@
 /* eslint-disable unicorn/prevent-abbreviations */
-import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
+import {
+  getLocalSize,
+  getGlobalSize,
+  getIndexByPosition,
+  getPositionByIndex,
+} from './utils'
 import { buildGrid, renderApple, renderPath, drawSquare } from './renderer'
-import { pageHeight, pageWidth, fps, DIRECTIONS } from './config'
+import { pageHeight, pageWidth, fps, DIRECTIONS, boardLength } from './config'
 import {
   createTimeController,
   getNextPositionByDirection,
@@ -11,7 +16,7 @@ import {
 import { oneToOneCollision, checkBounds } from './collision'
 import { convigureCanvas } from './canvas'
 import { headSnake } from './model/snake'
-import { Graph, depthFirstSearch, breadthFirstSearch } from './algorithms'
+import { Graph } from './algorithms'
 import { keyboradFactory, KEYS } from './keyboard'
 import { renderGUI } from './GUI'
 import {
@@ -35,11 +40,9 @@ import { renderSnakes } from './snake'
 import { renderBricks } from './brick'
 import 'reset-css'
 
-// console.log(depthFirstSearch(0, 8, new Graph({ w: 3, h: 3 }), () => true))
-
-// console.log(breadthFirstSearch(0, 8, new Graph({ w: 3, h: 3 }), () => true))
-
 const gameInput = keyboradFactory()
+
+const costs = Array.from({ length: boardLength }, (_, i) => 1)
 
 const updaters = {
   ai: (self, nextState) => {
@@ -53,23 +56,31 @@ const updaters = {
         : [PLACE_TYPE.EMPTY, PLACE_TYPE.FOOD].includes(gameMapState[index])
     }
 
+    function getCostByIndex(index) {
+      return costs[index]
+    }
+
     const apple = getAppleState()
 
     const result = traverseAlgorithm(
       getIndexByPosition(headSnake(self)),
       getIndexByPosition(apple),
       nextState.graph,
-      canTraverse
+      {
+        canTraverse,
+        getCostByIndex,
+      }
     )
 
-    nextState.path = result.path
-    nextState.processed = result.processed
+    const pathPositions = result.path.map(getPositionByIndex)
+    const processedPositions = result.processed.map(getPositionByIndex)
+
+    nextState.path = pathPositions
+    nextState.processed = processedPositions
 
     const nextPosition =
-      result.path[0] ||
+      pathPositions[0] ||
       getNextPositionByDirection(headSnake(self), self.direction)
-
-    console.log({ path: result.path })
 
     onSetDirectionForSnake({
       id: self.id,
@@ -199,7 +210,7 @@ function main(canvas, context) {
 
   function renderProcessedCell() {
     state.processed.forEach((position) => {
-      drawSquare(context, position, { color: 'rgba(175, 238, 238, 0.3)' })
+      drawSquare(context, position, { color: 'rgba(175, 238, 238, 0.8)' })
     })
   }
 

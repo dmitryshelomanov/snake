@@ -1,8 +1,12 @@
 /* eslint-disable no-loop-func */
-import { getPositionByIndex } from '../utils'
 import { restorePath } from './restore-path'
 
-export function breadthFirstSearch(startIndex, endIndex, graph, canTraverse) {
+export function breadthFirstSearch(
+  startIndex,
+  endIndex,
+  graph,
+  { canTraverse }
+) {
   const queue = [startIndex]
   const processed = new Map()
   const parent = {}
@@ -10,25 +14,27 @@ export function breadthFirstSearch(startIndex, endIndex, graph, canTraverse) {
 
   while (!isTraverse && queue.length > 0) {
     const currentIndex = queue.shift()
+    const neigbors = graph.getNeighbors(currentIndex)
 
-    graph
-      .getNeighbors(currentIndex)
-      .filter((index) => canTraverse(index) && !processed.has(index))
-      .forEach((index) => {
-        queue.push(index)
-        processed.set(index, true)
-        parent[index] = currentIndex
+    // eslint-disable-next-line unicorn/no-for-loop
+    for (let i = 0; i < neigbors.length; i++) {
+      const next = neigbors[i]
 
-        if (endIndex === index) {
+      if (canTraverse(next) && !processed.has(next)) {
+        queue.push(next)
+        processed.set(next, true)
+        parent[next] = currentIndex
+
+        if (endIndex === next) {
           isTraverse = true
+          break
         }
-      })
+      }
+    }
   }
 
   return {
-    path: isTraverse
-      ? restorePath(endIndex, startIndex, parent).map(getPositionByIndex)
-      : [],
-    processed: [...processed.keys()].map(getPositionByIndex),
+    path: isTraverse ? restorePath(endIndex, startIndex, parent) : [],
+    processed: [...processed.keys()],
   }
 }
