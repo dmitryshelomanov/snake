@@ -4,6 +4,7 @@ import {
   depthFirstSearch,
   dijkstra,
   greedy,
+  aStar,
 } from '../algorithms'
 import { manhattanDistance, chebyshevDistance } from '../algorithms/heuristic'
 import { randomPosition } from '../utils'
@@ -68,6 +69,24 @@ export const $algorithmsStore = createStore({
       id: 'greedy',
       alg: greedy,
       name: 'Greedy algorighm (has heuristic)',
+      activeHeuristic: 'manhattan',
+      heuristic: [
+        {
+          id: 'manhattan',
+          name: 'Manhattan',
+          alg: manhattanDistance,
+        },
+        {
+          id: 'chebyshev',
+          name: 'ChebyshevDistance',
+          alg: chebyshevDistance,
+        },
+      ],
+    },
+    {
+      id: 'aStar',
+      alg: aStar,
+      name: 'A* algorighm (has heuristic)',
       activeHeuristic: 'manhattan',
       heuristic: [
         {
