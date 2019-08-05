@@ -33,3 +33,5 @@ export const onSetIndexesVisible = createEvent('set visible indexes')
 export const onSetProcessedItemsVisible = createEvent(
   'set processed visible state'
 )
+
+export const onToggleLoggerState = createEvent('on toggle logger')

@@ -1,18 +1,20 @@
 /* eslint-disable no-loop-func */
 import PriorityQueue from 'fastpriorityqueue'
+import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
 
 export function dijkstra(
   startIndex,
   endIndex,
   graph,
-  { canTraverse, getCostByIndex }
+  { canTraverse, getCostByIndex, withLogger = false }
 ) {
   const queue = new PriorityQueue((a, b) => a.weight < b.weight)
   const processed = new Map()
   const parent = {}
   const costFar = {}
   let isTraverse = false
+  const logger = createOperationLogger('dijkstra')
 
   queue.add({ index: startIndex, weight: 0 })
   costFar[startIndex] = 0
@@ -39,9 +41,15 @@ export function dijkstra(
             isTraverse = true
             break
           }
+
+          logger.increment()
         }
       }
     }
+  }
+
+  if (withLogger) {
+    logger.log()
   }
 
   return {

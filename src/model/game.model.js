@@ -13,6 +13,7 @@ import {
   $showAIPathToTargetStore,
   $indexesVisibleStore,
   $processedItemsVisibleStore,
+  $enableLoggerStore,
   PLACE_TYPE,
   GAME_STATE,
 } from './game.store'
@@ -36,6 +37,7 @@ import {
   onSetIndexesVisible,
   onSetProcessedItemsVisible,
   onChangeHeuristic,
+  onToggleLoggerState,
 } from './game.events'
 import {
   setScore,
@@ -175,3 +177,5 @@ $indexesVisibleStore
 $processedItemsVisibleStore
   .on(onSetProcessedItemsVisible, (_, state) => state)
   .reset(onRestart)
+
+$enableLoggerStore.on(onToggleLoggerState, (_, state) => state).reset(onRestart)

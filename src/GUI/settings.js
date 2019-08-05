@@ -7,12 +7,14 @@ import {
   $showAIPathToTargetStore,
   $indexesVisibleStore,
   $processedItemsVisibleStore,
+  $enableLoggerStore,
   onSetCollisionState,
   onAddUserToGame,
   onRemoveUserFromGame,
   onSetAiPathVisibleToTarget,
   onSetIndexesVisible,
   onSetProcessedItemsVisible,
+  onToggleLoggerState,
 } from '../model'
 import { Title, Checkbox } from './common'
 
@@ -44,6 +46,7 @@ export function Settings() {
   const showAIPathToTargetStore = useStore($showAIPathToTargetStore)
   const indexesVisibleStore = useStore($indexesVisibleStore)
   const processedItemsVisibleSate = useStore($processedItemsVisibleStore)
+  const withLogger = useStore($enableLoggerStore)
 
   function onSetCollision() {
     onSetCollisionState(!collisionState)
@@ -67,6 +70,10 @@ export function Settings() {
     } else {
       onAddUserToGame()
     }
+  }
+
+  function toggleLoggerState() {
+    onToggleLoggerState(!withLogger)
   }
 
   return (
@@ -112,6 +119,14 @@ export function Settings() {
             onChange={onSetProcessedVisibleState}
           />
           <Name htmlFor="processed">show processed cells</Name>
+        </SettingWrapper>
+        <SettingWrapper>
+          <Checkbox
+            id="logger"
+            checked={withLogger}
+            onChange={toggleLoggerState}
+          />
+          <Name htmlFor="logger">show operations count in console</Name>
         </SettingWrapper>
       </Wrapper>
     </>
