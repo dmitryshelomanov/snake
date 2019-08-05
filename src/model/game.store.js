@@ -1,5 +1,11 @@
 import { createStore } from 'effector'
-import { breadthFirstSearch, depthFirstSearch, dijkstra } from '../algorithms'
+import {
+  breadthFirstSearch,
+  depthFirstSearch,
+  dijkstra,
+  greedy,
+} from '../algorithms'
+import { manhattanDistance, chebyshevDistance } from '../algorithms/heuristic'
 import { randomPosition } from '../utils'
 import { Snake } from './snake'
 
@@ -58,11 +64,43 @@ export const $algorithmsStore = createStore({
       alg: dijkstra,
       name: 'Dijkstra algorighm',
     },
+    {
+      id: 'greedy',
+      alg: greedy,
+      name: 'Greedy algorighm (has heuristic)',
+      activeHeuristic: 'manhattan',
+      heuristic: [
+        {
+          id: 'manhattan',
+          name: 'Manhattan',
+          alg: manhattanDistance,
+        },
+        {
+          id: 'chebyshev',
+          name: 'ChebyshevDistance',
+          alg: chebyshevDistance,
+        },
+      ],
+    },
   ],
 })
 
 export const $activeAlgorithmStore = $algorithmsStore.map((algorithms) =>
   algorithms.list.find((alg) => alg.id === algorithms.active)
+)
+
+export const $activeHeuristicForActiveAlgorithm = $activeAlgorithmStore.map(
+  (activeAlgorithm) => {
+    if (activeAlgorithm.heuristic) {
+      const { alg } = activeAlgorithm.heuristic.find(
+        (heuristic) => heuristic.id === activeAlgorithm.activeHeuristic
+      )
+
+      return alg
+    }
+
+    return undefined
+  }
 )
 
 export const $brickStore = createStore([])

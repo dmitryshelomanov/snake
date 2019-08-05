@@ -9,6 +9,7 @@ import {
   $showAIPathToTargetStore,
   $indexesVisibleStore,
   $processedItemsVisibleStore,
+  $activeHeuristicForActiveAlgorithm,
 } from './game.store'
 
 export const getGameState = () => $gameStateStore.getState()
@@ -21,7 +22,10 @@ export const getSnakesState = () => $snakesStore.getState()
 
 export const getGameCollisionState = () => $gameCollisionStateStore.getState()
 
-export const getActiveAlgorithmStore = () => $activeAlgorithmStore.getState()
+export const getActiveAlgorithmStore = () => ({
+  alg: $activeAlgorithmStore.getState().alg,
+  heuristic: $activeHeuristicForActiveAlgorithm.getState(),
+})
 
 export const getBrickState = () => $brickStore.getState()
 
