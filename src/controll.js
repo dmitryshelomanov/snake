@@ -1,14 +1,5 @@
 import { DIRECTIONS, cellSize } from './config'
-import {
-  getGameState,
-  getGameMapState,
-  onPlay,
-  onStop,
-  onAddBrick,
-  onRemoveBrick,
-  PLACE_TYPE,
-  GAME_STATE,
-} from './model'
+import { getGameState, onPlay, onStop, GAME_STATE } from './model'
 import { getIndexByPosition } from './utils'
 
 export function getNextPositionByDirection([x, y], direction) {
@@ -99,7 +90,6 @@ export function createTimeController(fps) {
 
 export function registerClickEventToCanvas(canvas) {
   let isMouseDown = false
-  let isRemove = false
 
   function getTargetIndex(event) {
     const x = event.pageX - canvas.offsetLeft
@@ -112,33 +102,12 @@ export function registerClickEventToCanvas(canvas) {
     return getIndexByPosition(targetPosition)
   }
 
-  function addBrick(index) {
-    const gameMapState = getGameMapState()
-
-    if (gameMapState[index] === PLACE_TYPE.EMPTY) {
-      onAddBrick(index)
-    }
-  }
-
-  function removeBrick(index) {
-    const gameMapState = getGameMapState()
-
-    if (gameMapState[index] === PLACE_TYPE.BRICK) {
-      onRemoveBrick(index)
-    }
-  }
-
   canvas.addEventListener('mousedown', (event) => {
-    const gameMapState = getGameMapState()
     const index = getTargetIndex(event)
 
-    if (gameMapState[index] === PLACE_TYPE.BRICK) {
-      isRemove = true
-      removeBrick(index)
-    } else {
-      isRemove = false
-      addBrick(index)
-    }
+    registerClickEventToCanvas.events
+      .filter((userEvent) => userEvent.type === 'mousedown')
+      .forEach((userEvent) => userEvent.event(index))
 
     isMouseDown = true
   })
@@ -151,11 +120,34 @@ export function registerClickEventToCanvas(canvas) {
     if (isMouseDown) {
       const index = getTargetIndex(event)
 
-      if (isRemove) {
-        removeBrick(index)
-      } else {
-        addBrick(index)
-      }
+      registerClickEventToCanvas.events
+        .filter((userEvent) => userEvent.type === 'mousemove')
+        .forEach((userEvent) => userEvent.event(index))
     }
   })
+}
+
+registerClickEventToCanvas.events = []
+registerClickEventToCanvas.eventsForRegister = []
+
+registerClickEventToCanvas.addMouseDownEvent = function addMouseDownEvent(
+  event
+) {
+  registerClickEventToCanvas.events.push({ type: 'mousedown', event })
+}
+
+registerClickEventToCanvas.addMouseMoveEvent = function addMouseMoveEvent(
+  event
+) {
+  registerClickEventToCanvas.events.push({ type: 'mousemove', event })
+}
+
+registerClickEventToCanvas.addEventsForRegister = function addEventsForRegister(
+  event
+) {
+  registerClickEventToCanvas.eventsForRegister.push(event)
+}
+
+registerClickEventToCanvas.releaseRegistredEvents = function releaseRegistredEvents() {
+  registerClickEventToCanvas.eventsForRegister.forEach((event) => event())
 }

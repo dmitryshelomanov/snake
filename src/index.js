@@ -34,6 +34,7 @@ import 'reset-css'
 function main(canvas, context) {
   renderGUI()
   registerClickEventToCanvas(canvas)
+  registerClickEventToCanvas.releaseRegistredEvents()
 
   const gridData = buildGrid(context)
   const localSize = getLocalSize(pageWidth, pageHeight)
