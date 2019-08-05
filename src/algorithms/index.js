@@ -1,5 +1,6 @@
 export * from './graph'
 export * from './breadth-first-search'
 export * from './depth-first-search'
-export * from './deikstra'
+export * from './dijkstra'
 export * from './greedy'
+export * from './a-star'
