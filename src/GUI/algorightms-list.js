@@ -1,7 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 import { useStore } from 'effector-react'
-import { $algorithmsStore, onChangeAlgorithm } from '../model'
+import {
+  $algorithmsStore,
+  onChangeAlgorithm,
+  onChangeHeuristic,
+} from '../model'
 import { Title, Radio } from './common'
 
 export const Wrapper = styled.ul`
@@ -26,6 +30,55 @@ export const Name = styled.label`
   cursor: pointer;
 `
 
+export const ListWrapper = styled.div``
+
+export const Item = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  ${ListWrapper} {
+    margin-left: 25px;
+  }
+`
+
+export function List({ list = [], active, onChange, name }) {
+  function changeHeuristic(algId) {
+    return ({ target }) => {
+      onChangeHeuristic({ algId, heuristicId: target.id })
+    }
+  }
+
+  return (
+    <ListWrapper>
+      {list.map((alg) => {
+        const algWithHeuristicIsActive = alg.heuristic && active == alg.id
+
+        return (
+          <Item key={alg.id}>
+            <Algorighm>
+              <Radio
+                id={alg.id}
+                name={name}
+                checked={active === alg.id}
+                onChange={onChange}
+              />
+              <Name htmlFor={alg.id}>{alg.name}</Name>
+            </Algorighm>
+            {algWithHeuristicIsActive && (
+              <List
+                list={alg.heuristic}
+                onChange={changeHeuristic(alg.id)}
+                active={alg.activeHeuristic}
+                name={`heuristic-${alg.id}`}
+              />
+            )}
+          </Item>
+        )
+      })}
+    </ListWrapper>
+  )
+}
+
 export function AlgorighmsList() {
   const { active, list } = useStore($algorithmsStore)
 
@@ -37,17 +90,7 @@ export function AlgorighmsList() {
     <>
       <Title>Algorighms list</Title>
       <Wrapper>
-        {list.map((alg) => (
-          <Algorighm key={alg.id}>
-            <Radio
-              id={alg.id}
-              name="algo"
-              checked={active === alg.id}
-              onChange={onChange}
-            />
-            <Name htmlFor={alg.id}>{alg.name}</Name>
-          </Algorighm>
-        ))}
+        <List active={active} list={list} onChange={onChange} name="alg-list" />
       </Wrapper>
     </>
   )
