@@ -15,7 +15,7 @@ export const SideBarWrapper = styled.div`
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 300px;
+  width: 260px;
 
   & div {
     box-sizing: border-box;

@@ -9,33 +9,34 @@ export function dijkstra(
   graph,
   { canTraverse, getCostByIndex, withLogger = false }
 ) {
-  const queue = new PriorityQueue((a, b) => a.weight < b.weight)
+  const queue = new PriorityQueue((a, b) => a[1] < b[1])
   const processed = new Map()
   const parent = {}
   const costFar = {}
   let isTraverse = false
   const logger = createOperationLogger('dijkstra')
 
-  queue.add({ index: startIndex, weight: 0 })
+  queue.add([startIndex, 0])
   costFar[startIndex] = 0
 
   while (!isTraverse && !queue.isEmpty()) {
-    const { index: currentIndex } = queue.poll()
-    const neigbors = graph.getNeighbors(currentIndex)
+    const currentChild = queue.poll()
+    const neigbors = graph.getNeighbors(currentChild[0])
 
     // eslint-disable-next-line unicorn/no-for-loop
     for (let i = 0; i < neigbors.length; i++) {
       const next = neigbors[i]
 
       if (canTraverse(next)) {
-        const nextCost = costFar[currentIndex] + getCostByIndex(next)
+        const nextCost = costFar[currentChild[0]] + getCostByIndex(next)
         const nextCostIsLower = nextCost <= (costFar[next] || Infinity)
 
         if (nextCostIsLower && !processed.has(next)) {
-          queue.add({ index: next, weight: nextCost })
+          queue.add([next, nextCost])
           processed.set(next, true)
           costFar[next] = nextCost
-          parent[next] = currentIndex
+          // eslint-disable-next-line prefer-destructuring
+          parent[next] = currentChild[0]
 
           if (endIndex === next) {
             isTraverse = true
