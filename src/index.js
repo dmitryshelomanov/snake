@@ -1,30 +1,22 @@
 /* eslint-disable unicorn/prevent-abbreviations */
-import {
-  getLocalSize,
-  getGlobalSize,
-  getIndexByPosition,
-  getPositionByIndex,
-} from './utils'
+import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
 import { buildGrid, renderApple, renderPath, drawSquare } from './renderer'
-import { pageHeight, pageWidth, fps, DIRECTIONS, boardLength } from './config'
+import { pageHeight, pageWidth, fps } from './config'
 import {
   createTimeController,
   getNextPositionByDirection,
-  getDirectionByPosition,
   registerClickEventToCanvas,
 } from './controll'
-import { oneToOneCollision, checkBounds } from './collision'
+import { oneToOneCollision } from './collision'
 import { convigureCanvas } from './canvas'
 import { headSnake } from './model/snake'
 import { Graph } from './algorithms'
-import { keyboradFactory, KEYS } from './keyboard'
 import { renderGUI } from './GUI'
 import {
   PLACE_TYPE,
   getAppleState,
   getSnakesState,
   getGameMapState,
-  getActiveAlgorithmStore,
   getGameCollisionState,
   getBrickState,
   getShowAIPathToTargetState,
@@ -32,113 +24,12 @@ import {
   onUpdateGameMap,
   onCrashSnake,
   onEatApple,
-  onMoveSnake,
-  onSetDirectionForSnake,
   getProcessedItemsVisibleState,
 } from './model'
 import { renderSnakes } from './snake'
 import { renderBricks } from './brick'
+import { updaters } from './updaters'
 import 'reset-css'
-
-const gameInput = keyboradFactory()
-
-const costs = Array.from({ length: boardLength }, (_, i) => 1)
-
-const updaters = {
-  ai: (self, nextState) => {
-    const { alg: traverseAlgorithm } = getActiveAlgorithmStore()
-    const gameMapState = getGameMapState()
-    const collisionState = getGameCollisionState()
-
-    function canTraverse(index) {
-      return !collisionState
-        ? true
-        : [PLACE_TYPE.EMPTY, PLACE_TYPE.FOOD].includes(gameMapState[index])
-    }
-
-    function getCostByIndex(index) {
-      return costs[index]
-    }
-
-    const apple = getAppleState()
-
-    const result = traverseAlgorithm(
-      getIndexByPosition(headSnake(self)),
-      getIndexByPosition(apple),
-      nextState.graph,
-      {
-        canTraverse,
-        getCostByIndex,
-      }
-    )
-
-    const pathPositions = result.path.map(getPositionByIndex)
-    const processedPositions = result.processed.map(getPositionByIndex)
-
-    nextState.path = pathPositions
-    nextState.processed = processedPositions
-
-    const nextPosition =
-      pathPositions[0] ||
-      getNextPositionByDirection(headSnake(self), self.direction)
-
-    onSetDirectionForSnake({
-      id: self.id,
-      direction: getDirectionByPosition(headSnake(self), nextPosition),
-    })
-
-    onMoveSnake({ id: self.id, nextPosition })
-  },
-  user: (self) => {
-    const headPosition = getNextPositionByDirection(
-      headSnake(self),
-      self.direction
-    )
-    const nextPosition = checkBounds(headPosition)
-
-    onMoveSnake({ id: self.id, nextPosition })
-
-    if (
-      gameInput.isDown(KEYS.RIGHT_ARROW) &&
-      self.direction !== DIRECTIONS.LEFT
-    ) {
-      onSetDirectionForSnake({
-        id: self.id,
-        direction: DIRECTIONS.RIGHT,
-      })
-    }
-
-    if (
-      gameInput.isDown(KEYS.DOWN_ARROW) &&
-      self.direction !== DIRECTIONS.TOP
-    ) {
-      onSetDirectionForSnake({
-        id: self.id,
-        direction: DIRECTIONS.DOWN,
-      })
-    }
-
-    if (
-      gameInput.isDown(KEYS.LEFT_ARROW) &&
-      self.direction !== DIRECTIONS.RIGHT
-    ) {
-      onSetDirectionForSnake({
-        id: self.id,
-        direction: DIRECTIONS.LEFT,
-      })
-    }
-
-    if (
-      gameInput.isDown(KEYS.TOP_ARROW) &&
-      self.direction !== DIRECTIONS.DOWN
-    ) {
-      onSetDirectionForSnake({
-        id: self.id,
-        direction: DIRECTIONS.TOP,
-      })
-    }
-  },
-}
 
 function main(canvas, context) {
   renderGUI()

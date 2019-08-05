@@ -35,6 +35,7 @@ import {
   onSetAiPathVisibleToTarget,
   onSetIndexesVisible,
   onSetProcessedItemsVisible,
+  onChangeHeuristic,
 } from './game.events'
 import {
   setScore,
@@ -124,6 +125,19 @@ $algorithmsStore
   .on(onChangeAlgorithm, (state, id) => ({
     ...state,
     active: id,
+  }))
+  .on(onChangeHeuristic, (state, { algId, heuristicId }) => ({
+    ...state,
+    list: state.list.map((alg) => {
+      if (alg.id === algId) {
+        return {
+          ...alg,
+          activeHeuristic: heuristicId,
+        }
+      }
+
+      return alg
+    }),
   }))
   .reset(onRestart)
 
