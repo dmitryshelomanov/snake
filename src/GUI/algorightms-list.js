@@ -51,7 +51,7 @@ export function List({ list = [], active, onChange, name }) {
   return (
     <ListWrapper>
       {list.map((alg) => {
-        const algWithHeuristicIsActive = alg.heuristic && active == alg.id
+        const algWithHeuristicIsActive = alg.heuristic && active === alg.id
 
         return (
           <Item key={alg.id}>
