@@ -78,7 +78,7 @@ export const $algorithmsStore = createStore({
         },
         {
           id: 'chebyshev',
-          name: 'ChebyshevDistance',
+          name: 'Chebyshev',
           alg: chebyshevDistance,
         },
       ],
@@ -96,7 +96,7 @@ export const $algorithmsStore = createStore({
         },
         {
           id: 'chebyshev',
-          name: 'ChebyshevDistance',
+          name: 'Chebyshev',
           alg: chebyshevDistance,
         },
       ],
