@@ -1,6 +1,6 @@
 /* eslint-disable no-loop-func */
 import PriorityQueue from 'fastpriorityqueue'
-import { getPositionByIndex } from '../utils'
+import { getPositionByIndex, createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
 import { manhattanDistance } from './heuristic'
 
@@ -8,13 +8,14 @@ export function greedy(
   startIndex,
   endIndex,
   graph,
-  { canTraverse, heuristic = manhattanDistance }
+  { canTraverse, heuristic = manhattanDistance, withLogger = false }
 ) {
   const queue = new PriorityQueue((a, b) => a[1] < b[1])
   const processed = new Map()
   const parent = {}
   const goal = getPositionByIndex(endIndex)
   let isTraverse = false
+  const logger = createOperationLogger('greedy')
 
   queue.add([startIndex, 0])
 
@@ -40,8 +41,14 @@ export function greedy(
             break
           }
         }
+
+        logger.increment()
       }
     }
+  }
+
+  if (withLogger) {
+    logger.log()
   }
 
   return {

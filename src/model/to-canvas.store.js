@@ -10,6 +10,7 @@ import {
   $indexesVisibleStore,
   $processedItemsVisibleStore,
   $activeHeuristicForActiveAlgorithm,
+  $enableLoggerStore,
 } from './game.store'
 
 export const getGameState = () => $gameStateStore.getState()
@@ -36,3 +37,5 @@ export const getIndexesVisibleStore = () => $indexesVisibleStore.getState()
 
 export const getProcessedItemsVisibleState = () =>
   $processedItemsVisibleStore.getState()
+
+export const getLoggerState = () => $enableLoggerStore.getState()

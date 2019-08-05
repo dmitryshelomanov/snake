@@ -1,16 +1,18 @@
 /* eslint-disable no-loop-func */
+import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
 
 export function breadthFirstSearch(
   startIndex,
   endIndex,
   graph,
-  { canTraverse }
+  { canTraverse, withLogger = false }
 ) {
   const queue = [startIndex]
   const processed = new Map()
   const parent = {}
   let isTraverse = false
+  const logger = createOperationLogger('breadthFirstSearch')
 
   while (!isTraverse && queue.length > 0) {
     const currentIndex = queue.shift()
@@ -29,8 +31,14 @@ export function breadthFirstSearch(
           isTraverse = true
           break
         }
+
+        logger.increment()
       }
     }
+  }
+
+  if (withLogger) {
+    logger.log()
   }
 
   return {

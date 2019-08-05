@@ -9,6 +9,7 @@ import {
   getGameMapState,
   getActiveAlgorithmStore,
   getGameCollisionState,
+  getLoggerState,
   onMoveSnake,
   onSetDirectionForSnake,
 } from './model'
@@ -21,6 +22,7 @@ export const updaters = {
     const { alg: traverseAlgorithm, heuristic } = getActiveAlgorithmStore()
     const gameMapState = getGameMapState()
     const collisionState = getGameCollisionState()
+    const withLogger = getLoggerState()
 
     function canTraverse(index) {
       return !collisionState
@@ -42,6 +44,7 @@ export const updaters = {
         canTraverse,
         getCostByIndex,
         heuristic,
+        withLogger,
       }
     )
 

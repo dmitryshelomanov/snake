@@ -67,3 +67,16 @@ export function getPositionByIndex(index) {
 export function randomId() {
   return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString()
 }
+
+export function createOperationLogger(name) {
+  let operation = 0
+
+  return {
+    log: () => {
+      console.log(`[SNAKE] => ${name} operation count - ${operation}`)
+    },
+    increment: () => {
+      operation += 1
+    },
+  }
+}

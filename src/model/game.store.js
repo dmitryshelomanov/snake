@@ -112,3 +112,5 @@ export const $showAIPathToTargetStore = createStore(false)
 export const $indexesVisibleStore = createStore(false)
 
 export const $processedItemsVisibleStore = createStore(false)
+
+export const $enableLoggerStore = createStore(false)
