@@ -1,11 +1,18 @@
 /* eslint-disable no-loop-func */
+import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
 
-export function depthFirstSearch(startIndex, endIndex, graph, { canTraverse }) {
+export function depthFirstSearch(
+  startIndex,
+  endIndex,
+  graph,
+  { canTraverse, withLogger = false }
+) {
   const stack = [startIndex]
   const processed = new Map([[startIndex, true]])
   const parent = {}
   let isTraverse = false
+  const logger = createOperationLogger('depthFirstSearch')
 
   while (!isTraverse && stack.length > 0) {
     const currentIndex = stack.shift()
@@ -24,8 +31,14 @@ export function depthFirstSearch(startIndex, endIndex, graph, { canTraverse }) {
           isTraverse = true
           break
         }
+
+        logger.increment()
       }
     }
+  }
+
+  if (withLogger) {
+    logger.log()
   }
 
   return {
