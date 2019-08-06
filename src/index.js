@@ -1,20 +1,19 @@
 /* eslint-disable unicorn/prevent-abbreviations */
 import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
-import { buildGrid, renderApple, renderPath, drawSquare } from './renderer'
+import { buildGrid, renderPath, drawSquare } from './renderer'
 import { pageHeight, pageWidth, fps } from './config'
 import {
   createTimeController,
   getNextPositionByDirection,
   registerClickEventToCanvas,
 } from './controll'
-import { oneToOneCollision } from './collision'
 import { convigureCanvas } from './canvas'
 import { headSnake } from './model/snake'
 import { Graph } from './algorithms'
 import { renderGUI } from './GUI'
 import {
   PLACE_TYPE,
-  getAppleState,
+  getFoodsState,
   getSnakesState,
   getGameMapState,
   getGameCollisionState,
@@ -23,11 +22,12 @@ import {
   onClearGameMap,
   onUpdateGameMap,
   onCrashSnake,
-  onEatApple,
+  onEatFood,
 } from './model'
 import { renderSnakes } from './snake'
 import { renderBricks } from './brick'
 import { updaters } from './updaters'
+import { renderFoods, updateGameMapForFood } from './food'
 import 'reset-css'
 
 function main(canvas, context) {
@@ -42,7 +42,7 @@ function main(canvas, context) {
   const state = {
     graph: new Graph(localSize),
     prevSnakes: [],
-    prevApple: [0, 0],
+    prevFoods: [],
     prevBriks: [],
     path: {},
     processed: [],
@@ -52,16 +52,20 @@ function main(canvas, context) {
 
   convigureCanvas(canvas, localSize, globalSize)
 
-  function eatApple(snake) {
+  function eatFood(snake) {
     if (!snake.isCrash) {
-      oneToOneCollision(headSnake(snake), getAppleState(), () => {
+      const gameMap = getGameMapState()
+      const headIndex = getIndexByPosition(headSnake(snake))
+      const isArray = Array.isArray(gameMap[headIndex])
+
+      if (isArray && gameMap[headIndex][0] === PLACE_TYPE.FOOD) {
         const peaceOfSnake = getNextPositionByDirection(
           headSnake(snake),
           snake.direction
         )
 
-        onEatApple({ id: snake.id, peaceOfSnake })
-      })
+        onEatFood({ id: snake.id, peaceOfSnake, foodId: gameMap[headIndex][1] })
+      }
     }
   }
 
@@ -89,7 +93,9 @@ function main(canvas, context) {
 
   function clearGame() {
     context.clearRect(0, 0, globalSize.w, globalSize.h)
-    clearCell([state.prevApple])
+    state.prevFoods.forEach(([position]) => {
+      clearCell(position)
+    })
     state.prevSnakes.forEach((snake) => {
       snake.body.forEach(clearCell)
     })
@@ -112,7 +118,7 @@ function main(canvas, context) {
       }
     }
 
-    const apple = getAppleState()
+    const foods = getFoodsState()
 
     if (isPLay) {
       getSnakesState().forEach((snake) => {
@@ -126,7 +132,7 @@ function main(canvas, context) {
 
       const snakes = getSnakesState()
 
-      snakes.forEach(eatApple)
+      snakes.forEach(eatFood)
       snakes.forEach(checkCollision)
     }
 
@@ -140,13 +146,13 @@ function main(canvas, context) {
     const snakes = getSnakesState()
 
     state.prevSnakes = snakes
-    state.prevApple = apple
+    state.prevFoods = foods
 
     if (false) {
       renderProcessedCell()
     }
 
-    renderApple(context, apple, updateGameMap(PLACE_TYPE.FOOD))
+    renderFoods(context, foods, updateGameMapForFood())
     renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
     renderSnakes(context, snakes, updateGameMap(PLACE_TYPE.GAME_OBJECT))
 

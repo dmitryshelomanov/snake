@@ -7,7 +7,7 @@ import {
   aStar,
 } from '../algorithms'
 import { manhattanDistance, chebyshevDistance } from '../algorithms/heuristic'
-import { randomPosition } from '../utils'
+import { randomPosition, generateRandomFoodByCount } from '../utils'
 import { Snake } from './snake'
 
 export const GAME_STATE = {
@@ -24,7 +24,16 @@ export const PLACE_TYPE = {
 
 export const $gameStateStore = createStore(GAME_STATE.IS_PAUSE)
 
-export const $appleStore = createStore(randomPosition())
+export const $foodsStore = createStore(generateRandomFoodByCount(6))
+
+export const $nearestFoodState = (position) =>
+  $foodsStore.map(
+    (foods) =>
+      foods.sort(
+        (a, b) =>
+          manhattanDistance(a[0], position) - manhattanDistance(b[0], position)
+      )[0]
+  )
 
 export const $gameMapStore = createStore({})
 

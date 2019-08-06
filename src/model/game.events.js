@@ -4,7 +4,8 @@ export const onPlay = createEvent('play game')
 export const onStop = createEvent('stop game')
 export const onRestart = createEvent('restart game')
 
-export const onEatApple = createEvent('eat apple')
+export const onEatFood = createEvent('eat food')
+export const onGenerateFoods = createEvent('generate food')
 
 export const onMoveSnake = createEvent('move snake')
 export const onSetDirectionForSnake = createEvent(`set snake's direction`)
