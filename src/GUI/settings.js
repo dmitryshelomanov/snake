@@ -189,7 +189,7 @@ export function Settings() {
         </SettingWrapper>
       </Wrapper>
       {snakeIterator.map((id) => (
-        <SettingsForSnake snakeId={id} />
+        <SettingsForSnake snakeId={id} key={id} />
       ))}
     </>
   )

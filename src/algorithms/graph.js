@@ -58,6 +58,6 @@ export class Graph {
   }
 
   getNeighbors(index) {
-    return this.graph[index]
+    return this.graph[index] || []
   }
 }

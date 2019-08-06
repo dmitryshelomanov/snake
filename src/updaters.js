@@ -5,19 +5,27 @@ import { checkBounds } from './collision'
 import { headSnake } from './model/snake'
 import {
   PLACE_TYPE,
-  getAppleState,
   getGameMapState,
   getGameCollisionState,
   getLoggerState,
   getSettingsForSnakeState,
   getAlgorithmStateById,
   getHeuristicStateById,
+  getNearestFood,
   onMoveSnake,
   onSetDirectionForSnake,
 } from './model'
 import { keyboradFactory, KEYS } from './keyboard'
 
 const gameInput = keyboradFactory()
+
+function extractTypeFromMap(place) {
+  if (Array.isArray(place)) {
+    return place[0]
+  }
+
+  return place
+}
 
 export const updaters = {
   ai: (self, nextState) => {
@@ -33,18 +41,20 @@ export const updaters = {
     function canTraverse(index) {
       return !collisionState
         ? true
-        : [PLACE_TYPE.EMPTY, PLACE_TYPE.FOOD].includes(gameMapState[index])
+        : [PLACE_TYPE.EMPTY, PLACE_TYPE.FOOD].includes(
+            extractTypeFromMap(gameMapState[index])
+          )
     }
 
     function getCostByIndex() {
       return 1
     }
 
-    const apple = getAppleState()
+    const [target] = getNearestFood(headSnake(self))
 
     const result = traverseAlgorithm(
       getIndexByPosition(headSnake(self)),
-      getIndexByPosition(apple),
+      getIndexByPosition(target),
       nextState.graph,
       {
         canTraverse,
@@ -60,9 +70,11 @@ export const updaters = {
     nextState.path[self.id] = pathPositions
     nextState.processed = processedPositions
 
-    const nextPosition =
+    const headPosition =
       pathPositions[0] ||
       getNextPositionByDirection(headSnake(self), self.direction)
+
+    const nextPosition = checkBounds(headPosition)
 
     onSetDirectionForSnake({
       id: self.id,
