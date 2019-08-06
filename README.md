@@ -1,6 +1,6 @@
 # Snake Game
 
-![preview](preview.png)
+![preview](preview_1.png)
 
 ## Introduction
 
