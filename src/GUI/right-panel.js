@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import { ScoreBoard } from './score-board'
-import { AlgorighmsList } from './algorightms-list'
 import { Settings } from './settings'
 
 export const Wrapper = styled.div`
@@ -19,7 +18,6 @@ export function RightPanel() {
   return (
     <Wrapper>
       <ScoreBoard />
-      <AlgorighmsList />
       <Settings />
     </Wrapper>
   )

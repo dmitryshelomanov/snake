@@ -74,7 +74,7 @@ function differenceBetweenPath([x, y], [x1, y1]) {
   return [x1, y1]
 }
 
-export function renderPath(context, paths = []) {
+export function renderPath(context, paths = [], color = 'rgb(255, 255, 0)') {
   for (let i = 0; i < paths.length - 1; i++) {
     const [x, y] = convertLocalPositionToGlobal(paths[i])
     const [x1, y1] = convertLocalPositionToGlobal(
@@ -82,7 +82,7 @@ export function renderPath(context, paths = []) {
     )
 
     context.beginPath()
-    context.strokeStyle = 'rgb(255, 255, 0)'
+    context.strokeStyle = color
     context.lineWidth = 3
     context.moveTo(x + cellSize / 2, y + cellSize / 2)
     context.lineTo(x1 + cellSize / 2, y1 + cellSize / 2)

@@ -28,3 +28,17 @@ export function useSnakeScoreState(snakeId) {
 
   return score
 }
+
+export function useSnakeColorState(snakeId) {
+  const colors = useStoreMap({
+    store: $snakesStore,
+    keys: [snakeId],
+    fn: (snakes, [id]) => {
+      const snake = snakes.find((s) => s.id === id)
+
+      return snake ? snake.colors : { head: 'black', tail: 'black' }
+    },
+  })
+
+  return colors
+}

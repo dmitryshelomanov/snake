@@ -4,19 +4,21 @@ import { useStore } from 'effector-react'
 import {
   $gameCollisionStateStore,
   $userInGameStore,
-  $showAIPathToTargetStore,
   $indexesVisibleStore,
-  $processedItemsVisibleStore,
   $enableLoggerStore,
+  $snakeIterator,
+  $algorithmsStore,
+  $heuristicsStore,
+  $settingsForSnakeStore,
   onSetCollisionState,
   onAddUserToGame,
   onRemoveUserFromGame,
-  onSetAiPathVisibleToTarget,
   onSetIndexesVisible,
-  onSetProcessedItemsVisible,
   onToggleLoggerState,
+  onUpdateSettingForSnake,
 } from '../model'
 import { Title, Checkbox } from './common'
+import { useSnakeColorState } from './use-snake'
 
 export const Wrapper = styled.ul`
   margin: 0;
@@ -31,6 +33,7 @@ export const SettingWrapper = styled.li`
   flex: 1 1 auto;
   margin-bottom: 5px;
   user-select: none;
+  flex-direction: ${(props) => props.dir || 'row'};
 `
 
 export const Name = styled.label`
@@ -38,30 +41,102 @@ export const Name = styled.label`
   text-align: left;
   flex: 1 1 auto;
   cursor: pointer;
+  color: ${(props) => props.color};
 `
+
+export const Select = styled.select`
+  margin-top: 5px;
+`
+
+export function SettingsForSnake({ snakeId }) {
+  const colors = useSnakeColorState(snakeId)
+  const algorithms = useStore($algorithmsStore)
+  const heuristics = useStore($heuristicsStore)
+  const { activeAlgorithm, activeHeuristic, showAIPathToTarget } = useStore(
+    $settingsForSnakeStore(snakeId)
+  )
+  const currentAlgorithm = algorithms.find((alg) => alg.id === activeAlgorithm)
+
+  return (
+    <>
+      <Title color={colors.head}>Settings for {snakeId}</Title>
+      <Wrapper>
+        <SettingWrapper>
+          <Checkbox
+            id={`path-${snakeId}`}
+            checked={showAIPathToTarget}
+            onChange={() => {
+              onUpdateSettingForSnake({
+                snakeId,
+                value: !showAIPathToTarget,
+                settingName: 'showAIPathToTarget',
+              })
+            }}
+          />
+          <Name htmlFor={`path-${snakeId}`} color={colors.tail}>
+            show ai path to target
+          </Name>
+        </SettingWrapper>
+        <SettingWrapper dir="column">
+          <Select
+            onChange={({ target }) => {
+              onUpdateSettingForSnake({
+                snakeId,
+                settingName: 'activeAlgorithm',
+                value: target.value,
+              })
+            }}
+          >
+            {algorithms.map((alg) => (
+              <option
+                key={alg.id}
+                selected={activeAlgorithm === alg.id}
+                value={alg.id}
+              >
+                {alg.name}
+              </option>
+            ))}
+          </Select>
+          {currentAlgorithm.hasHeuristic && (
+            <Select
+              onChange={({ target }) => {
+                onUpdateSettingForSnake({
+                  snakeId,
+                  settingName: 'activeHeuristic',
+                  value: target.value,
+                })
+              }}
+            >
+              {heuristics.map((heuristic) => (
+                <option
+                  key={heuristic.id}
+                  selected={activeHeuristic === heuristic.id}
+                  value={heuristic.id}
+                >
+                  {heuristic.name}
+                </option>
+              ))}
+            </Select>
+          )}
+        </SettingWrapper>
+      </Wrapper>
+    </>
+  )
+}
 
 export function Settings() {
   const collisionState = useStore($gameCollisionStateStore)
   const userInGameStore = useStore($userInGameStore)
-  const showAIPathToTargetStore = useStore($showAIPathToTargetStore)
   const indexesVisibleStore = useStore($indexesVisibleStore)
-  const processedItemsVisibleSate = useStore($processedItemsVisibleStore)
   const withLogger = useStore($enableLoggerStore)
+  const snakeIterator = useStore($snakeIterator)
 
   function onSetCollision() {
     onSetCollisionState(!collisionState)
   }
 
-  function onSetAiPathVisible() {
-    onSetAiPathVisibleToTarget(!showAIPathToTargetStore)
-  }
-
   function onSetIndexesVisibleState() {
     onSetIndexesVisible(!indexesVisibleStore)
-  }
-
-  function onSetProcessedVisibleState() {
-    onSetProcessedItemsVisible(!processedItemsVisibleSate)
   }
 
   function handleChangeUserInGameState() {
@@ -78,7 +153,7 @@ export function Settings() {
 
   return (
     <>
-      <Title>Settings</Title>
+      <Title>Common Settings</Title>
       <Wrapper>
         <SettingWrapper>
           <Checkbox
@@ -98,27 +173,11 @@ export function Settings() {
         </SettingWrapper>
         <SettingWrapper>
           <Checkbox
-            id="path"
-            checked={showAIPathToTargetStore}
-            onChange={onSetAiPathVisible}
-          />
-          <Name htmlFor="path">show ai path to target</Name>
-        </SettingWrapper>
-        <SettingWrapper>
-          <Checkbox
             id="indexesvisible"
             checked={indexesVisibleStore}
             onChange={onSetIndexesVisibleState}
           />
           <Name htmlFor="indexesvisible">visible indexes</Name>
-        </SettingWrapper>
-        <SettingWrapper>
-          <Checkbox
-            id="processed"
-            checked={processedItemsVisibleSate}
-            onChange={onSetProcessedVisibleState}
-          />
-          <Name htmlFor="processed">show processed cells</Name>
         </SettingWrapper>
         <SettingWrapper>
           <Checkbox
@@ -129,6 +188,9 @@ export function Settings() {
           <Name htmlFor="logger">show operations count in console</Name>
         </SettingWrapper>
       </Wrapper>
+      {snakeIterator.map((id) => (
+        <SettingsForSnake snakeId={id} />
+      ))}
     </>
   )
 }
