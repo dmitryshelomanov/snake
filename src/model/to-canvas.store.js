@@ -1,3 +1,4 @@
+import { manhattanDistance } from '../algorithms/heuristic'
 import {
   $gameStateStore,
   $foodsStore,
@@ -7,10 +8,9 @@ import {
   $brickStore,
   $indexesVisibleStore,
   $enableLoggerStore,
-  $settingsForSnakeStore,
-  $heuristicByIdState,
-  $algorithmByIdState,
-  $nearestFoodState,
+  $settingsForSnakesStore,
+  $algorithmsStore,
+  $heuristicsStore,
 } from './game.store'
 
 export const getGameState = () => $gameStateStore.getState()
@@ -30,11 +30,18 @@ export const getIndexesVisibleStore = () => $indexesVisibleStore.getState()
 export const getLoggerState = () => $enableLoggerStore.getState()
 
 export const getSettingsForSnakeState = (snakeId) =>
-  $settingsForSnakeStore(snakeId).getState()
+  $settingsForSnakesStore.getState()[snakeId]
 
-export const getAlgorithmStateById = (id) => $algorithmByIdState(id).getState()
+export const getAlgorithmStateById = (id) =>
+  $algorithmsStore.getState().find((alg) => alg.id === id)
 
-export const getHeuristicStateById = (id) => $heuristicByIdState(id).getState()
+export const getHeuristicStateById = (id) =>
+  $heuristicsStore.getState().find((heuristic) => heuristic.id === id)
 
 export const getNearestFood = (position) =>
-  $nearestFoodState(position).getState()
+  $foodsStore
+    .getState()
+    .sort(
+      (a, b) =>
+        manhattanDistance(a[0], position) - manhattanDistance(b[0], position)
+    )[0]
