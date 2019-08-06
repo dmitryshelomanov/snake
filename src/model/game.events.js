@@ -13,6 +13,9 @@ export const onCrashSnake = createEvent('on crash snake')
 
 export const onClearGameMap = createEvent('clear game map')
 export const onUpdateGameMap = createEvent('upadte game map')
+export const onUpdateGameMapWithNexState = createEvent(
+  'upadte game map with next state'
+)
 
 export const onChangeAlgorithm = createEvent('change algoright')
 export const onChangeHeuristic = createEvent('change heuristic')

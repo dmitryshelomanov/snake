@@ -34,6 +34,7 @@ import {
   onSetIndexesVisible,
   onToggleLoggerState,
   onUpdateSettingForSnake,
+  onUpdateGameMapWithNexState,
 } from './game.events'
 import {
   setScore,
@@ -125,10 +126,15 @@ $gameMapStore
     ...state,
     [index]: PLACE_TYPE.BRICK,
   }))
-  .on(merge([onClearGameMap, onRemoveBrick]), (state, index) => ({
+  .on(onRemoveBrick, (state, index) => ({
     ...state,
     [index]: undefined,
   }))
+  .on(onUpdateGameMapWithNexState, (state, nextState) => ({
+    ...state,
+    ...nextState,
+  }))
+  .on(onClearGameMap, () => ({}))
   .reset(onRestart)
 
 $gameCollisionStateStore.on(onSetCollisionState, (_, state) => state)

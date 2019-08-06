@@ -24,7 +24,7 @@ export const PLACE_TYPE = {
 
 export const $gameStateStore = createStore(GAME_STATE.IS_PAUSE)
 
-export const $foodsStore = createStore(generateRandomFoodByCount(6))
+export const $foodsStore = createStore(generateRandomFoodByCount(10))
 
 export const $gameMapStore = createStore({})
 
@@ -42,6 +42,20 @@ export const $snakesStore = createStore([
       tail: 'rgb(255, 251, 152)',
     },
     id: 'ai-1',
+  }),
+  Snake.build(randomPosition(), {
+    colors: {
+      head: '#dc4646',
+      tail: '#dc6e6e',
+    },
+    id: 'ai-2',
+  }),
+  Snake.build(randomPosition(), {
+    colors: {
+      head: '#36d2e2',
+      tail: '#81c6ce',
+    },
+    id: 'ai-3',
   }),
 ])
 

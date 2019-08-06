@@ -83,7 +83,7 @@ export function renderPath(context, paths = [], color = 'rgb(255, 255, 0)') {
 
     context.beginPath()
     context.strokeStyle = color
-    context.lineWidth = 3
+    context.lineWidth = 2
     context.moveTo(x + cellSize / 2, y + cellSize / 2)
     context.lineTo(x1 + cellSize / 2, y1 + cellSize / 2)
     context.stroke()
