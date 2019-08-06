@@ -19,12 +19,11 @@ import {
   getGameMapState,
   getGameCollisionState,
   getBrickState,
-  getShowAIPathToTargetState,
+  getSettingsForSnakeState,
   onClearGameMap,
   onUpdateGameMap,
   onCrashSnake,
   onEatApple,
-  getProcessedItemsVisibleState,
 } from './model'
 import { renderSnakes } from './snake'
 import { renderBricks } from './brick'
@@ -45,7 +44,7 @@ function main(canvas, context) {
     prevSnakes: [],
     prevApple: [0, 0],
     prevBriks: [],
-    path: [],
+    path: {},
     processed: [],
   }
 
@@ -107,8 +106,6 @@ function main(canvas, context) {
   }
 
   nextTick.start((isPLay) => {
-    const showAIPathToTargetState = getShowAIPathToTargetState()
-
     function updateGameMap(placeType) {
       return (index) => {
         onUpdateGameMap({ index, placeType })
@@ -120,7 +117,10 @@ function main(canvas, context) {
     if (isPLay) {
       getSnakesState().forEach((snake) => {
         if (!snake.isCrash) {
-          updaters[snake.id](snake, state)
+          const isAi = /ai/.test(snake.id)
+          const updater = isAi ? 'ai' : 'user'
+
+          updaters[updater](snake, state)
         }
       })
 
@@ -142,7 +142,7 @@ function main(canvas, context) {
     state.prevSnakes = snakes
     state.prevApple = apple
 
-    if (getProcessedItemsVisibleState()) {
+    if (false) {
       renderProcessedCell()
     }
 
@@ -150,9 +150,13 @@ function main(canvas, context) {
     renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
     renderSnakes(context, snakes, updateGameMap(PLACE_TYPE.GAME_OBJECT))
 
-    if (showAIPathToTargetState) {
-      renderPath(context, state.path)
-    }
+    snakes.forEach((snake) => {
+      const { showAIPathToTarget } = getSettingsForSnakeState(snake.id)
+
+      if (showAIPathToTarget) {
+        renderPath(context, state.path[snake.id] || [], snake.colors.head)
+      }
+    })
 
     gridData.applyStyles()
     context.stroke(gridData.grid)

@@ -5,15 +5,13 @@ import {
   $appleStore,
   $snakesStore,
   $gameMapStore,
-  $algorithmsStore,
   $gameCollisionStateStore,
   $brickStore,
   $userInGameStore,
   $snakeIterator,
-  $showAIPathToTargetStore,
   $indexesVisibleStore,
-  $processedItemsVisibleStore,
   $enableLoggerStore,
+  $settingsForSnakesStore,
   PLACE_TYPE,
   GAME_STATE,
 } from './game.store'
@@ -27,17 +25,14 @@ import {
   onClearGameMap,
   onUpdateGameMap,
   onCrashSnake,
-  onChangeAlgorithm,
   onSetCollisionState,
   onAddBrick,
   onRemoveBrick,
   onAddUserToGame,
   onRemoveUserFromGame,
-  onSetAiPathVisibleToTarget,
   onSetIndexesVisible,
-  onSetProcessedItemsVisible,
-  onChangeHeuristic,
   onToggleLoggerState,
+  onUpdateSettingForSnake,
 } from './game.events'
 import {
   setScore,
@@ -123,26 +118,6 @@ $gameMapStore
   }))
   .reset(onRestart)
 
-$algorithmsStore
-  .on(onChangeAlgorithm, (state, id) => ({
-    ...state,
-    active: id,
-  }))
-  .on(onChangeHeuristic, (state, { algId, heuristicId }) => ({
-    ...state,
-    list: state.list.map((alg) => {
-      if (alg.id === algId) {
-        return {
-          ...alg,
-          activeHeuristic: heuristicId,
-        }
-      }
-
-      return alg
-    }),
-  }))
-  .reset(onRestart)
-
 $gameCollisionStateStore.on(onSetCollisionState, (_, state) => state)
 
 $brickStore
@@ -166,16 +141,18 @@ $snakeIterator
   )
   .reset(onRestart)
 
-$showAIPathToTargetStore
-  .on(onSetAiPathVisibleToTarget, (_, state) => state)
-  .reset(onRestart)
-
 $indexesVisibleStore
   .on(onSetIndexesVisible, (_, state) => state)
   .reset(onRestart)
 
-$processedItemsVisibleStore
-  .on(onSetProcessedItemsVisible, (_, state) => state)
-  .reset(onRestart)
-
 $enableLoggerStore.on(onToggleLoggerState, (_, state) => state).reset(onRestart)
+
+$settingsForSnakesStore
+  .on(onUpdateSettingForSnake, (state, { snakeId, settingName, value }) => ({
+    ...state,
+    [snakeId]: {
+      ...state[snakeId],
+      [settingName]: value,
+    },
+  }))
+  .reset(onRestart)

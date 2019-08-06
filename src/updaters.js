@@ -7,9 +7,11 @@ import {
   PLACE_TYPE,
   getAppleState,
   getGameMapState,
-  getActiveAlgorithmStore,
   getGameCollisionState,
   getLoggerState,
+  getSettingsForSnakeState,
+  getAlgorithmStateById,
+  getHeuristicStateById,
   onMoveSnake,
   onSetDirectionForSnake,
 } from './model'
@@ -19,7 +21,11 @@ const gameInput = keyboradFactory()
 
 export const updaters = {
   ai: (self, nextState) => {
-    const { alg: traverseAlgorithm, heuristic } = getActiveAlgorithmStore()
+    const { activeAlgorithm, activeHeuristic } = getSettingsForSnakeState(
+      self.id
+    )
+    const { alg: heuristic } = getHeuristicStateById(activeHeuristic)
+    const { alg: traverseAlgorithm } = getAlgorithmStateById(activeAlgorithm)
     const gameMapState = getGameMapState()
     const collisionState = getGameCollisionState()
     const withLogger = getLoggerState()
@@ -51,7 +57,7 @@ export const updaters = {
     const pathPositions = result.path.map(getPositionByIndex)
     const processedPositions = result.processed.map(getPositionByIndex)
 
-    nextState.path = pathPositions
+    nextState.path[self.id] = pathPositions
     nextState.processed = processedPositions
 
     const nextPosition =

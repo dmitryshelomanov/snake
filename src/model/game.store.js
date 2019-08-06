@@ -22,7 +22,7 @@ export const PLACE_TYPE = {
   FOOD: 3,
 }
 
-export const $gameStateStore = createStore(GAME_STATE.IS_PLAY)
+export const $gameStateStore = createStore(GAME_STATE.IS_PAUSE)
 
 export const $appleStore = createStore(randomPosition())
 
@@ -36,6 +36,13 @@ export const $snakesStore = createStore([
     },
     id: 'ai',
   }),
+  Snake.build(randomPosition(), {
+    colors: {
+      head: 'rgb(255, 221, 0)',
+      tail: 'rgb(255, 251, 152)',
+    },
+    id: 'ai-1',
+  }),
 ])
 
 export const $gameCollisionStateStore = createStore(true)
@@ -47,89 +54,84 @@ export const $snakeIterator = createStore(
   )
 )
 
-export const $algorithmsStore = createStore({
-  active: 'breadth',
-  list: [
-    {
-      id: 'breadth',
-      alg: breadthFirstSearch,
-      name: 'Breadth first search',
-    },
-    {
-      id: 'depth',
-      alg: depthFirstSearch,
-      name: 'Depth first search',
-    },
-    {
-      id: 'dijkstra',
-      alg: dijkstra,
-      name: 'Dijkstra algorighm',
-    },
-    {
-      id: 'greedy',
-      alg: greedy,
-      name: 'Greedy algorighm (has heuristic)',
-      activeHeuristic: 'manhattan',
-      heuristic: [
-        {
-          id: 'manhattan',
-          name: 'Manhattan',
-          alg: manhattanDistance,
-        },
-        {
-          id: 'chebyshev',
-          name: 'Chebyshev',
-          alg: chebyshevDistance,
-        },
-      ],
-    },
-    {
-      id: 'aStar',
-      alg: aStar,
-      name: 'A* algorighm (has heuristic)',
-      activeHeuristic: 'manhattan',
-      heuristic: [
-        {
-          id: 'manhattan',
-          name: 'Manhattan',
-          alg: manhattanDistance,
-        },
-        {
-          id: 'chebyshev',
-          name: 'Chebyshev',
-          alg: chebyshevDistance,
-        },
-      ],
-    },
-  ],
-})
+export const $heuristicsStore = createStore([
+  {
+    id: 'manhattan',
+    name: 'Manhattan',
+    alg: manhattanDistance,
+  },
+  {
+    id: 'chebyshev',
+    name: 'Chebyshev',
+    alg: chebyshevDistance,
+  },
+])
 
-export const $activeAlgorithmStore = $algorithmsStore.map((algorithms) =>
-  algorithms.list.find((alg) => alg.id === algorithms.active)
-)
+export const $heuristicByIdState = (id) =>
+  $heuristicsStore.map((heuristics) =>
+    heuristics.find((heuristic) => heuristic.id === id)
+  )
 
-export const $activeHeuristicForActiveAlgorithm = $activeAlgorithmStore.map(
-  (activeAlgorithm) => {
-    if (activeAlgorithm.heuristic) {
-      const { alg } = activeAlgorithm.heuristic.find(
-        (heuristic) => heuristic.id === activeAlgorithm.activeHeuristic
-      )
+export const $algorithmsStore = createStore([
+  {
+    id: 'breadth',
+    alg: breadthFirstSearch,
+    name: 'Breadth first search',
+  },
+  {
+    id: 'depth',
+    alg: depthFirstSearch,
+    name: 'Depth first search',
+  },
+  {
+    id: 'dijkstra',
+    alg: dijkstra,
+    name: 'Dijkstra algorighm',
+  },
+  {
+    id: 'greedy',
+    alg: greedy,
+    name: 'Greedy algorighm (has heuristic)',
+    activeHeuristic: 'manhattan',
+    hasHeuristic: true,
+  },
+  {
+    id: 'aStar',
+    alg: aStar,
+    name: 'A* algorighm (has heuristic)',
+    activeHeuristic: 'manhattan',
+    hasHeuristic: true,
+  },
+])
 
-      return alg
-    }
+export const $algorithmByIdState = (id) =>
+  $algorithmsStore.map((algs) => algs.find((alg) => alg.id === id))
 
-    return undefined
+export function buildSettingsForSnake() {
+  return {
+    showAIPathToTarget: false,
+    activeAlgorithm: 'breadth',
+    activeHeuristic: 'manhattan',
   }
+}
+
+export const $settingsForSnakesStore = createStore(
+  $snakesStore.getState().reduce(
+    (acc, snake) => ({
+      ...acc,
+      [snake.id]: buildSettingsForSnake(),
+    }),
+    {}
+  )
 )
+
+export const $settingsForSnakeStore = (id) =>
+  $settingsForSnakesStore.map((settings) => settings[id])
 
 export const $brickStore = createStore([])
 
 export const $userInGameStore = createStore(false)
 
-export const $showAIPathToTargetStore = createStore(false)
-
 export const $indexesVisibleStore = createStore(false)
-
-export const $processedItemsVisibleStore = createStore(false)
 
 export const $enableLoggerStore = createStore(false)
