@@ -32,7 +32,7 @@ export function headSnake(snake) {
 }
 
 export function tailSnake(snake) {
-  return snake.body.slice(1, snake.body.length - 1)
+  return snake.body[0]
 }
 
 export function addPeaceOfSnake(snake, peaceOfSnake) {

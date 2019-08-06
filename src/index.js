@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/prevent-abbreviations */
 import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
-import { buildGrid, renderPath, drawSquare } from './renderer'
+import { buildGrid, renderPath } from './renderer'
 import { pageHeight, pageWidth, fps } from './config'
 import {
   createTimeController,
@@ -20,11 +20,12 @@ import {
   getBrickState,
   getSettingsForSnakeState,
   onClearGameMap,
-  onUpdateGameMap,
   onCrashSnake,
   onEatFood,
+  onUpdateGameMapWithNexState,
+  onUpdateGameMap,
 } from './model'
-import { renderSnakes } from './snake'
+import { renderSnakes, batchUpdateSnakeStateForGameMap } from './snake'
 import { renderBricks } from './brick'
 import { updaters } from './updaters'
 import { renderFoods, updateGameMapForFood } from './food'
@@ -41,11 +42,7 @@ function main(canvas, context) {
 
   const state = {
     graph: new Graph(localSize),
-    prevSnakes: [],
-    prevFoods: [],
-    prevBriks: [],
     path: {},
-    processed: [],
   }
 
   const nextTick = createTimeController(fps)
@@ -85,39 +82,18 @@ function main(canvas, context) {
     }
   }
 
-  function clearCell(position) {
-    const index = getIndexByPosition(position)
-
-    onClearGameMap(index)
-  }
-
   function clearGame() {
     context.clearRect(0, 0, globalSize.w, globalSize.h)
-    state.prevFoods.forEach(([position]) => {
-      clearCell(position)
-    })
-    state.prevSnakes.forEach((snake) => {
-      snake.body.forEach(clearCell)
-    })
+    onClearGameMap()
   }
 
-  function clearBricks() {
-    state.prevBriks.forEach(clearCell)
-  }
-
-  function renderProcessedCell() {
-    state.processed.forEach((position) => {
-      drawSquare(context, position, { color: 'rgba(175, 238, 238, 0.8)' })
-    })
+  function updateGameMap(placeType) {
+    return (index) => {
+      onUpdateGameMap({ index, placeType })
+    }
   }
 
   nextTick.start((isPLay) => {
-    function updateGameMap(placeType) {
-      return (index) => {
-        onUpdateGameMap({ index, placeType })
-      }
-    }
-
     const foods = getFoodsState()
 
     if (isPLay) {
@@ -138,23 +114,15 @@ function main(canvas, context) {
 
     const bricks = getBrickState()
 
-    state.prevBriks = bricks
-
     clearGame()
-    clearBricks()
 
     const snakes = getSnakesState()
 
-    state.prevSnakes = snakes
-    state.prevFoods = foods
-
-    if (false) {
-      renderProcessedCell()
-    }
+    onUpdateGameMapWithNexState(batchUpdateSnakeStateForGameMap(snakes))
 
     renderFoods(context, foods, updateGameMapForFood())
     renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
-    renderSnakes(context, snakes, updateGameMap(PLACE_TYPE.GAME_OBJECT))
+    renderSnakes(context, snakes)
 
     snakes.forEach((snake) => {
       const { showAIPathToTarget } = getSettingsForSnakeState(snake.id)
