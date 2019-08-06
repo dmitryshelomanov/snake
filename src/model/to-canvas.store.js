@@ -1,6 +1,6 @@
 import {
   $gameStateStore,
-  $appleStore,
+  $foodsStore,
   $gameMapStore,
   $snakesStore,
   $gameCollisionStateStore,
@@ -10,11 +10,12 @@ import {
   $settingsForSnakeStore,
   $heuristicByIdState,
   $algorithmByIdState,
+  $nearestFoodState,
 } from './game.store'
 
 export const getGameState = () => $gameStateStore.getState()
 
-export const getAppleState = () => $appleStore.getState()
+export const getFoodsState = () => $foodsStore.getState()
 
 export const getGameMapState = () => $gameMapStore.getState()
 
@@ -34,3 +35,6 @@ export const getSettingsForSnakeState = (snakeId) =>
 export const getAlgorithmStateById = (id) => $algorithmByIdState(id).getState()
 
 export const getHeuristicStateById = (id) => $heuristicByIdState(id).getState()
+
+export const getNearestFood = (position) =>
+  $nearestFoodState(position).getState()

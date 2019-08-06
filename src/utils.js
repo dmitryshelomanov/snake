@@ -80,3 +80,13 @@ export function createOperationLogger(name) {
     },
   }
 }
+
+export function generateRandomFoodByCount(count) {
+  const foods = []
+
+  for (let i = 0; i < count; i++) {
+    foods.push([randomPosition(), randomId()])
+  }
+
+  return foods
+}

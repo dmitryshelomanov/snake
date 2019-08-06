@@ -2,7 +2,7 @@ import { merge } from 'effector'
 import { randomPosition, getPositionByIndex } from '../utils'
 import {
   $gameStateStore,
-  $appleStore,
+  $foodsStore,
   $snakesStore,
   $gameMapStore,
   $gameCollisionStateStore,
@@ -18,7 +18,8 @@ import {
 import {
   onPlay,
   onStop,
-  onEatApple,
+  onEatFood,
+  onGenerateFoods,
   onMoveSnake,
   onSetDirectionForSnake,
   onRestart,
@@ -58,10 +59,22 @@ $gameStateStore
   .on(onStop, () => GAME_STATE.IS_PAUSE)
   .reset(onRestart)
 
-$appleStore.on(onEatApple, () => randomPosition()).reset(onRestart)
+// [[x,y], id]
+$foodsStore
+  .on(onEatFood, (state, { foodId }) =>
+    state.map((food) => {
+      if (food[1] === foodId) {
+        return [randomPosition(), food[1]]
+      }
+
+      return food
+    })
+  )
+  .on(onGenerateFoods, (state, foods) => [...state, ...foods])
+  .reset(onRestart)
 
 $snakesStore
-  .on(onEatApple, (snakes, { id, peaceOfSnake }) =>
+  .on(onEatFood, (snakes, { id, peaceOfSnake }) =>
     snakes.map((snake) => {
       if (snake.id === id) {
         return addPeaceOfSnake(setScore(snake, snake.score + 1), peaceOfSnake)
