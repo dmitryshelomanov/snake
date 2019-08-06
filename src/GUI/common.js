@@ -5,6 +5,7 @@ export const Title = styled.h2`
   margin: 15px 0;
   padding: 0;
   font-weight: bold;
+  color: ${(props) => props.color};
 `
 
 export const Name = styled.p`

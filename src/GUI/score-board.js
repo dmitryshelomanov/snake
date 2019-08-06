@@ -3,7 +3,11 @@ import { useStore } from 'effector-react'
 import styled from 'styled-components'
 import { $snakeIterator } from '../model'
 import { Title, Name } from './common'
-import { useSnakeIsCrahedState, useSnakeScoreState } from './use-snake'
+import {
+  useSnakeIsCrahedState,
+  useSnakeScoreState,
+  useSnakeColorState,
+} from './use-snake'
 
 export const Wrapper = styled.ul`
   margin: 0;
@@ -17,6 +21,7 @@ export const Score = styled.li`
   justify-content: space-around;
   flex: 1 1 auto;
   text-decoration: ${(props) => (props.isCrash ? 'line-through' : 'none')};
+  color: ${(props) => props.color};
 `
 
 export const Counter = styled.p`
@@ -26,9 +31,10 @@ export const Counter = styled.p`
 export function ScoreItem({ snakeId }) {
   const score = useSnakeScoreState(snakeId)
   const isCrash = useSnakeIsCrahedState(snakeId)
+  const colors = useSnakeColorState(snakeId)
 
   return (
-    <Score isCrash={isCrash}>
+    <Score isCrash={isCrash} color={colors.head}>
       <Name>{snakeId}</Name>
       <Counter>{score}</Counter>
     </Score>

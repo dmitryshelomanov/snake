@@ -30,8 +30,6 @@ export const onSetAiPathVisibleToTarget = createEvent(
 
 export const onSetIndexesVisible = createEvent('set visible indexes')
 
-export const onSetProcessedItemsVisible = createEvent(
-  'set processed visible state'
-)
-
 export const onToggleLoggerState = createEvent('on toggle logger')
+
+export const onUpdateSettingForSnake = createEvent('upadte setting for snake')
