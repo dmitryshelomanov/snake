@@ -26,15 +26,6 @@ export const $gameStateStore = createStore(GAME_STATE.IS_PAUSE)
 
 export const $foodsStore = createStore(generateRandomFoodByCount(6))
 
-export const $nearestFoodState = (position) =>
-  $foodsStore.map(
-    (foods) =>
-      foods.sort(
-        (a, b) =>
-          manhattanDistance(a[0], position) - manhattanDistance(b[0], position)
-      )[0]
-  )
-
 export const $gameMapStore = createStore({})
 
 export const $snakesStore = createStore([
@@ -76,11 +67,6 @@ export const $heuristicsStore = createStore([
   },
 ])
 
-export const $heuristicByIdState = (id) =>
-  $heuristicsStore.map((heuristics) =>
-    heuristics.find((heuristic) => heuristic.id === id)
-  )
-
 export const $algorithmsStore = createStore([
   {
     id: 'breadth',
@@ -113,9 +99,6 @@ export const $algorithmsStore = createStore([
   },
 ])
 
-export const $algorithmByIdState = (id) =>
-  $algorithmsStore.map((algs) => algs.find((alg) => alg.id === id))
-
 export function buildSettingsForSnake() {
   return {
     showAIPathToTarget: false,
@@ -133,9 +116,6 @@ export const $settingsForSnakesStore = createStore(
     {}
   )
 )
-
-export const $settingsForSnakeStore = (id) =>
-  $settingsForSnakesStore.map((settings) => settings[id])
 
 export const $brickStore = createStore([])
 

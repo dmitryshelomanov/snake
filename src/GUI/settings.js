@@ -9,7 +9,6 @@ import {
   $snakeIterator,
   $algorithmsStore,
   $heuristicsStore,
-  $settingsForSnakeStore,
   onSetCollisionState,
   onAddUserToGame,
   onRemoveUserFromGame,
@@ -18,7 +17,7 @@ import {
   onUpdateSettingForSnake,
 } from '../model'
 import { Title, Checkbox } from './common'
-import { useSnakeColorState } from './use-snake'
+import { useSnakeColorState, useSnakeSetings } from './use-snake'
 
 export const Wrapper = styled.ul`
   margin: 0;
@@ -52,9 +51,11 @@ export function SettingsForSnake({ snakeId }) {
   const colors = useSnakeColorState(snakeId)
   const algorithms = useStore($algorithmsStore)
   const heuristics = useStore($heuristicsStore)
-  const { activeAlgorithm, activeHeuristic, showAIPathToTarget } = useStore(
-    $settingsForSnakeStore(snakeId)
-  )
+  const {
+    activeAlgorithm,
+    activeHeuristic,
+    showAIPathToTarget,
+  } = useSnakeSetings(snakeId)
   const currentAlgorithm = algorithms.find((alg) => alg.id === activeAlgorithm)
 
   return (
