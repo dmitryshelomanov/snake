@@ -9,7 +9,7 @@ export class Graph {
         this.getLeftNeigbour(index),
         this.getDownNeigbour(index),
         this.getRightNeigbour(index),
-      ].filter(Boolean)
+      ].filter((i) => typeof i !== 'undefined')
     )
   }
 
