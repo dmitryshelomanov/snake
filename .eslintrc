@@ -9,5 +9,9 @@
   "globals": {
     "requestAnimationFrame": true,
     "document": true
+  },
+  "plugins": ["jest"],
+  "env": {
+    "jest/globals": true
   }
 }
