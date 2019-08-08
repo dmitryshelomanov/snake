@@ -77,8 +77,8 @@ export function renderPath(context, paths = [], color = 'rgb(255, 255, 0)') {
   }
 }
 
-export function renderProcessed(context, processed) {
+export function renderProcessed(context, processed, color) {
   for (const element of processed) {
-    drawSquare(context, element, { color: '#a7e5f3' })
+    drawSquare(context, element, { color })
   }
 }
