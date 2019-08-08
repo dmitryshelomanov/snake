@@ -13,6 +13,7 @@ Graph 10x6
 [50][51][52][53][54][55][56][57][58][59]
 
 */
+
 describe('Graph', () => {
   it('should get all neighbors graph', () => {
     const graph = new Graph({ w: 10, h: 6 })

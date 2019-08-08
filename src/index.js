@@ -124,13 +124,16 @@ function main(canvas, context) {
 
     const snakes = getSnakesState()
 
-    onUpdateGameMapWithNexState(batchUpdateSnakeStateForGameMap(snakes))
+    renderFoods(context, foods, updateGameMapForFood())
+    renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
 
     snakes.forEach((snake) => {
       const {
         showAIPathToTarget,
         showProcessedCells,
       } = getSettingsForSnakeState(snake.id)
+
+      renderSnake(context, snake)
 
       if (showProcessedCells) {
         renderProcessed(
@@ -143,12 +146,9 @@ function main(canvas, context) {
       if (showAIPathToTarget) {
         renderPath(context, state.path[snake.id] || [], snake.colors.head)
       }
-
-      renderSnake(context, snake)
     })
 
-    renderFoods(context, foods, updateGameMapForFood())
-    renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
+    onUpdateGameMapWithNexState(batchUpdateSnakeStateForGameMap(snakes))
 
     gridData.applyStyles()
     context.stroke(gridData.grid)

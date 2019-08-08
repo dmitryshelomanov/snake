@@ -3,6 +3,7 @@ import {
   convertLocalPositionToGlobal,
   getLocalSize,
   getGlobalSize,
+  getDifferenceBetweenPositions,
 } from './utils'
 
 export function drawSquare(
@@ -51,21 +52,21 @@ export function renderText(context, text, position) {
   context.fillText(text, x + (cellSize - width) / 2, y + cellSize / 2)
 }
 
-function differenceBetweenPath([x, y], [x1, y1]) {
-  const diff = Math.abs(x1 + y1 - (x + y))
+function getNextPositionIfIsNear(pos1, pos2) {
+  const diff = getDifferenceBetweenPositions(pos1, pos2)
 
   if (diff !== 1) {
-    return [x, y]
+    return pos1
   }
 
-  return [x1, y1]
+  return pos2
 }
 
 export function renderPath(context, paths = [], color = 'rgb(255, 255, 0)') {
   for (let i = 0; i < paths.length - 1; i++) {
     const [x, y] = convertLocalPositionToGlobal(paths[i])
     const [x1, y1] = convertLocalPositionToGlobal(
-      differenceBetweenPath(paths[i], paths[i + 1])
+      getNextPositionIfIsNear(paths[i], paths[i + 1])
     )
 
     context.beginPath()
