@@ -19,5 +19,9 @@ describe('Graph', () => {
 
     expect(graph.getNeighbors(0)).toEqual([50, 9, 10, 1])
     expect(graph.getNeighbors(10)).toEqual([0, 19, 20, 11])
+    expect(graph.getNeighbors(54)).toEqual([44, 53, 4, 55])
+    expect(graph.getNeighbors(58)).toEqual([48, 57, 8, 59])
+    expect(graph.getNeighbors(59)).toEqual([49, 58, 9, 50])
+    expect(graph.getNeighbors(8)).toEqual([58, 7, 18, 9])
   })
 })
