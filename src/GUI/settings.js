@@ -52,6 +52,7 @@ export function SettingsForSnake({ snakeId }) {
   const algorithms = useStore($algorithmsStore)
   const heuristics = useStore($heuristicsStore)
   const {
+    showProcessedCells,
     activeAlgorithm,
     activeHeuristic,
     showAIPathToTarget,
@@ -76,6 +77,22 @@ export function SettingsForSnake({ snakeId }) {
           />
           <Name htmlFor={`path-${snakeId}`} color={colors.tail}>
             show ai path to target
+          </Name>
+        </SettingWrapper>
+        <SettingWrapper>
+          <Checkbox
+            id={`processed-${snakeId}`}
+            checked={showProcessedCells}
+            onChange={() => {
+              onUpdateSettingForSnake({
+                snakeId,
+                value: !showProcessedCells,
+                settingName: 'showProcessedCells',
+              })
+            }}
+          />
+          <Name htmlFor={`processed-${snakeId}`} color={colors.tail}>
+            show processed cells
           </Name>
         </SettingWrapper>
         <SettingWrapper dir="column">

@@ -1,6 +1,11 @@
 /* eslint-disable unicorn/prevent-abbreviations */
-import { getLocalSize, getGlobalSize, getIndexByPosition } from './utils'
-import { buildGrid, renderPath } from './renderer'
+import {
+  getLocalSize,
+  getGlobalSize,
+  getIndexByPosition,
+  extractTypeFromMap,
+} from './utils'
+import { buildGrid, renderPath, renderProcessed } from './renderer'
 import { pageHeight, pageWidth, fps } from './config'
 import {
   createTimeController,
@@ -25,7 +30,7 @@ import {
   onUpdateGameMapWithNexState,
   onUpdateGameMap,
 } from './model'
-import { renderSnakes, batchUpdateSnakeStateForGameMap } from './snake'
+import { batchUpdateSnakeStateForGameMap, renderSnake } from './snake'
 import { renderBricks } from './brick'
 import { updaters } from './updaters'
 import { renderFoods, updateGameMapForFood } from './food'
@@ -43,6 +48,7 @@ function main(canvas, context) {
   const state = {
     graph: new Graph(localSize),
     path: {},
+    processed: {},
   }
 
   const nextTick = createTimeController(fps)
@@ -73,7 +79,7 @@ function main(canvas, context) {
       const gameMap = getGameMapState()
       const headIndex = getIndexByPosition(headSnake(snake))
       const isCrash = [PLACE_TYPE.GAME_OBJECT, PLACE_TYPE.BRICK].includes(
-        gameMap[headIndex]
+        extractTypeFromMap(gameMap[headIndex])
       )
 
       if (isCrash) {
@@ -120,17 +126,25 @@ function main(canvas, context) {
 
     onUpdateGameMapWithNexState(batchUpdateSnakeStateForGameMap(snakes))
 
-    renderFoods(context, foods, updateGameMapForFood())
-    renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
-    renderSnakes(context, snakes)
-
     snakes.forEach((snake) => {
-      const { showAIPathToTarget } = getSettingsForSnakeState(snake.id)
+      const {
+        showAIPathToTarget,
+        showProcessedCells,
+      } = getSettingsForSnakeState(snake.id)
+
+      if (showProcessedCells) {
+        renderProcessed(context, state.processed[snake.id] || [])
+      }
 
       if (showAIPathToTarget) {
         renderPath(context, state.path[snake.id] || [], snake.colors.head)
       }
+
+      renderSnake(context, snake)
     })
+
+    renderFoods(context, foods, updateGameMapForFood())
+    renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
 
     gridData.applyStyles()
     context.stroke(gridData.grid)

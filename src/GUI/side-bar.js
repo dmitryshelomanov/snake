@@ -52,19 +52,15 @@ const Button = styled.button`
 export function SideBar() {
   const gameState = useStore($gameStateStore)
   const isPlay = gameState === GAME_STATE.IS_PLAY
-  const isPause = gameState === GAME_STATE.IS_PAUSE
+  const playOrPause = isPlay ? onStop : onPlay
+  const text = isPlay ? 'pause' : 'play'
 
   return (
     <SideBarWrapper>
       <SideBarInner>
         <RightPanel />
         <ControllPanel>
-          <Button disabled={isPlay} onClick={onPlay}>
-            play
-          </Button>
-          <Button disabled={isPause} onClick={onStop}>
-            stop
-          </Button>
+          <Button onClick={playOrPause}>{text}</Button>
           <Button onClick={onRestart}>restart</Button>
         </ControllPanel>
       </SideBarInner>

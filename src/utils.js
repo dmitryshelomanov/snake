@@ -90,3 +90,11 @@ export function generateRandomFoodByCount(count) {
 
   return foods
 }
+
+export function extractTypeFromMap(place) {
+  if (Array.isArray(place)) {
+    return place[0]
+  }
+
+  return place
+}

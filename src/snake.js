@@ -2,7 +2,7 @@ import { getIndexByPosition } from './utils'
 import { drawSquare, renderText } from './renderer'
 import { getIndexesVisibleStore, PLACE_TYPE } from './model'
 
-export function drawSnake(context, snake) {
+export function renderSnake(context, snake) {
   for (let i = 0; i < snake.body.length; i++) {
     const isHead = i === snake.body.length - 1
     const color = isHead ? snake.colors.head : snake.colors.tail
@@ -21,7 +21,7 @@ export function drawSnake(context, snake) {
 
 export function renderSnakes(context, snakes = []) {
   snakes.forEach((snake) => {
-    drawSnake(context, snake)
+    renderSnake(context, snake)
   })
 }
 

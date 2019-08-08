@@ -1,4 +1,8 @@
-import { getIndexByPosition, getPositionByIndex } from './utils'
+import {
+  getIndexByPosition,
+  getPositionByIndex,
+  extractTypeFromMap,
+} from './utils'
 import { DIRECTIONS } from './config'
 import { getNextPositionByDirection, getDirectionByPosition } from './controll'
 import { checkBounds } from './collision'
@@ -18,14 +22,6 @@ import {
 import { keyboradFactory, KEYS } from './keyboard'
 
 const gameInput = keyboradFactory()
-
-function extractTypeFromMap(place) {
-  if (Array.isArray(place)) {
-    return place[0]
-  }
-
-  return place
-}
 
 export const updaters = {
   ai: (self, nextState) => {
@@ -68,7 +64,7 @@ export const updaters = {
     const processedPositions = result.processed.map(getPositionByIndex)
 
     nextState.path[self.id] = pathPositions
-    nextState.processed = processedPositions
+    nextState.processed[self.id] = processedPositions
 
     const headPosition =
       pathPositions[0] ||
