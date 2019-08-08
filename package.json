@@ -29,6 +29,7 @@
     "prettier": "^1.18.2"
   },
   "dependencies": {
+    "color": "^3.1.2",
     "effector": "^20.1.1",
     "effector-react": "^20.1.1",
     "fastpriorityqueue": "^0.6.3",
