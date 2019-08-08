@@ -52,9 +52,7 @@ export class Graph {
       return index + this.w
     }
 
-    return this.withBounds
-      ? undefined
-      : index - (this.w * (this.h - 1) + (index % this.w))
+    return this.withBounds ? undefined : index % this.w
   }
 
   getNeighbors(index) {

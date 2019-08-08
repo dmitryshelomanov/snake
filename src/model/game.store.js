@@ -43,20 +43,20 @@ export const $snakesStore = createStore([
     },
     id: 'ai-1',
   }),
-  Snake.build(randomPosition(), {
-    colors: {
-      head: '#dc4646',
-      tail: '#dc6e6e',
-    },
-    id: 'ai-2',
-  }),
-  Snake.build(randomPosition(), {
-    colors: {
-      head: '#36d2e2',
-      tail: '#81c6ce',
-    },
-    id: 'ai-3',
-  }),
+  // Snake.build(randomPosition(), {
+  //   colors: {
+  //     head: '#dc4646',
+  //     tail: '#dc6e6e',
+  //   },
+  //   id: 'ai-2',
+  // }),
+  // Snake.build(randomPosition(), {
+  //   colors: {
+  //     head: '#36d2e2',
+  //     tail: '#81c6ce',
+  //   },
+  //   id: 'ai-3',
+  // }),
 ])
 
 export const $gameCollisionStateStore = createStore(true)
@@ -115,6 +115,7 @@ export const $algorithmsStore = createStore([
 
 export function buildSettingsForSnake() {
   return {
+    showProcessedCells: false,
     showAIPathToTarget: false,
     activeAlgorithm: 'breadth',
     activeHeuristic: 'manhattan',
