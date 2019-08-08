@@ -1,4 +1,24 @@
+import Color from 'color'
 import { DIRECTIONS } from '../config'
+
+const colorsStub = [
+  '#f48fb1',
+  '#ec407a',
+  '#c2185b',
+  '#b71c1c',
+  '#ba68c8',
+  '#8e24aa',
+  '#26c6da',
+  '#9ccc65',
+  '#c0ca33',
+  '#ffeb3b',
+  '#ffc107',
+  '#ff9800',
+  '#ff5722',
+  '#795548',
+  '#9e9e9e',
+  '#607d8b',
+]
 
 export class Snake {
   static build(headPosition, { colors, id }) {
@@ -57,5 +77,15 @@ export function setCrash(snake, isCrash) {
   return {
     ...snake,
     isCrash,
+  }
+}
+
+export function getColorsForSnake() {
+  const color = Color(colorsStub[Math.ceil(Math.random() * colorsStub.length)])
+
+  return {
+    head: color.toString(),
+    tail: color.alpha(0.7).toString(),
+    processed: color.alpha(0.4).toString(),
   }
 }

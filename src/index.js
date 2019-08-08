@@ -133,7 +133,11 @@ function main(canvas, context) {
       } = getSettingsForSnakeState(snake.id)
 
       if (showProcessedCells) {
-        renderProcessed(context, state.processed[snake.id] || [])
+        renderProcessed(
+          context,
+          state.processed[snake.id] || [],
+          snake.colors.processed
+        )
       }
 
       if (showAIPathToTarget) {

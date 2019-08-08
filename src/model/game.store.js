@@ -8,7 +8,7 @@ import {
 } from '../algorithms'
 import { manhattanDistance, chebyshevDistance } from '../algorithms/heuristic'
 import { randomPosition, generateRandomFoodByCount } from '../utils'
-import { Snake } from './snake'
+import { Snake, getColorsForSnake } from './snake'
 
 export const GAME_STATE = {
   IS_PLAY: 1,
@@ -30,33 +30,21 @@ export const $gameMapStore = createStore({})
 
 export const $snakesStore = createStore([
   Snake.build(randomPosition(), {
-    colors: {
-      head: 'rgb(0, 221, 0)',
-      tail: 'rgb(152, 251, 152)',
-    },
+    colors: getColorsForSnake(),
     id: 'ai',
   }),
   Snake.build(randomPosition(), {
-    colors: {
-      head: 'rgb(255, 221, 0)',
-      tail: 'rgb(255, 251, 152)',
-    },
+    colors: getColorsForSnake(),
     id: 'ai-1',
   }),
-  // Snake.build(randomPosition(), {
-  //   colors: {
-  //     head: '#dc4646',
-  //     tail: '#dc6e6e',
-  //   },
-  //   id: 'ai-2',
-  // }),
-  // Snake.build(randomPosition(), {
-  //   colors: {
-  //     head: '#36d2e2',
-  //     tail: '#81c6ce',
-  //   },
-  //   id: 'ai-3',
-  // }),
+  Snake.build(randomPosition(), {
+    colors: getColorsForSnake(),
+    id: 'ai-2',
+  }),
+  Snake.build(randomPosition(), {
+    colors: getColorsForSnake(),
+    id: 'ai-3',
+  }),
 ])
 
 export const $gameCollisionStateStore = createStore(true)
