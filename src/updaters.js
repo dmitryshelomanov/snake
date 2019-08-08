@@ -2,6 +2,7 @@ import {
   getIndexByPosition,
   getPositionByIndex,
   extractTypeFromMap,
+  getDifferenceBetweenPositions,
 } from './utils'
 import { DIRECTIONS } from './config'
 import { getNextPositionByDirection, getDirectionByPosition } from './controll'
@@ -66,15 +67,15 @@ export const updaters = {
     nextState.path[self.id] = pathPositions
     nextState.processed[self.id] = processedPositions
 
-    const headPosition =
+    const nextPosition =
       pathPositions[0] ||
-      getNextPositionByDirection(headSnake(self), self.direction)
-
-    const nextPosition = checkBounds(headPosition)
+      checkBounds(getNextPositionByDirection(headSnake(self), self.direction))
+    const nextDirection = getDirectionByPosition(headSnake(self), nextPosition)
+    const diff = getDifferenceBetweenPositions(headSnake(self), nextPosition)
 
     onSetDirectionForSnake({
       id: self.id,
-      direction: getDirectionByPosition(headSnake(self), nextPosition),
+      direction: diff !== 1 ? self.direction : nextDirection,
     })
 
     onMoveSnake({ id: self.id, nextPosition })

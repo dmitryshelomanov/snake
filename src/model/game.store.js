@@ -33,18 +33,18 @@ export const $snakesStore = createStore([
     colors: getColorsForSnake(),
     id: 'ai',
   }),
-  Snake.build(randomPosition(), {
-    colors: getColorsForSnake(),
-    id: 'ai-1',
-  }),
-  Snake.build(randomPosition(), {
-    colors: getColorsForSnake(),
-    id: 'ai-2',
-  }),
-  Snake.build(randomPosition(), {
-    colors: getColorsForSnake(),
-    id: 'ai-3',
-  }),
+  // Snake.build(randomPosition(), {
+  //   colors: getColorsForSnake(),
+  //   id: 'ai-1',
+  // }),
+  // Snake.build(randomPosition(), {
+  //   colors: getColorsForSnake(),
+  //   id: 'ai-2',
+  // }),
+  // Snake.build(randomPosition(), {
+  //   colors: getColorsForSnake(),
+  //   id: 'ai-3',
+  // }),
 ])
 
 export const $gameCollisionStateStore = createStore(true)
