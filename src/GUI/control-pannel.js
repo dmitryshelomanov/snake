@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 export const ControllPanel = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.6);
@@ -12,4 +12,8 @@ export const ControllPanel = styled.div`
   width: 100%;
   min-height: 50px;
   margin-top: 15px;
+
+  > button {
+    margin: auto;
+  }
 `

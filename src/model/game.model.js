@@ -1,4 +1,3 @@
-import { merge } from 'effector'
 import { randomPosition, getPositionByIndex } from '../utils'
 import {
   $gameStateStore,

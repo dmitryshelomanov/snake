@@ -98,3 +98,7 @@ export function extractTypeFromMap(place) {
 
   return place
 }
+
+export function getDifferenceBetweenPositions([x, y], [x1, y1]) {
+  return Math.abs(x1 + y1 - (x + y))
+}
