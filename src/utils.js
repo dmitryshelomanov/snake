@@ -50,10 +50,10 @@ export function randomPosition() {
   return [intNumber(w), intNumber(h)]
 }
 
-export function getIndexByPosition([col, row]) {
-  const { w, h } = getLocalSize(pageWidth, pageHeight)
+export function getIndexByPosition([x, y]) {
+  const { w } = getLocalSize(pageWidth, pageHeight)
 
-  return row * w + col
+  return y * w + x
 }
 
 export function getPositionByIndex(index) {
