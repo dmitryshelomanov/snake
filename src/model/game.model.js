@@ -34,6 +34,8 @@ import {
   onToggleLoggerState,
   onUpdateSettingForSnake,
   onUpdateGameMapWithNexState,
+  onAddSnake,
+  onRemoveSnake,
 } from './game.events'
 import {
   setScore,
@@ -42,6 +44,8 @@ import {
   addPeaceOfSnake,
   setCrash,
   Snake,
+  getColorsForSnake,
+  buildSettingsForSnake,
 } from './snake'
 
 function getUserSnake() {
@@ -114,6 +118,16 @@ $snakesStore
   .on(onRemoveUserFromGame, (snakes) =>
     snakes.filter((snake) => snake.id !== 'user')
   )
+  .on(onAddSnake, (snakes, snakeId) => [
+    ...snakes,
+    Snake.build(randomPosition(), {
+      colors: getColorsForSnake(),
+      id: snakeId,
+    }),
+  ])
+  .on(onRemoveSnake, (snakes, snakeId) =>
+    snakes.filter((snake) => snake.id !== snakeId)
+  )
   .reset(onRestart)
 
 $gameMapStore
@@ -157,6 +171,10 @@ $snakeIterator
   .on(onRemoveUserFromGame, (snakeIds) =>
     snakeIds.filter((id) => id !== 'user')
   )
+  .on(onAddSnake, (snakeIds, snakeId) => [...snakeIds, snakeId])
+  .on(onRemoveSnake, (snakeIds, snakeId) =>
+    snakeIds.filter((id) => id !== snakeId)
+  )
   .reset(onRestart)
 
 $indexesVisibleStore
@@ -172,5 +190,9 @@ $settingsForSnakesStore
       ...state[snakeId],
       [settingName]: value,
     },
+  }))
+  .on(onAddSnake, (settings, snakeId) => ({
+    ...settings,
+    [snakeId]: buildSettingsForSnake(),
   }))
   .reset(onRestart)
