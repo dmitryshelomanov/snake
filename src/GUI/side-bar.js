@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { useStore } from 'effector-react'
 import styled from 'styled-components'
 import {
   onPlay,
   onStop,
   onRestart,
+  onAddSnake,
   $gameStateStore,
   GAME_STATE,
 } from '../model'
@@ -15,7 +16,7 @@ export const SideBarWrapper = styled.div`
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 260px;
+  width: 300px;
 
   & div {
     box-sizing: border-box;
@@ -50,10 +51,15 @@ const Button = styled.button`
 `
 
 export function SideBar() {
+  const lastId = useRef(2)
   const gameState = useStore($gameStateStore)
   const isPlay = gameState === GAME_STATE.IS_PLAY
   const playOrPause = isPlay ? onStop : onPlay
   const text = isPlay ? 'pause' : 'play'
+
+  function addSnakeToGame() {
+    onAddSnake(`ai-${lastId.current++}`)
+  }
 
   return (
     <SideBarWrapper>
@@ -62,6 +68,7 @@ export function SideBar() {
         <ControllPanel>
           <Button onClick={playOrPause}>{text}</Button>
           <Button onClick={onRestart}>restart</Button>
+          <Button onClick={addSnakeToGame}>add snake</Button>
         </ControllPanel>
       </SideBarInner>
     </SideBarWrapper>
