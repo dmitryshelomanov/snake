@@ -94,7 +94,7 @@ export function buildSettingsForSnake() {
   return {
     showProcessedCells: false,
     showAIPathToTarget: false,
-    activeAlgorithm: 'breadth',
+    activeAlgorithm: 'aStar',
     activeHeuristic: 'manhattan',
   }
 }

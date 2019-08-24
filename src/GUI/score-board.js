@@ -22,6 +22,18 @@ export const Score = styled.li`
   flex: 1 1 auto;
   text-decoration: ${(props) => (props.isCrash ? 'line-through' : 'none')};
   color: ${(props) => props.color};
+  position: relative;
+  align-items: center;
+`
+
+export const DroppedOutBlock = styled.div`
+  position: absolute;
+  background-color: #f7f7f787;
+  color: #000;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
 `
 
 export const Counter = styled.p`
@@ -35,6 +47,7 @@ export function ScoreItem({ snakeId }) {
 
   return (
     <Score isCrash={isCrash} color={colors.head}>
+      <DroppedOutBlock hidden={!isCrash}>Dropped out !</DroppedOutBlock>
       <Name>{snakeId}</Name>
       <Counter>{score}</Counter>
     </Score>
