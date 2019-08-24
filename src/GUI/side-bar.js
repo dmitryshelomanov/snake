@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import { useStore } from 'effector-react'
 import styled from 'styled-components'
+import Draggable from 'react-draggable'
 import {
   onPlay,
   onStop,
@@ -17,6 +18,7 @@ export const SideBarWrapper = styled.div`
   top: 20px;
   right: 20px;
   width: 300px;
+  cursor: move;
 
   & div {
     box-sizing: border-box;
@@ -62,15 +64,17 @@ export function SideBar() {
   }
 
   return (
-    <SideBarWrapper>
-      <SideBarInner>
-        <RightPanel />
-        <ControllPanel>
-          <Button onClick={playOrPause}>{text}</Button>
-          <Button onClick={onRestart}>restart</Button>
-          <Button onClick={addSnakeToGame}>add snake</Button>
-        </ControllPanel>
-      </SideBarInner>
-    </SideBarWrapper>
+    <Draggable>
+      <SideBarWrapper>
+        <SideBarInner>
+          <RightPanel />
+          <ControllPanel>
+            <Button onClick={playOrPause}>{text}</Button>
+            <Button onClick={onRestart}>restart</Button>
+            <Button onClick={addSnakeToGame}>add snake</Button>
+          </ControllPanel>
+        </SideBarInner>
+      </SideBarWrapper>
+    </Draggable>
   )
 }
