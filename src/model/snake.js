@@ -89,3 +89,12 @@ export function getColorsForSnake() {
     processed: color.alpha(0.4).toString(),
   }
 }
+
+export function buildSettingsForSnake() {
+  return {
+    showProcessedCells: false,
+    showAIPathToTarget: false,
+    activeAlgorithm: 'breadth',
+    activeHeuristic: 'manhattan',
+  }
+}

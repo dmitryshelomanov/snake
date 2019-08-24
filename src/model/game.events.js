@@ -10,6 +10,8 @@ export const onGenerateFoods = createEvent('generate food')
 export const onMoveSnake = createEvent('move snake')
 export const onSetDirectionForSnake = createEvent(`set snake's direction`)
 export const onCrashSnake = createEvent('on crash snake')
+export const onAddSnake = createEvent('add snake to game')
+export const onRemoveSnake = createEvent('remove snake from game')
 
 export const onClearGameMap = createEvent('clear game map')
 export const onUpdateGameMap = createEvent('upadte game map')

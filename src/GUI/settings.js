@@ -15,9 +15,14 @@ import {
   onSetIndexesVisible,
   onToggleLoggerState,
   onUpdateSettingForSnake,
+  onRemoveSnake,
 } from '../model'
 import { Title, Checkbox } from './common'
-import { useSnakeColorState, useSnakeSetings } from './use-snake'
+import {
+  useSnakeColorState,
+  useSnakeSetings,
+  useSnakeIsCrahedState,
+} from './use-snake'
 
 export const Wrapper = styled.ul`
   margin: 0;
@@ -47,7 +52,19 @@ export const Select = styled.select`
   margin-top: 5px;
 `
 
+export const TitlesWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  & p {
+    cursor: pointer;
+    user-select: none;
+  }
+`
+
 export function SettingsForSnake({ snakeId }) {
+  const isCrash = useSnakeIsCrahedState(snakeId)
   const colors = useSnakeColorState(snakeId)
   const algorithms = useStore($algorithmsStore)
   const heuristics = useStore($heuristicsStore)
@@ -59,12 +76,20 @@ export function SettingsForSnake({ snakeId }) {
   } = useSnakeSetings(snakeId)
   const currentAlgorithm = algorithms.find((alg) => alg.id === activeAlgorithm)
 
+  function removeSnake() {
+    onRemoveSnake(snakeId)
+  }
+
   return (
     <>
-      <Title color={colors.head}>Settings for {snakeId}</Title>
+      <TitlesWrapper>
+        <Title color={colors.head}>Settings for {snakeId}</Title>
+        <p onClick={removeSnake}>remove</p>
+      </TitlesWrapper>
       <Wrapper>
         <SettingWrapper>
           <Checkbox
+            disabled={isCrash}
             id={`path-${snakeId}`}
             checked={showAIPathToTarget}
             onChange={() => {
@@ -81,6 +106,7 @@ export function SettingsForSnake({ snakeId }) {
         </SettingWrapper>
         <SettingWrapper>
           <Checkbox
+            disabled={isCrash}
             id={`processed-${snakeId}`}
             checked={showProcessedCells}
             onChange={() => {
@@ -97,6 +123,7 @@ export function SettingsForSnake({ snakeId }) {
         </SettingWrapper>
         <SettingWrapper dir="column">
           <Select
+            disabled={isCrash}
             onChange={({ target }) => {
               onUpdateSettingForSnake({
                 snakeId,
@@ -117,6 +144,7 @@ export function SettingsForSnake({ snakeId }) {
           </Select>
           {currentAlgorithm.hasHeuristic && (
             <Select
+              disabled={isCrash}
               onChange={({ target }) => {
                 onUpdateSettingForSnake({
                   snakeId,
