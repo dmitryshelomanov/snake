@@ -4,6 +4,7 @@ import {
   convertGlobalPositionToLocal,
   convertLocalPositionToGlobal,
   getIndexByPosition,
+  getDifferenceBetweenPositions,
 } from './utils'
 
 describe('utils', () => {
@@ -28,5 +29,11 @@ describe('utils', () => {
     expect(getIndexByPosition([3, 0])).toBe(3)
     expect(getIndexByPosition([0, 1])).toBe(4)
     expect(getIndexByPosition([3, 2])).toBe(11)
+  })
+
+  it('getDifferenceBetweenPositions', () => {
+    expect(getDifferenceBetweenPositions([2, 2], [3, 3])).toBe(2)
+    expect(getDifferenceBetweenPositions([2, 4], [13, 3])).toBe(10)
+    expect(getDifferenceBetweenPositions([12, 4], [1, 3])).toBe(12)
   })
 })

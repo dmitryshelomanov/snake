@@ -1,4 +1,8 @@
-import { getDirectionByPosition, getNextPositionByDirection } from './controll'
+import {
+  getDirectionByPosition,
+  getNextPositionByDirection,
+  createTimeController,
+} from './controll'
 import { DIRECTIONS } from './config'
 
 /*
@@ -20,5 +24,13 @@ describe('controll', () => {
     expect(getNextPositionByDirection([3, 0], DIRECTIONS.LEFT)).toEqual([2, 0])
     expect(getNextPositionByDirection([3, 1], DIRECTIONS.TOP)).toEqual([3, 0])
     expect(getNextPositionByDirection([3, 1], DIRECTIONS.DOWN)).toEqual([3, 2])
+  })
+
+  const pause = jest.spyOn(createTimeController(), 'pause')
+  const play = jest.spyOn(createTimeController(), 'play')
+
+  it('controll buttons', () => {
+    expect(pause()).toEqual(onStop())
+    expect(play()).toEqual(onPlay())
   })
 })
