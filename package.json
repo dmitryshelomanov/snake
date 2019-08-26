@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "npx parcel index.html",
-    "test:dev": "npx jest --watch"
+    "test:code": "npx jest --watch",
+    "test:code:prod": "npx jest .",
+    "test:lint": "npx eslint ."
   },
   "keywords": [],
   "author": "",

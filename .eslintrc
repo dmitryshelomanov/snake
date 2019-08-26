@@ -8,7 +8,9 @@
   },
   "globals": {
     "requestAnimationFrame": true,
-    "document": true
+    "document": true,
+    "Path2D": true,
+    "window": true
   },
   "plugins": ["jest"],
   "env": {
