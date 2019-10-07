@@ -1,5 +1,7 @@
 # Snake Game
 
+[Try it](https://userbq201.github.io/snake/)
+
 ![preview](preview_2.png)
 
 ## Introduction
