@@ -234,9 +234,11 @@ export function Settings() {
           <Name htmlFor="logger">show operations count in console</Name>
         </SettingWrapper>
       </Wrapper>
-      {snakeIterator.map((id) => (
-        <SettingsForSnake snakeId={id} key={id} />
-      ))}
+      {snakeIterator
+        .filter((id) => id !== 'user')
+        .map((id) => (
+          <SettingsForSnake snakeId={id} key={id} />
+        ))}
     </>
   )
 }
