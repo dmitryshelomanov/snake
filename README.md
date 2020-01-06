@@ -14,3 +14,5 @@ Your opportunities
 - Add self to game
 - Add bricks to arbitrary place
 - Use different search algorighms
+
+`[!] Use keyword [Note] if you want to read algorigthm details`
