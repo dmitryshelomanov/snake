@@ -1,5 +1,11 @@
-/* reference http://lightcone.ru/manhattan/ */
+/*
+  Note:
 
+  эвристики помогающие определить лучший вариант для определенного случая
+  (конкретно тут выбрать следующую позицию которая приблизит к цели)
+*/
+
+// reference http://lightcone.ru/manhattan/
 export function manhattanDistance([x, y], [x1, y1]) {
   return Math.abs(x - x1) + Math.abs(y - y1)
 }
