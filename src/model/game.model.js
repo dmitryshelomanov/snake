@@ -50,10 +50,7 @@ import {
 
 function getUserSnake() {
   return Snake.build(randomPosition(), {
-    colors: {
-      head: 'rgb(0, 132, 255)',
-      tail: 'rgba(0, 132, 255, 0.7)',
-    },
+    colors: getColorsForSnake(),
     id: 'user',
   })
 }

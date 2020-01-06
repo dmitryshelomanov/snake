@@ -19,7 +19,6 @@ import { renderGUI } from './GUI'
 import {
   PLACE_TYPE,
   getFoodsState,
-  getSnakesState,
   getGameMapState,
   getGameCollisionState,
   getBrickState,
@@ -29,6 +28,7 @@ import {
   onEatFood,
   onUpdateGameMapWithNexState,
   onUpdateGameMap,
+  getSnakesState,
 } from './model'
 import { batchUpdateSnakeStateForGameMap, renderSnake } from './snake'
 import { renderBricks } from './brick'
@@ -102,8 +102,10 @@ function main(canvas, context) {
   nextTick.start((isPLay) => {
     const foods = getFoodsState()
 
-    if (isPLay) {
-      getSnakesState().forEach((snake) => {
+    function updateSnakes() {
+      const snakes = getSnakesState()
+
+      snakes.forEach((snake) => {
         if (!snake.isCrash) {
           const isAi = /ai/.test(snake.id)
           const updater = isAi ? 'ai' : 'user'
@@ -111,11 +113,18 @@ function main(canvas, context) {
           updaters[updater](snake, state)
         }
       })
+    }
 
+    function applyCollisionDetection() {
       const snakes = getSnakesState()
 
       snakes.forEach(eatFood)
       snakes.forEach(checkCollision)
+    }
+
+    if (isPLay) {
+      updateSnakes()
+      applyCollisionDetection()
     }
 
     const bricks = getBrickState()
@@ -127,26 +136,34 @@ function main(canvas, context) {
     renderFoods(context, foods, updateGameMapForFood())
     renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
 
-    snakes.forEach((snake) => {
-      const {
-        showAIPathToTarget,
-        showProcessedCells,
-      } = getSettingsForSnakeState(snake.id)
+    function renderSnakes() {
+      snakes.forEach((snake) => {
+        if (snake.id !== 'user') {
+          const {
+            showAIPathToTarget,
+            showProcessedCells,
+          } = getSettingsForSnakeState(snake.id)
 
-      renderSnake(context, snake)
+          renderSnake(context, snake)
 
-      if (showProcessedCells) {
-        renderProcessed(
-          context,
-          state.processed[snake.id] || [],
-          snake.colors.processed
-        )
-      }
+          if (showProcessedCells) {
+            renderProcessed(
+              context,
+              state.processed[snake.id] || [],
+              snake.colors.processed
+            )
+          }
 
-      if (showAIPathToTarget) {
-        renderPath(context, state.path[snake.id] || [], snake.colors.head)
-      }
-    })
+          if (showAIPathToTarget) {
+            renderPath(context, state.path[snake.id] || [], snake.colors.head)
+          }
+        } else {
+          renderSnake(context, snake)
+        }
+      })
+    }
+
+    renderSnakes()
 
     onUpdateGameMapWithNexState(batchUpdateSnakeStateForGameMap(snakes))
 
