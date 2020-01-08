@@ -3,7 +3,7 @@ import { KEYS } from './keyboard'
 export const cellSize = 15
 export const pageWidth = window.innerWidth
 export const pageHeight = window.innerHeight
-export const fps = 25
+export const fps = 15
 export const borderSize = 1
 export const boardLength = pageWidth * pageHeight
 
