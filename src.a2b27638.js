@@ -167,7 +167,7 @@ var pageWidth = window.innerWidth;
 exports.pageWidth = pageWidth;
 var pageHeight = window.innerHeight;
 exports.pageHeight = pageHeight;
-var fps = 25;
+var fps = 15;
 exports.fps = fps;
 var borderSize = 1;
 exports.borderSize = borderSize;
@@ -39543,7 +39543,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55568" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65013" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
