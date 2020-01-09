@@ -5658,13 +5658,19 @@ Object.defineProperty(exports, "__esModule", {
 exports.getNextPositionByDirection = getNextPositionByDirection;
 exports.getDirectionByPosition = getDirectionByPosition;
 exports.createTimeController = createTimeController;
-exports.registerClickEventToCanvas = registerClickEventToCanvas;
+exports.canvasInput = exports.CanvasInput = void 0;
 
 var _config = require("./config");
 
 var _model = require("./model");
 
 var _utils = require("./utils");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -5722,7 +5728,6 @@ function createTimeController(fps) {
   var callback = null;
   var now = null;
   var then = Date.now();
-  var wasFirstRender = false;
 
   function loop() {
     now = Date.now();
@@ -5736,10 +5741,8 @@ function createTimeController(fps) {
       then = now - delta % fpsInterval;
 
       if (callback) {
-        callback(isPLay, wasFirstRender);
+        callback(isPLay);
       }
-
-      wasFirstRender = true;
     }
   }
 
@@ -5757,66 +5760,97 @@ function createTimeController(fps) {
   };
 }
 
-function registerClickEventToCanvas(canvas) {
-  var isMouseDown = false;
+var CanvasInput =
+/*#__PURE__*/
+function () {
+  function CanvasInput() {
+    _classCallCheck(this, CanvasInput);
 
-  function getTargetIndex(event) {
-    var x = event.pageX - canvas.offsetLeft;
-    var y = event.pageY - canvas.offsetTop;
-    var targetPosition = [Math.floor((x + _config.cellSize % x / _config.cellSize) / _config.cellSize), Math.floor((y + _config.cellSize % y / _config.cellSize) / _config.cellSize)];
-    return (0, _utils.getIndexByPosition)(targetPosition);
+    this.events = [];
+    /* :Arrray<{type: string, eventListener: (index) => void }> */
+
+    this.eventRegistar = [];
+    /* :Arrray<() => void> */
+
+    this.isMouseDown = false;
   }
 
-  canvas.addEventListener('mousedown', function (event) {
-    var index = getTargetIndex(event);
-    registerClickEventToCanvas.events.filter(function (userEvent) {
-      return userEvent.type === 'mousedown';
-    }).forEach(function (userEvent) {
-      return userEvent.event(index);
-    });
-    isMouseDown = true;
-  });
-  canvas.addEventListener('mouseup', function () {
-    isMouseDown = false;
-  });
-  canvas.addEventListener('mousemove', function (event) {
-    if (isMouseDown) {
-      var index = getTargetIndex(event);
-      registerClickEventToCanvas.events.filter(function (userEvent) {
-        return userEvent.type === 'mousemove';
-      }).forEach(function (userEvent) {
-        return userEvent.event(index);
+  _createClass(CanvasInput, [{
+    key: "registerEventRegistar",
+    value: function registerEventRegistar(eventBuilder
+    /* :() => void */
+    ) {
+      this.eventRegistar.push(eventBuilder);
+    }
+  }, {
+    key: "callEventRegistars",
+    value: function callEventRegistars() {
+      this.eventRegistar.forEach(function (builder) {
+        return builder();
       });
     }
-  });
-}
+  }, {
+    key: "registerClickEventToCanvas",
+    value: function registerClickEventToCanvas(canvas) {
+      var _this = this;
 
-registerClickEventToCanvas.events = [];
-registerClickEventToCanvas.eventsForRegister = [];
+      function getTargetIndex(event) {
+        var x = event.pageX - canvas.offsetLeft;
+        var y = event.pageY - canvas.offsetTop;
+        var targetPosition = [Math.floor((x + _config.cellSize % x / _config.cellSize) / _config.cellSize), Math.floor((y + _config.cellSize % y / _config.cellSize) / _config.cellSize)];
+        return (0, _utils.getIndexByPosition)(targetPosition);
+      }
 
-registerClickEventToCanvas.addMouseDownEvent = function addMouseDownEvent(event) {
-  registerClickEventToCanvas.events.push({
-    type: 'mousedown',
-    event: event
-  });
-};
+      canvas.addEventListener('mousedown', function (event) {
+        var index = getTargetIndex(event);
 
-registerClickEventToCanvas.addMouseMoveEvent = function addMouseMoveEvent(event) {
-  registerClickEventToCanvas.events.push({
-    type: 'mousemove',
-    event: event
-  });
-};
+        _this.events.filter(function (userEvent) {
+          return userEvent.type === 'mousedown';
+        }).forEach(function (userEvent) {
+          return userEvent.eventListener(index);
+        });
 
-registerClickEventToCanvas.addEventsForRegister = function addEventsForRegister(event) {
-  registerClickEventToCanvas.eventsForRegister.push(event);
-};
+        _this.isMouseDown = true;
+      });
+      canvas.addEventListener('mouseup', function () {
+        _this.isMouseDown = false;
+      });
+      canvas.addEventListener('mousemove', function (event) {
+        if (_this.isMouseDown) {
+          var index = getTargetIndex(event);
 
-registerClickEventToCanvas.releaseRegistredEvents = function releaseRegistredEvents() {
-  registerClickEventToCanvas.eventsForRegister.forEach(function (event) {
-    return event();
-  });
-};
+          _this.events.filter(function (userEvent) {
+            return userEvent.type === 'mousemove';
+          }).forEach(function (userEvent) {
+            return userEvent.eventListener(index);
+          });
+        }
+      });
+    }
+  }, {
+    key: "addMouseDownEvent",
+    value: function addMouseDownEvent(eventListener) {
+      this.events.push({
+        type: 'mousedown',
+        eventListener: eventListener
+      });
+    }
+  }, {
+    key: "addMouseMoveEvent",
+    value: function addMouseMoveEvent(eventListener) {
+      this.events.push({
+        type: 'mousemove',
+        eventListener: eventListener
+      });
+    }
+  }]);
+
+  return CanvasInput;
+}();
+
+exports.CanvasInput = CanvasInput;
+var canvasInput = new CanvasInput();
+exports.canvasInput = canvasInput;
 },{"./config":"src/config.js","./model":"src/model/index.js","./utils":"src/utils.js"}],"src/canvas.js":[function(require,module,exports) {
 "use strict";
 
@@ -38922,7 +38956,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.renderBrick = renderBrick;
 exports.renderBricks = renderBricks;
-exports.registerEvents = registerEvents;
+exports.brickEventRegistar = brickEventRegistar;
 
 var _renderer = require("./renderer");
 
@@ -38970,7 +39004,7 @@ function renderBricks(context, briks, callback) {
   }
 }
 
-function registerEvents() {
+function brickEventRegistar() {
   var isRemove = false;
 
   function addBrick(index) {
@@ -38989,7 +39023,7 @@ function registerEvents() {
     }
   }
 
-  _controll.registerClickEventToCanvas.addMouseDownEvent(function (index) {
+  _controll.canvasInput.addMouseDownEvent(function (index) {
     var gameMapState = (0, _model.getGameMapState)();
 
     if (gameMapState[index] === _model.PLACE_TYPE.BRICK) {
@@ -39001,7 +39035,7 @@ function registerEvents() {
     }
   });
 
-  _controll.registerClickEventToCanvas.addMouseMoveEvent(function (index) {
+  _controll.canvasInput.addMouseMoveEvent(function (index) {
     if (isRemove) {
       removeBrick(index);
     } else {
@@ -39010,7 +39044,7 @@ function registerEvents() {
   });
 }
 
-_controll.registerClickEventToCanvas.addEventsForRegister(registerEvents);
+_controll.canvasInput.registerEventRegistar(brickEventRegistar);
 },{"./renderer":"src/renderer.js","./utils":"src/utils.js","./model":"src/model/index.js","./controll":"src/controll.js"}],"src/collision.js":[function(require,module,exports) {
 "use strict";
 
@@ -39391,9 +39425,10 @@ require("reset-css");
 /* eslint-disable unicorn/prevent-abbreviations */
 function main(canvas, context) {
   (0, _GUI.renderGUI)();
-  (0, _controll.registerClickEventToCanvas)(canvas);
 
-  _controll.registerClickEventToCanvas.releaseRegistredEvents();
+  _controll.canvasInput.registerClickEventToCanvas(canvas);
+
+  _controll.canvasInput.callEventRegistars();
 
   var gridData = (0, _renderer.buildGrid)(context);
   var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
@@ -39543,7 +39578,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65013" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49543" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
