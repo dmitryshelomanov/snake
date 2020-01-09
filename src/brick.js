@@ -7,7 +7,7 @@ import {
   onRemoveBrick,
   PLACE_TYPE,
 } from './model'
-import { registerClickEventToCanvas } from './controll'
+import { canvasInput } from './controll'
 
 export function renderBrick(context, brick, callback) {
   const index = getIndexByPosition(brick)
@@ -26,7 +26,7 @@ export function renderBricks(context, briks, callback) {
   }
 }
 
-export function registerEvents() {
+export function brickEventRegistar() {
   let isRemove = false
 
   function addBrick(index) {
@@ -45,7 +45,7 @@ export function registerEvents() {
     }
   }
 
-  registerClickEventToCanvas.addMouseDownEvent((index) => {
+  canvasInput.addMouseDownEvent((index) => {
     const gameMapState = getGameMapState()
 
     if (gameMapState[index] === PLACE_TYPE.BRICK) {
@@ -57,7 +57,7 @@ export function registerEvents() {
     }
   })
 
-  registerClickEventToCanvas.addMouseMoveEvent((index) => {
+  canvasInput.addMouseMoveEvent((index) => {
     if (isRemove) {
       removeBrick(index)
     } else {
@@ -66,4 +66,4 @@ export function registerEvents() {
   })
 }
 
-registerClickEventToCanvas.addEventsForRegister(registerEvents)
+canvasInput.registerEventRegistar(brickEventRegistar)
