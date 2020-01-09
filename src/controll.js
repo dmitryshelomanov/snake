@@ -54,7 +54,6 @@ export function createTimeController(fps) {
   let callback = null
   let now = null
   let then = Date.now()
-  let wasFirstRender = false
 
   function loop() {
     now = Date.now()
@@ -67,10 +66,8 @@ export function createTimeController(fps) {
       then = now - (delta % fpsInterval)
 
       if (callback) {
-        callback(isPLay, wasFirstRender)
+        callback(isPLay)
       }
-
-      wasFirstRender = true
     }
   }
 
@@ -88,66 +85,65 @@ export function createTimeController(fps) {
   }
 }
 
-export function registerClickEventToCanvas(canvas) {
-  let isMouseDown = false
-
-  function getTargetIndex(event) {
-    const x = event.pageX - canvas.offsetLeft
-    const y = event.pageY - canvas.offsetTop
-    const targetPosition = [
-      Math.floor((x + (cellSize % x) / cellSize) / cellSize),
-      Math.floor((y + (cellSize % y) / cellSize) / cellSize),
-    ]
-
-    return getIndexByPosition(targetPosition)
+export class CanvasInput {
+  constructor() {
+    this.events = [] /* :Arrray<{type: string, eventListener: (index) => void }> */
+    this.eventRegistar = [] /* :Arrray<() => void> */
+    this.isMouseDown = false
   }
 
-  canvas.addEventListener('mousedown', (event) => {
-    const index = getTargetIndex(event)
+  registerEventRegistar(eventBuilder /* :() => void */) {
+    this.eventRegistar.push(eventBuilder)
+  }
 
-    registerClickEventToCanvas.events
-      .filter((userEvent) => userEvent.type === 'mousedown')
-      .forEach((userEvent) => userEvent.event(index))
+  callEventRegistars() {
+    this.eventRegistar.forEach((builder) => builder())
+  }
 
-    isMouseDown = true
-  })
+  registerClickEventToCanvas(canvas) {
+    function getTargetIndex(event) {
+      const x = event.pageX - canvas.offsetLeft
+      const y = event.pageY - canvas.offsetTop
+      const targetPosition = [
+        Math.floor((x + (cellSize % x) / cellSize) / cellSize),
+        Math.floor((y + (cellSize % y) / cellSize) / cellSize),
+      ]
 
-  canvas.addEventListener('mouseup', () => {
-    isMouseDown = false
-  })
+      return getIndexByPosition(targetPosition)
+    }
 
-  canvas.addEventListener('mousemove', (event) => {
-    if (isMouseDown) {
+    canvas.addEventListener('mousedown', (event) => {
       const index = getTargetIndex(event)
 
-      registerClickEventToCanvas.events
-        .filter((userEvent) => userEvent.type === 'mousemove')
-        .forEach((userEvent) => userEvent.event(index))
-    }
-  })
+      this.events
+        .filter((userEvent) => userEvent.type === 'mousedown')
+        .forEach((userEvent) => userEvent.eventListener(index))
+
+      this.isMouseDown = true
+    })
+
+    canvas.addEventListener('mouseup', () => {
+      this.isMouseDown = false
+    })
+
+    canvas.addEventListener('mousemove', (event) => {
+      if (this.isMouseDown) {
+        const index = getTargetIndex(event)
+
+        this.events
+          .filter((userEvent) => userEvent.type === 'mousemove')
+          .forEach((userEvent) => userEvent.eventListener(index))
+      }
+    })
+  }
+
+  addMouseDownEvent(eventListener) {
+    this.events.push({ type: 'mousedown', eventListener })
+  }
+
+  addMouseMoveEvent(eventListener) {
+    this.events.push({ type: 'mousemove', eventListener })
+  }
 }
 
-registerClickEventToCanvas.events = []
-registerClickEventToCanvas.eventsForRegister = []
-
-registerClickEventToCanvas.addMouseDownEvent = function addMouseDownEvent(
-  event
-) {
-  registerClickEventToCanvas.events.push({ type: 'mousedown', event })
-}
-
-registerClickEventToCanvas.addMouseMoveEvent = function addMouseMoveEvent(
-  event
-) {
-  registerClickEventToCanvas.events.push({ type: 'mousemove', event })
-}
-
-registerClickEventToCanvas.addEventsForRegister = function addEventsForRegister(
-  event
-) {
-  registerClickEventToCanvas.eventsForRegister.push(event)
-}
-
-registerClickEventToCanvas.releaseRegistredEvents = function releaseRegistredEvents() {
-  registerClickEventToCanvas.eventsForRegister.forEach((event) => event())
-}
+export const canvasInput = new CanvasInput()

@@ -10,7 +10,7 @@ import { pageHeight, pageWidth, fps } from './config'
 import {
   createTimeController,
   getNextPositionByDirection,
-  registerClickEventToCanvas,
+  canvasInput,
 } from './controll'
 import { convigureCanvas } from './canvas'
 import { headSnake } from './model/snake'
@@ -38,8 +38,8 @@ import 'reset-css'
 
 function main(canvas, context) {
   renderGUI()
-  registerClickEventToCanvas(canvas)
-  registerClickEventToCanvas.releaseRegistredEvents()
+  canvasInput.registerClickEventToCanvas(canvas)
+  canvasInput.callEventRegistars()
 
   const gridData = buildGrid(context)
   const localSize = getLocalSize(pageWidth, pageHeight)
