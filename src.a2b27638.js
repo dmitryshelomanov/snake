@@ -137,7 +137,7 @@ exports.KEYS = KEYS;
 
 function keyboradFactory() {
   var pressedKeys = {};
-  document.addEventListener('keyup', function (event) {
+  document.addEventListener('keydown', function (event) {
     event.preventDefault();
     pressedKeys = {};
 
@@ -39578,7 +39578,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49543" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61843" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
