@@ -9,7 +9,7 @@ export const KEYS = {
 export function keyboradFactory() {
   let pressedKeys = {}
 
-  document.addEventListener('keyup', (event) => {
+  document.addEventListener('keydown', (event) => {
     event.preventDefault()
 
     pressedKeys = {}
