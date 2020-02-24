@@ -1,6 +1,6 @@
 # Snake Game
 
-[Try it](https://userbq201.github.io/snake/)
+[Try it](https://dmitryshelomanov.github.io/snake/)
 
 ![preview](preview_2.png)
 
@@ -15,4 +15,4 @@ Your opportunities
 - Add bricks to arbitrary place
 - Use different search algorighms
 
-> *Use keyword [/* Note:](https://github.com/userbq201/snake/search?q=%2F*+Note%3A&unscoped_q=%2F*+Note%3A) if you want to read algorigthm details*
+> _Use keyword [/_ Note:](https://github.com/dmitryshelomanov/snake/search?q=%2F*+Note%3A&unscoped_q=%2F*+Note%3A) if you want to read algorigthm details\*
