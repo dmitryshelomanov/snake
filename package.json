@@ -13,9 +13,9 @@
     "deploy": "npx gh-pages -d dist"
   },
   "keywords": [],
-  "author": "Shelomanov Dmitry <userbq201@mail.ru>",
+  "author": "Shelomanov Dmitry <dmitryshelomanov@mail.ru>",
   "license": "ISC",
-  "homepage": "https://userbq201.github.io/snake",
+  "homepage": "https://dmitryshelomanov.github.io/snake",
   "devDependencies": {
     "@atomix/eslint-config-react": "^7.1.0",
     "@babel/cli": "^7.5.5",
