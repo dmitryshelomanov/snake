@@ -117,7 +117,1720 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/keyboard.js":[function(require,module,exports) {
+})({"node_modules/symbol-observable/es/ponyfill.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = symbolObservablePonyfill;
+
+function symbolObservablePonyfill(root) {
+  var result;
+  var Symbol = root.Symbol;
+
+  if (typeof Symbol === 'function') {
+    if (Symbol.observable) {
+      result = Symbol.observable;
+    } else {
+      result = Symbol('observable');
+      Symbol.observable = result;
+    }
+  } else {
+    result = '@@observable';
+  }
+
+  return result;
+}
+
+;
+},{}],"node_modules/symbol-observable/es/index.js":[function(require,module,exports) {
+var global = arguments[3];
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _ponyfill = _interopRequireDefault(require("./ponyfill.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* global window */
+var root;
+
+if (typeof self !== 'undefined') {
+  root = self;
+} else if (typeof window !== 'undefined') {
+  root = window;
+} else if (typeof global !== 'undefined') {
+  root = global;
+} else if (typeof module !== 'undefined') {
+  root = module;
+} else {
+  root = Function('return this')();
+}
+
+var result = (0, _ponyfill.default)(root);
+var _default = result;
+exports.default = _default;
+},{"./ponyfill.js":"node_modules/symbol-observable/es/ponyfill.js"}],"node_modules/effector/effector.es.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.attach = c;
+exports.createStoreObject = exports.combine = i;
+exports.createApi = p;
+exports.createDomain = u;
+exports.createEffect = f;
+exports.createEvent = o;
+exports.createNode = e;
+exports.createStore = s;
+exports.fromObservable = m;
+exports.guard = h;
+exports.merge = g;
+exports.restoreObject = exports.restoreEvent = exports.restoreEffect = exports.restore = y;
+exports.sample = d;
+exports.setStoreName = r;
+exports.split = b;
+exports.withRegion = n;
+exports.version = exports.step = exports.launch = exports.is = exports.forward = exports.clearNode = exports.blocks = exports.Kind = void 0;
+
+var _symbolObservable = _interopRequireDefault(require("symbol-observable"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function e(_ref) {
+  var {
+    node: e = [],
+    from: t,
+    source: r,
+    parent: a = t || r,
+    to: n,
+    target: o,
+    child: l = n || o,
+    scope: s = {},
+    meta: i = {},
+    family: f = {
+      type: 'regular'
+    }
+  } = _ref;
+  var c = se(a),
+      p = se(f.links),
+      u = se(f.owners),
+      m = [],
+      d = {};
+
+  for (var _t = 0; _t < e.length; _t++) {
+    var _r = e[_t];
+    _r && (m.push(_r), ie(_r, d));
+  }
+
+  var h = {
+    seq: m,
+    next: se(l),
+    meta: i,
+    scope: s,
+    family: {
+      type: f.type || 'crosslink',
+      links: p,
+      owners: u
+    },
+    reg: d
+  };
+
+  for (var _e2 = 0; _e2 < p.length; _e2++) {
+    $(p[_e2]).push(h);
+  }
+
+  for (var _e3 = 0; _e3 < u.length; _e3++) {
+    ee(u[_e3]).push(h);
+  }
+
+  for (var _e4 = 0; _e4 < c.length; _e4++) {
+    c[_e4].next.push(h);
+  }
+
+  return h;
+}
+
+function t(e) {
+  var t = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "combine";
+  var r = t + '(',
+      a = '',
+      n = 0;
+
+  for (var _t2 in e) {
+    var _o = e[_t2];
+    if (null != _o && (r += a, r += w(_o) ? _o.compositeName.fullName : _o.toString()), n += 1, 25 === n) break;
+    a = ', ';
+  }
+
+  return r += ')', r;
+}
+
+function r(e, t) {
+  var r = a(t, e.parent);
+  if (e.shortName = t, !e.compositeName) return void (e.compositeName = r);
+  var n = e.compositeName;
+  n.path = r.path, n.shortName = r.shortName, n.fullName = r.fullName;
+}
+
+function a(e, t) {
+  var r,
+      a,
+      n,
+      o = e;
+  return t ? (n = t.compositeName, 0 === e.length ? (r = n.path, a = n.fullName) : (r = n.path.concat([e]), a = 0 === n.fullName.length ? e : n.fullName + '/' + e)) : (r = 0 === e.length ? [] : [e], a = e), {
+    shortName: o,
+    fullName: a,
+    path: r
+  };
+}
+
+function n(e, t) {
+  je = {
+    parent: je,
+    value: e,
+    template: Z(e).meta.template || je && je.template
+  };
+
+  try {
+    return t();
+  } finally {
+    je = je.parent;
+  }
+}
+
+function o(t, r) {
+  var a = function (e) {
+    for (var _len = arguments.length, t = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      t[_key - 1] = arguments[_key];
+    }
+
+    return a.create(e, t, t);
+  };
+
+  return a.graphite = e({
+    meta: Fe('event', a, r, t)
+  }), a.create = function (e) {
+    return ke(a, e), e;
+  }, a.watch = R(Oe, a), a.map = function (e) {
+    var t, r;
+    E(e) && (t = e, r = e.name, e = e.fn);
+    var n = o(Ne(a, r), t);
+    return Te(a, n, 'map', e), n;
+  }, a.filter = function (e) {
+    return j(e) ? (console.error('.filter(fn) is deprecated, use .filterMap instead'), l(a, e)) : Ke(a, 'filter', e.fn, [G({
+      fn: Y
+    })]);
+  }, a.filterMap = R(l, a), a.prepend = function (e) {
+    var t = o('* → ' + a.shortName, {
+      parent: a.parent
+    });
+    return Te(t, a, 'prepend', e), Pe(a, t), t;
+  }, Be(a, a), Ee(a);
+}
+
+function l(e, t) {
+  return Ke(e, 'filterMap', t, [B({
+    fn: Y
+  }), K.defined()]);
+}
+
+function s(t, r) {
+  var a = U(t),
+      n = U(t),
+      o = He('updates'),
+      l = Ae();
+  a.after = [{
+    type: 'copy',
+    to: n
+  }], l && l.plain.push(a);
+
+  var i = _defineProperty({
+    subscribers: new Map(),
+    updates: o,
+    defaultState: t,
+    stateRef: a,
+    getState: R(V, a),
+    setState: function (e) {
+      ke({
+        target: i,
+        params: e,
+        defer: 1
+      });
+    },
+    reset: function () {
+      for (var _len2 = arguments.length, e = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        e[_key2] = arguments[_key2];
+      }
+
+      for (var _t3 of e) {
+        i.on(_t3, function () {
+          return i.defaultState;
+        });
+      }
+
+      return i;
+    },
+    on: function (e, t) {
+      return i.off(e), oe(i).set(e, De(Ge(e, i, 'on', 1, t))), i;
+    },
+    off: function (e) {
+      var t = oe(i).get(e);
+      return t && (t(), oe(i).delete(e)), i;
+    },
+    map: function (e, t) {
+      var r, n, o;
+      E(e) && (r = e, n = e.name, t = e.firstState, e = e.fn);
+      var l = i.getState(),
+          f = Ae();
+      f ? o = null : void 0 !== l && (o = e(l, t));
+      var c = s(o, {
+        name: Ne(i, n),
+        config: r,
+        strict: 0
+      }),
+          p = Ge(i, c, 'map', 0, e);
+      return te(c).before = [{
+        type: 'map',
+        fn: e,
+        from: a
+      }], f && (f.plain.includes(a) || p.seq.unshift(f.loader)), c;
+    }
+  }, _symbolObservable.default, function () {
+    return Be(i, {});
+  });
+
+  return i.graphite = e({
+    scope: {
+      state: a
+    },
+    node: [K.defined(), L({
+      store: a
+    }), K.changed({
+      store: n
+    }), L({
+      store: n
+    })],
+    child: o,
+    meta: Fe('store', i, r)
+  }), Ie && void 0 === t && D("current state can't be undefined, use null instead"), i.watch = i.subscribe = function (e, t) {
+    if (!t || !w(e)) {
+      j(e) || D('watch requires function handler');
+
+      var _t4 = Ae();
+
+      return _t4 ? _t4.watch.push({
+        of: a,
+        fn: e
+      }) : e(i.getState()), Oe(i, e);
+    }
+
+    return j(t) || D('second argument should be a function'), e.watch(function (e) {
+      return t(i.getState(), e);
+    });
+  }, le(i, [o]), Ee(i);
+}
+
+function i() {
+  for (var _len3 = arguments.length, e = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    e[_key3] = arguments[_key3];
+  }
+
+  var t, r, a;
+  0 === e.length && D('at least one argument required'), ae(e[0]) && (a = re(e[0]), e = ae(e[0]));
+  var n,
+      o,
+      l = e[e.length - 1];
+
+  if (j(l) ? (r = e.slice(0, -1), t = l) : r = e, 1 === r.length) {
+    var _e5 = r[0];
+    q(_e5) || (n = _e5, o = 1);
+  }
+
+  return o || (n = r, t && (t = Le(t))), Qe(Array.isArray(n), n, a, t);
+}
+
+function f(t, r) {
+  var a = o(t, r),
+      n = a.defaultConfig.handler || function () {
+    return console.error("no handler used in " + a.getType()), Promise.resolve();
+  };
+
+  Z(a).meta.onCopy = ['runner'], Z(a).meta.unit = a.kind = 'effect', a.use = function (e) {
+    return n = e, a;
+  };
+  var i = a.finally = He('finally'),
+      f = a.done = l(i, {
+    named: 'done',
+    fn: function (_ref2) {
+      var {
+        status: e,
+        params: t,
+        result: r
+      } = _ref2;
+      if ('done' === e) return {
+        params: t,
+        result: r
+      };
+    }
+  }),
+      c = a.fail = l(i, {
+    named: 'fail',
+    fn: function (_ref3) {
+      var {
+        status: e,
+        params: t,
+        error: r
+      } = _ref3;
+      if ('fail' === e) return {
+        params: t,
+        error: r
+      };
+    }
+  }),
+      p = a.doneData = f.map({
+    named: 'doneData',
+    fn: function (_ref4) {
+      var {
+        result: e
+      } = _ref4;
+      return e;
+    }
+  }),
+      u = a.failData = c.map({
+    named: 'failData',
+    fn: function (_ref5) {
+      var {
+        error: e
+      } = _ref5;
+      return e;
+    }
+  }),
+      m = e({
+    scope: {
+      getHandler: a.use.getCurrent = function () {
+        return n;
+      },
+      finally: i
+    },
+    node: [J({
+      fn: function (_ref6, _ref7, _ref8) {
+        var {
+          params: e,
+          req: t
+        } = _ref6;
+        var {
+          finally: r,
+          getHandler: a
+        } = _ref7;
+        var {
+          page: n
+        } = _ref8;
+        var o,
+            l = Ue({
+          params: e,
+          req: t,
+          ok: 1,
+          anyway: r,
+          page: n
+        }),
+            s = Ue({
+          params: e,
+          req: t,
+          ok: 0,
+          anyway: r,
+          page: n
+        });
+
+        try {
+          o = a()(e);
+        } catch (e) {
+          return void s(e);
+        }
+
+        E(o) && j(o.then) ? o.then(l, s) : l(o);
+      }
+    })],
+    meta: {
+      op: 'fx',
+      fx: 'runner',
+      onCopy: ['finally']
+    }
+  });
+  Z(a).scope.runner = m, Z(a).seq.push(B({
+    fn: function (e, t, r) {
+      return r.parent ? {
+        params: e,
+        req: {
+          rs: function (e) {},
+          rj: function (e) {}
+        }
+      } : e;
+    }
+  }), J({
+    fn: function (e, _ref9) {
+      var {
+        runner: t
+      } = _ref9;
+      return ke({
+        target: t,
+        params: e,
+        defer: 1
+      }), e.params;
+    }
+  })), a.create = function (e) {
+    var t = function () {
+      var e = {};
+      return e.req = new Promise(function (t, r) {
+        e.rs = t, e.rj = r;
+      }), e.req.catch(function () {}), e;
+    }();
+
+    return ke(a, {
+      params: e,
+      req: t
+    }), t.req;
+  };
+  var d = a.inFlight = s(0, {
+    named: 'inFlight'
+  }).on(a, function (e) {
+    return e + 1;
+  }).on(i, function (e) {
+    return e - 1;
+  }),
+      h = a.pending = d.map({
+    fn: function (e) {
+      return e > 0;
+    },
+    named: 'pending'
+  });
+  return le(a, [i, f, c, p, u, h, d, m]), a;
+}
+
+function c(_ref10) {
+  var _o$seq;
+
+  var {
+    source: e,
+    effect: t,
+    mapParams: r
+  } = _ref10;
+
+  var a,
+      n = f(),
+      {
+    runner: o
+  } = Z(n).scope,
+      l = function (_ref11, _ref12, _ref13) {
+    var {
+      params: e,
+      req: t
+    } = _ref11;
+    var {
+      finally: a,
+      effect: n
+    } = _ref12;
+    var {
+      a: o,
+      page: l
+    } = _ref13;
+    return ke({
+      target: n,
+      params: {
+        params: r(e, o),
+        req: {
+          rs: Ue({
+            params: e,
+            req: t,
+            ok: 1,
+            anyway: a,
+            page: l
+          }),
+          rj: Ue({
+            params: e,
+            req: t,
+            ok: 0,
+            anyway: a,
+            page: l
+          })
+        }
+      },
+      page: l,
+      defer: 1
+    });
+  };
+
+  if (e) {
+    var _t5;
+
+    q(e) ? _t5 = e : (_t5 = i(e), le(n, [_t5]));
+
+    var _r2 = T({
+      from: 'store',
+      store: te(_t5),
+      to: 'a'
+    });
+
+    a = [J({
+      fn: function (e) {
+        return e;
+      }
+    }), _r2, B({
+      fn: l
+    })], ie(_r2, o.reg);
+  } else a = [J({
+    fn: l
+  })];
+
+  return o.scope.effect = t, o.meta.onCopy.push('effect'), (_o$seq = o.seq).splice.apply(_o$seq, [0, 1].concat(_toConsumableArray(a))), Pe(t, n), n;
+}
+
+function p(e, t) {
+  var r = {};
+  return Je(t, function (t, a) {
+    var n = r[a] = o(a, {
+      parent: e.parent
+    });
+    e.on(n, t), Pe(e, n);
+  }), r;
+}
+
+function u(t, r) {
+  var a = new Set(),
+      n = new Set(),
+      l = new Set(),
+      i = new Set(),
+      c = e({
+    family: {
+      type: 'domain'
+    }
+  }),
+      p = {
+    history: {
+      domains: a,
+      stores: n,
+      effects: l,
+      events: i
+    },
+    graphite: c
+  };
+  c.meta = Fe('domain', p, r, t);
+  var [m, d, h, g] = ['onEvent', 'onEffect', 'onStore', 'onDomain'].map(He);
+  p.hooks = {
+    event: m,
+    effect: d,
+    store: h,
+    domain: g
+  }, p.onCreateEvent = We(m, i, p), p.onCreateEffect = We(d, l, p), p.onCreateStore = We(h, n, p), p.onCreateDomain = We(g, a, p), p.createEvent = p.event = function (e, t) {
+    return m(o(e, {
+      parent: p,
+      config: t
+    }));
+  }, p.createEffect = p.effect = function (e, t) {
+    return d(f(e, {
+      parent: p,
+      config: t
+    }));
+  }, p.createDomain = p.domain = function (e, t) {
+    return u({
+      name: e,
+      parent: p,
+      config: t
+    });
+  }, p.createStore = p.store = function (e, t) {
+    return h(s(e, {
+      parent: p,
+      config: t
+    }));
+  }, Ee(p);
+  var y = p.parent;
+  return y && (Je(p.hooks, function (e, t) {
+    Me({
+      from: e,
+      to: y.hooks[t]
+    });
+  }), y.hooks.domain(p)), p;
+}
+
+function m(e) {
+  A(e);
+  var t = _symbolObservable.default in e ? e[_symbolObservable.default]() : e;
+  t.subscribe || D('expect observable to have .subscribe');
+  var r = o(),
+      a = I(Ce, r, void 0);
+  return t.subscribe({
+    next: r,
+    error: a,
+    complete: a
+  }), r;
+}
+
+function d() {
+  for (var _len4 = arguments.length, t = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+    t[_key4] = arguments[_key4];
+  }
+
+  var r, a, n;
+  ae(t[0]) && (n = re(t[0]), t = ae(t[0]));
+  var [l, i, f, c = 0] = t;
+  if (void 0 === i && 'source' in l && ('clock' in l && null == l.clock && D('config.clock should be defined'), i = l.clock, f = l.fn, c = l.greedy, r = l.target, a = l.name, l = l.source), void 0 === i && (i = l), a = n || a || l.shortName, l = Xe(l), i = Xe(i), 'boolean' == typeof f && (c = f, f = null), r || (r = q(l) && q(i) ? s(f ? f(V(te(l)), V(te(i))) : V(te(l)), {
+    name: a
+  }) : o(a)), q(l)) le(l, [ze(i, r, {
+    scope: {
+      fn: f
+    },
+    node: [!c && H({
+      priority: 'sampler'
+    }), T({
+      store: te(l),
+      to: f ? 'a' : 'stack'
+    }), f && B({
+      fn: X
+    })],
+    meta: {
+      op: 'sample',
+      sample: 'store'
+    }
+  })]);else {
+    var _t6 = U(0),
+        _a = U(),
+        _n = U(),
+        _o2 = Ae();
+
+    _o2 && _o2.plain.push(_t6, _a, _n), Ee(e({
+      parent: l,
+      node: [L({
+        store: _a
+      }), T({
+        from: 'value',
+        store: 1,
+        target: _t6
+      })],
+      family: {
+        owners: [l, r, i],
+        links: r
+      },
+      meta: {
+        op: 'sample',
+        sample: 'source'
+      }
+    })), le(l, [ze(i, r, {
+      scope: {
+        fn: f
+      },
+      node: [L({
+        store: _n
+      }), T({
+        store: _t6
+      }), G({
+        fn: function (e) {
+          return e;
+        }
+      }), !c && H({
+        priority: 'sampler'
+      }), T({
+        store: _a
+      }), T({
+        store: _n,
+        to: 'a'
+      }), f && B({
+        fn: W
+      })],
+      meta: {
+        op: 'sample',
+        sample: 'clock'
+      }
+    })]);
+  }
+  return r;
+}
+
+function h(t, r) {
+  var a = {
+    op: 'guard'
+  };
+  ae(t) && (a.config = re(t), [t, r] = ae(t)), r || (t = (r = t).source);
+  var {
+    filter: n,
+    greedy: l,
+    name: s = "guard"
+  } = r,
+      f = r.target || o(s);
+  return w(t) || (t = i(t)), w(n) ? d({
+    source: n,
+    clock: t,
+    target: Ee(e({
+      node: [G({
+        fn: function (_ref14) {
+          var {
+            guard: e
+          } = _ref14;
+          return e;
+        }
+      }), B({
+        fn: function (_ref15) {
+          var {
+            data: e
+          } = _ref15;
+          return e;
+        }
+      })],
+      child: f,
+      meta: a,
+      family: {
+        owners: [t, n, f],
+        links: f
+      }
+    })),
+    fn: function (e, t) {
+      return {
+        guard: e,
+        data: t
+      };
+    },
+    greedy: l,
+    name: s
+  }) : (j(n) || D('`filter` should be function or unit'), ze(t, f, {
+    scope: {
+      fn: n
+    },
+    node: [G({
+      fn: Y
+    })],
+    meta: a
+  })), f;
+}
+
+function g(e) {
+  var r = o(t(e, 'merge'));
+  return Me({
+    from: e,
+    to: r,
+    meta: {
+      op: 'merge'
+    }
+  }), r;
+}
+
+function y(e, t, r) {
+  if (q(e)) return e;
+
+  if (w(e)) {
+    var _a2,
+        _n2 = e.parent;
+
+    return S(e) && (_a2 = s(t, {
+      parent: _n2,
+      name: e.shortName,
+      "ɔ": r
+    }).on(e, function (e, t) {
+      return t;
+    })), x(e) && (_a2 = s(t, {
+      parent: _n2,
+      name: e.shortName,
+      "ɔ": r
+    }).on(e.done, function (e, _ref16) {
+      var {
+        result: t
+      } = _ref16;
+      return t;
+    })), _n2 && _n2.hooks.store(_a2), _a2;
+  }
+
+  var a = {};
+  return Je(e, function (e, t) {
+    a[t] = q(e) ? e : s(e, {
+      name: t
+    });
+  }), a;
+}
+
+function b(e, t) {
+  var r = {},
+      a = q(e) ? e.updates : e;
+  return Je(t, function (e, t) {
+    r[t] = a.filter({
+      fn: e
+    }), a = a.filter({
+      fn: function (t) {
+        return !e(t);
+      }
+    });
+  }), r.__ = a, r;
+}
+
+var v = {
+  __proto__: null,
+  store: "store",
+  event: "event",
+  effect: "effect",
+  domain: "domain"
+};
+exports.Kind = v;
+
+var w = function (e) {
+  return (j(e) || E(e)) && 'kind' in e;
+};
+
+var N = function (e) {
+  return function (t) {
+    return w(t) && t.kind === e;
+  };
+};
+
+var q = N("store"),
+    S = N("event"),
+    x = N("effect"),
+    _ = N("domain");
+
+var C = {
+  __proto__: null,
+  unit: w,
+  store: q,
+  event: S,
+  effect: x,
+  domain: _
+};
+exports.is = C;
+
+var D = function (e) {
+  throw Error(e);
+},
+    E = function (e) {
+  return 'object' == _typeof(e) && null !== e;
+},
+    j = function (e) {
+  return 'function' == typeof e;
+},
+    A = function (e) {
+  E(e) || j(e) || D('expect value to be an object');
+};
+
+var z = function () {
+  var e = 0;
+  return function () {
+    return (++e).toString(36);
+  };
+};
+
+var M = z(),
+    O = z(),
+    R = function (e, t) {
+  return e.bind(null, t);
+},
+    I = function (e, t, r) {
+  return e.bind(null, t, r);
+};
+
+var P = function (e, t, r) {
+  return {
+    id: O(),
+    type: e,
+    data: r,
+    hasRef: t
+  };
+};
+
+var F = 0,
+    H = function (_ref17) {
+  var {
+    priority: e = "barrier"
+  } = _ref17;
+  return P('barrier', 0, {
+    barrierID: ++F,
+    priority: e
+  });
+},
+    T = function (_ref18) {
+  var {
+    from: e = "store",
+    store: t,
+    target: r,
+    to: a = r ? 'store' : 'stack'
+  } = _ref18;
+  return P('mov', 'store' === e, {
+    from: e,
+    store: t,
+    to: a,
+    target: r
+  });
+},
+    K = {
+  defined: function () {
+    return P('check', 0, {
+      type: 'defined'
+    });
+  },
+  changed: function (_ref19) {
+    var {
+      store: e
+    } = _ref19;
+    return P('check', 1, {
+      type: 'changed',
+      store: e
+    });
+  }
+},
+    B = I(P, 'compute', 0),
+    G = I(P, 'filter', 0),
+    J = I(P, 'run', 0),
+    L = function (_ref20) {
+  var {
+    store: e
+  } = _ref20;
+  return T({
+    from: 'stack',
+    target: e
+  });
+};
+
+var Q = {
+  __proto__: null,
+  barrier: H,
+  mov: T,
+  check: K,
+  compute: B,
+  filter: G,
+  run: J,
+  update: L
+};
+exports.step = Q;
+
+var U = function (e) {
+  return {
+    id: O(),
+    current: e
+  };
+},
+    V = function (_ref21) {
+  var {
+    current: e
+  } = _ref21;
+  return e;
+},
+    W = function (e, _ref22, _ref23) {
+  var {
+    fn: t
+  } = _ref22;
+  var {
+    a: r
+  } = _ref23;
+  return t(e, r);
+},
+    X = function (e, _ref24, _ref25) {
+  var {
+    fn: t
+  } = _ref24;
+  var {
+    a: r
+  } = _ref25;
+  return t(r, e);
+},
+    Y = function (e, _ref26) {
+  var {
+    fn: t
+  } = _ref26;
+  return t(e);
+},
+    Z = function (e) {
+  return e.graphite || e;
+},
+    $ = function (e) {
+  return e.family.owners;
+},
+    ee = function (e) {
+  return e.family.links;
+},
+    te = function (e) {
+  return e.stateRef;
+},
+    re = function (e) {
+  return e.config;
+},
+    ae = function (e) {
+  return e.ɔ;
+},
+    ne = function (e) {
+  return e.value;
+},
+    oe = function (e) {
+  return e.subscribers;
+},
+    le = function (e, t) {
+  var r = Z(e);
+
+  for (var _e6 = 0; _e6 < t.length; _e6++) {
+    var _a3 = Z(t[_e6]);
+
+    'domain' !== r.family.type && (_a3.family.type = 'crosslink'), $(_a3).push(r), ee(r).push(_a3);
+  }
+};
+
+var se = function () {
+  var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var t = [];
+  if (Array.isArray(e)) for (var _r3 = 0; _r3 < e.length; _r3++) {
+    Array.isArray(e[_r3]) ? t.push.apply(t, _toConsumableArray(e[_r3])) : t.push(e[_r3]);
+  } else t.push(e);
+  return t.map(Z);
+};
+
+var ie = function (_ref27, a) {
+  var {
+    hasRef: e,
+    type: t,
+    data: r
+  } = _ref27;
+  var n;
+  e && (n = r.store, a[n.id] = n), 'mov' === t && 'store' === r.to && (n = r.target, a[n.id] = n);
+},
+    fe = null;
+
+var ce = function (e, t) {
+  if (!e) return t;
+  if (!t) return e;
+  var r,
+      a = e.v.type === t.v.type;
+  return (a && e.v.id > t.v.id || !a && 'sampler' === e.v.type) && (r = e, e = t, t = r), r = ce(e.r, t), e.r = e.l, e.l = r, e;
+},
+    pe = [];
+
+var ue = 0;
+
+for (; ue < 5;) {
+  pe.push({
+    first: null,
+    last: null,
+    size: 0
+  }), ue += 1;
+}
+
+var me = function () {
+  for (var _e7 = 0; _e7 < 5; _e7++) {
+    var _t7 = pe[_e7];
+
+    if (_t7.size > 0) {
+      if (2 === _e7 || 3 === _e7) {
+        _t7.size -= 1;
+        var _e8 = fe.v;
+        return fe = ce(fe.l, fe.r), _e8;
+      }
+
+      1 === _t7.size && (_t7.last = null);
+      var _r4 = _t7.first;
+      return _t7.first = _r4.r, _t7.size -= 1, _r4.v;
+    }
+  }
+},
+    de = function (e, t, r, a, n) {
+  return he(0, {
+    a: null,
+    b: null,
+    node: r,
+    parent: a,
+    value: n,
+    page: t
+  }, e);
+},
+    he = function (e, t, r) {
+  var a = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+  var n = ge(r),
+      o = pe[n],
+      l = {
+    v: {
+      idx: e,
+      stack: t,
+      type: r,
+      id: a
+    },
+    l: 0,
+    r: 0
+  };
+  2 === n || 3 === n ? fe = ce(fe, l) : (0 === o.size ? o.first = l : o.last.r = l, o.last = l), o.size += 1;
+},
+    ge = function (e) {
+  switch (e) {
+    case 'child':
+      return 0;
+
+    case 'pure':
+      return 1;
+
+    case 'barrier':
+      return 2;
+
+    case 'sampler':
+      return 3;
+
+    case 'effect':
+      return 4;
+
+    default:
+      return -1;
+  }
+},
+    ye = new Set();
+
+var be = 0,
+    ke = function (e, t, r) {
+  var a = null;
+  if (e.target && (t = e.params, r = e.defer, a = e.page || a, e = e.target), Array.isArray(e)) for (var _r5 = 0; _r5 < e.length; _r5++) {
+    de('pure', a, Z(e[_r5]), null, t[_r5]);
+  } else de('pure', a, Z(e), null, t);
+  r && be || function () {
+    var e,
+        t,
+        r,
+        a,
+        n,
+        o,
+        l = be;
+    be = 1;
+
+    e: for (; a = me();) {
+      var {
+        idx: _l,
+        stack: _s,
+        type: _i2
+      } = a;
+      r = _s.node, n = _s.page, o = (n || r).reg;
+      var _f = {
+        fail: 0,
+        scope: r.scope
+      };
+      e = t = 0;
+
+      for (var _a4 = _l; _a4 < r.seq.length && !e; _a4++) {
+        var _c = r.seq[_a4],
+            _p = _c.data;
+
+        switch (_c.type) {
+          case 'barrier':
+            {
+              var _e9 = _p.barrierID;
+              n && (_e9 = n.fullID + "_" + _e9);
+              var _t8 = _p.priority;
+
+              if (_a4 !== _l || _i2 !== _t8) {
+                ye.has(_e9) || (ye.add(_e9), he(_a4, _s, _t8, _e9));
+                continue e;
+              }
+
+              ye.delete(_e9);
+              break;
+            }
+
+          case 'mov':
+            {
+              var _e10 = void 0;
+
+              switch (_p.from) {
+                case 'stack':
+                  _e10 = ne(_s);
+                  break;
+
+                case 'a':
+                  _e10 = _s.a;
+                  break;
+
+                case 'b':
+                  _e10 = _s.b;
+                  break;
+
+                case 'value':
+                  _e10 = _p.store;
+                  break;
+
+                case 'store':
+                  o[_p.store.id] || n.parent || (n = null, o = r.reg), _e10 = V(o[_p.store.id]);
+              }
+
+              switch (_p.to) {
+                case 'stack':
+                  _s.value = _e10;
+                  break;
+
+                case 'a':
+                  _s.a = _e10;
+                  break;
+
+                case 'b':
+                  _s.b = _e10;
+                  break;
+
+                case 'store':
+                  o[_p.target.id].current = _e10;
+              }
+
+              break;
+            }
+
+          case 'check':
+            switch (_p.type) {
+              case 'defined':
+                t = void 0 === ne(_s);
+                break;
+
+              case 'changed':
+                t = ne(_s) === V(o[_p.store.id]);
+            }
+
+            break;
+
+          case 'filter':
+            t = !ve(_f, _p, _s);
+            break;
+
+          case 'run':
+            if (_a4 !== _l || 'effect' !== _i2) {
+              he(_a4, _s, 'effect');
+              continue e;
+            }
+
+          case 'compute':
+            _s.value = ve(_f, _p, _s);
+        }
+
+        e = _f.fail || t;
+      }
+
+      if (!e) for (var _e11 = 0; _e11 < r.next.length; _e11++) {
+        de('child', n, r.next[_e11], _s, ne(_s));
+      }
+    }
+
+    be = l;
+  }();
+};
+
+exports.launch = ke;
+
+var ve = function (e, _ref28, r) {
+  var {
+    fn: t
+  } = _ref28;
+
+  try {
+    return t(ne(r), e.scope, r);
+  } catch (t) {
+    console.error(t), e.fail = 1;
+  }
+};
+
+var we = function (e, t) {
+  return '' + e.shortName + t;
+},
+    Ne = function (e, t) {
+  return null == t ? we(e, ' → *') : t;
+};
+
+var qe = function (e, t) {
+  var r = e.indexOf(t);
+  -1 !== r && e.splice(r, 1);
+},
+    Se = function (e, t) {
+  qe(e.next, t), qe($(e), t), qe(ee(e), t);
+},
+    xe = function (e, t, r) {
+  var a;
+  e.next.length = 0, e.seq.length = 0, e.scope = null;
+  var n = ee(e);
+
+  for (; a = n.pop();) {
+    Se(a, e), (t || r && !e.meta.sample || 'crosslink' === a.family.type) && xe(a, t, r);
+  }
+
+  for (n = $(e); a = n.pop();) {
+    Se(a, e), r && 'crosslink' === a.family.type && xe(a, t, r);
+  }
+},
+    _e = function (e) {
+  return e.clear();
+};
+
+var Ce = function (e) {
+  var {
+    deep: t
+  } = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var r = 0;
+  if (q(e)) _e(oe(e));else if (_(e)) {
+    r = 1;
+    var _t9 = e.history;
+    _e(_t9.events), _e(_t9.effects), _e(_t9.stores), _e(_t9.domains);
+  }
+  xe(Z(e), !!t, r);
+},
+    De = function (e) {
+  var t = I(Ce, e, void 0);
+  return t.unsubscribe = t, t;
+},
+    Ee = function (e) {
+  return je && le(ne(je), [e]), e;
+},
+    je = null,
+    Ae = function () {
+  return je && je.template;
+},
+    ze = function (t, r, _ref29) {
+  var {
+    node: a,
+    scope: n,
+    meta: o
+  } = _ref29;
+  return Ee(e({
+    node: a,
+    parent: t,
+    child: r,
+    scope: n,
+    meta: o,
+    family: {
+      owners: [t, r],
+      links: r
+    }
+  }));
+},
+    Me = function (t) {
+  var r;
+  ae(t) && (r = re(t), t = ae(t));
+  var {
+    from: a,
+    to: n,
+    meta: o = {
+      op: 'forward'
+    }
+  } = t;
+  return a && n || D('from and to fields should be defined'), r && (o.config = r), De(Ee(e({
+    parent: a,
+    child: n,
+    meta: o,
+    family: {}
+  })));
+},
+    Oe = function (t, r) {
+  return De(Ee(e({
+    scope: {
+      fn: r
+    },
+    node: [J({
+      fn: Y
+    })],
+    parent: t,
+    meta: {
+      op: 'watch'
+    },
+    family: {
+      owners: t
+    }
+  })));
+};
+
+exports.forward = Me;
+exports.clearNode = Ce;
+
+var Re = function (e, t) {
+  return E(e) && (Re(re(e), t), null != e.name && (E(e.name) ? Re(e.name, t) : t.name = e.name), e.loc && (t.loc = e.loc), e.sid && (t.sid = e.sid), e.handler && (t.handler = e.handler), e.parent && (t.parent = e.parent), 'strict' in e && (t.strict = e.strict), e.named && (t.named = e.named), Re(ae(e), t)), t;
+};
+
+var Ie,
+    Pe = function (_ref30, t) {
+  var {
+    parent: e
+  } = _ref30;
+  e && e.hooks.event(t);
+},
+    Fe = function (e, t, r, n) {
+  var o = Re({
+    name: n,
+    config: r
+  }, {}),
+      l = M(),
+      {
+    parent: s = null,
+    sid: i = null,
+    strict: f = 1,
+    named: c = null
+  } = o,
+      p = c || o.name || ('domain' === e ? '' : l),
+      u = a(p, s);
+  return t.kind = e, t.id = l, t.sid = i, t.shortName = p, t.parent = s, t.compositeName = u, t.defaultConfig = o, t.thru = function (e) {
+    return e(t);
+  }, t.getType = function () {
+    return u.fullName;
+  }, Ie = f, {
+    unit: e,
+    name: p,
+    sid: i,
+    named: c
+  };
+},
+    He = function (e) {
+  return o({
+    named: e
+  });
+};
+
+var Te = function (e, t, r, a) {
+  return ze(e, t, {
+    scope: {
+      fn: a
+    },
+    node: [B({
+      fn: Y
+    })],
+    meta: {
+      op: r
+    }
+  });
+},
+    Ke = function (e, t, r, a) {
+  var n;
+  E(r) && (n = r, r = r.fn);
+  var l = o(we(e, ' →? *'), n);
+  return ze(e, l, {
+    scope: {
+      fn: r
+    },
+    node: a,
+    meta: {
+      op: t
+    }
+  }), l;
+},
+    Be = function (e, t) {
+  return t.subscribe = function (t) {
+    return A(t), e.watch(function (e) {
+      t.next && t.next(e);
+    });
+  }, t[_symbolObservable.default] = function () {
+    return t;
+  }, t;
+},
+    Ge = function (e, t, r, a, n) {
+  var o = te(t),
+      l = [T({
+    store: o,
+    to: 'a'
+  }), B({
+    fn: a ? X : W
+  }), K.defined(), K.changed({
+    store: o
+  }), L({
+    store: o
+  })],
+      s = Ae();
+  if (s) if (q(e)) {
+    var _t10 = te(e);
+
+    s.plain.includes(_t10) || (l.unshift(s.loader), o.before || (o.before = []), o.before.push({
+      type: 'closure',
+      of: _t10
+    }));
+  } else l.unshift(s.loader);
+  return ze(e, t, {
+    scope: {
+      fn: n
+    },
+    node: l,
+    meta: {
+      op: r
+    }
+  });
+};
+
+var Je = function (e, t) {
+  for (var _r6 in e) {
+    t(e[_r6], _r6);
+  }
+};
+
+var Le = function (e) {
+  return function (t) {
+    return e.apply(void 0, _toConsumableArray(t));
+  };
+},
+    Qe = function (e, r, a, n) {
+  var o = e ? function (e) {
+    return e.slice();
+  } : function (e) {
+    return Object.assign({}, e);
+  },
+      l = e ? [] : {},
+      i = Ae(),
+      f = o(l),
+      c = U(f),
+      p = U(1);
+  c.type = e ? 'list' : 'shape', i && i.plain.push(c, p);
+  var u = s(f, {
+    name: a || t(r)
+  }),
+      m = [K.defined(), T({
+    store: c,
+    to: 'a'
+  }), G({
+    fn: function (e, _ref31, _ref32) {
+      var {
+        key: t
+      } = _ref31;
+      var {
+        a: r
+      } = _ref32;
+      return e !== r[t];
+    }
+  }), T({
+    store: p,
+    to: 'b'
+  }), B({
+    fn: function (e, _ref33, a) {
+      var {
+        clone: t,
+        key: r
+      } = _ref33;
+      a.b && (a.a = t(a.a)), a.a[r] = e;
+    }
+  }), T({
+    from: 'a',
+    target: c
+  }), T({
+    from: 'value',
+    store: 0,
+    target: p
+  }), H({
+    priority: 'barrier'
+  }), T({
+    from: 'value',
+    store: 1,
+    target: p
+  }), T({
+    store: c
+  }), n && B({
+    fn: n
+  }), K.changed({
+    store: te(u)
+  })],
+      d = c.before = [];
+  return Je(r, function (e, t) {
+    if (!q(e)) return void (f[t] = l[t] = e);
+    l[t] = e.defaultState, f[t] = e.getState();
+    var r = ze(e, u, {
+      scope: {
+        key: t,
+        clone: o
+      },
+      node: m,
+      meta: {
+        op: 'combine'
+      }
+    }),
+        a = te(e);
+    d.push({
+      type: 'field',
+      field: t,
+      from: a
+    }), i && (i.plain.includes(a) || r.seq.unshift(i.loader));
+  }), u.defaultShape = r, c.after = [n ? {
+    type: 'map',
+    to: te(u),
+    fn: n
+  } : {
+    type: 'copy',
+    to: te(u)
+  }], i || (u.defaultState = n ? te(u).current = n(f) : l), u;
+};
+
+var Ue = function (_ref34) {
+  var {
+    params: e,
+    req: t,
+    ok: r,
+    anyway: a,
+    page: n
+  } = _ref34;
+  return function (o) {
+    return ke({
+      target: [a, Ve],
+      params: [r ? {
+        status: 'done',
+        params: e,
+        result: o
+      } : {
+        status: 'fail',
+        params: e,
+        error: o
+      }, {
+        fn: r ? t.rs : t.rj,
+        value: o
+      }],
+      defer: 1,
+      page: n
+    });
+  };
+};
+
+var Ve = e({
+  node: [J({
+    fn: function (_ref35) {
+      var {
+        fn: e,
+        value: t
+      } = _ref35;
+      e(t);
+    }
+  })],
+  meta: {
+    op: 'fx',
+    fx: 'sidechain'
+  }
+}),
+    We = function (e, t, r) {
+  return e.watch(function (e) {
+    le(r, [e]), t.add(e), e.parent || (e.parent = r);
+  }), le(r, [e]), function (r) {
+    return t.forEach(r), e.watch(r);
+  };
+};
+
+var Xe = function (e) {
+  return w(e) ? e : i(e);
+};
+
+var Ye = "20.13.4";
+exports.version = Ye;
+var Ze = {
+  __proto__: null,
+  filterChanged: G({
+    fn: function (e, _ref36) {
+      var {
+        state: t
+      } = _ref36;
+      return void 0 !== e && e !== V(t);
+    }
+  }),
+  noop: B({
+    fn: function (e) {
+      return e;
+    }
+  })
+};
+exports.blocks = Ze;
+},{"symbol-observable":"node_modules/symbol-observable/es/index.js"}],"src/keyboard.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -157,7 +1870,7 @@ function keyboradFactory() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DIRECTIONS = exports.boardLength = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
+exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.boardLength = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
 
 var _keyboard = require("./keyboard");
 
@@ -167,7 +1880,7 @@ var pageWidth = window.innerWidth;
 exports.pageWidth = pageWidth;
 var pageHeight = window.innerHeight;
 exports.pageHeight = pageHeight;
-var fps = 15;
+var fps = 60;
 exports.fps = fps;
 var borderSize = 1;
 exports.borderSize = borderSize;
@@ -180,6 +1893,18 @@ var DIRECTIONS = {
   DOWN: _keyboard.KEYS.DOWN_ARROW
 };
 exports.DIRECTIONS = DIRECTIONS;
+var GAME_STATE = {
+  IS_PLAY: 'play',
+  IS_PAUSE: 'pause'
+};
+exports.GAME_STATE = GAME_STATE;
+var PLACE_TYPE = {
+  EMPTY: 'empty',
+  GAME_OBJECT: 'game_object',
+  BRICK: 'brick',
+  FOOD: 'food'
+};
+exports.PLACE_TYPE = PLACE_TYPE;
 },{"./keyboard":"src/keyboard.js"}],"src/utils.js":[function(require,module,exports) {
 "use strict";
 
@@ -344,21 +2069,55 @@ function getDifferenceBetweenPositions(_ref7, _ref8) {
 
   return Math.abs(x1 + y1 - (x + y));
 }
-},{"./config":"src/config.js"}],"src/renderer.js":[function(require,module,exports) {
+},{"./config":"src/config.js"}],"src/renderer/grid.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.buildGrid = buildGrid;
+
+var _config = require("../config");
+
+var _utils = require("../utils");
+
+function buildGrid(context) {
+  var grid = new Path2D();
+  var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
+  var globalSize = (0, _utils.getGlobalSize)(localSize.w, localSize.h);
+
+  for (var i = 0; i <= localSize.w; i++) {
+    grid.moveTo(i * _config.cellSize + _config.borderSize, 0);
+    grid.lineTo(i * _config.cellSize + _config.borderSize, globalSize.h);
+  }
+
+  for (var _i = 0; _i <= localSize.h; _i++) {
+    grid.moveTo(0, _i * _config.cellSize + _config.borderSize);
+    grid.lineTo(globalSize.w, _i * _config.cellSize + _config.borderSize);
+  }
+
+  return {
+    grid: grid,
+    applyStyles: function applyStyles() {
+      context.lineWidth = _config.borderSize;
+      context.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+    }
+  };
+}
+},{"../config":"src/config.js","../utils":"src/utils.js"}],"src/renderer/shapes.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.drawSquare = drawSquare;
-exports.buildGrid = buildGrid;
 exports.renderText = renderText;
 exports.renderPath = renderPath;
 exports.renderProcessed = renderProcessed;
 
-var _config = require("./config");
+var _config = require("../config");
 
-var _utils = require("./utils");
+var _utils = require("../utils");
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -380,30 +2139,6 @@ function drawSquare(context, position, _ref) {
   var size = _config.cellSize - _config.borderSize * 2;
   context.fillStyle = color;
   context.fillRect(x + _config.borderSize * 2, y + _config.borderSize * 2, size, size);
-}
-
-function buildGrid(context) {
-  var grid = new Path2D();
-  var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
-  var globalSize = (0, _utils.getGlobalSize)(localSize.w, localSize.h);
-
-  for (var i = 0; i <= localSize.w; i++) {
-    grid.moveTo(i * _config.cellSize + _config.borderSize, 0);
-    grid.lineTo(i * _config.cellSize + _config.borderSize, globalSize.h);
-  }
-
-  for (var _i2 = 0; _i2 <= localSize.h; _i2++) {
-    grid.moveTo(0, _i2 * _config.cellSize + _config.borderSize);
-    grid.lineTo(globalSize.w, _i2 * _config.cellSize + _config.borderSize);
-  }
-
-  return {
-    grid: grid,
-    applyStyles: function applyStyles() {
-      context.lineWidth = _config.borderSize;
-      context.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-    }
-  };
 }
 
 function renderText(context, text, position) {
@@ -481,2290 +2216,108 @@ function renderProcessed(context, processed, color) {
     }
   }
 }
-},{"./config":"src/config.js","./utils":"src/utils.js"}],"node_modules/symbol-observable/es/ponyfill.js":[function(require,module,exports) {
+},{"../config":"src/config.js","../utils":"src/utils.js"}],"src/renderer/snake.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = symbolObservablePonyfill;
+exports.renderSnake = renderSnake;
+exports.renderSnakes = renderSnakes;
 
-function symbolObservablePonyfill(root) {
-  var result;
-  var Symbol = root.Symbol;
+var _utils = require("../utils");
 
-  if (typeof Symbol === 'function') {
-    if (Symbol.observable) {
-      result = Symbol.observable;
-    } else {
-      result = Symbol('observable');
-      Symbol.observable = result;
+var _shapes = require("./shapes");
+
+function renderSnake(_ref) {
+  var context = _ref.context,
+      snake = _ref.snake,
+      _ref$indexesVisible = _ref.indexesVisible,
+      indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
+
+  for (var i = 0; i < snake.body.length; i++) {
+    var isHead = i === snake.body.length - 1;
+    var color = isHead ? snake.colors.head : snake.colors.tail;
+    var crashedColor = isHead ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.6)';
+    var index = (0, _utils.getIndexByPosition)(snake.body[i]);
+    (0, _shapes.drawSquare)(context, snake.body[i], {
+      color: snake.isCrash ? crashedColor : color
+    });
+
+    if (isHead && indexesVisible) {
+      (0, _shapes.renderText)(context, index, snake.body[i]);
     }
-  } else {
-    result = '@@observable';
   }
-
-  return result;
 }
 
-;
-},{}],"node_modules/symbol-observable/es/index.js":[function(require,module,exports) {
-var global = arguments[3];
+function renderSnakes(context) {
+  var snakes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  snakes.forEach(function (snake) {
+    renderSnake(context, snake);
+  });
+}
+},{"../utils":"src/utils.js","./shapes":"src/renderer/shapes.js"}],"src/renderer/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
 
-var _ponyfill = _interopRequireDefault(require("./ponyfill.js"));
+var _grid = require("./grid");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+Object.keys(_grid).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _grid[key];
+    }
+  });
+});
 
-/* global window */
-var root;
+var _snake = require("./snake");
 
-if (typeof self !== 'undefined') {
-  root = self;
-} else if (typeof window !== 'undefined') {
-  root = window;
-} else if (typeof global !== 'undefined') {
-  root = global;
-} else if (typeof module !== 'undefined') {
-  root = module;
-} else {
-  root = Function('return this')();
-}
+Object.keys(_snake).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _snake[key];
+    }
+  });
+});
 
-var result = (0, _ponyfill.default)(root);
-var _default = result;
-exports.default = _default;
-},{"./ponyfill.js":"node_modules/symbol-observable/es/ponyfill.js"}],"node_modules/effector/effector.es.js":[function(require,module,exports) {
+var _shapes = require("./shapes");
+
+Object.keys(_shapes).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _shapes[key];
+    }
+  });
+});
+},{"./grid":"src/renderer/grid.js","./snake":"src/renderer/snake.js","./shapes":"src/renderer/shapes.js"}],"src/controll.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createStoreObject = exports.combine = B;
-exports.createApi = O;
-exports.createDomain = M;
-exports.createEffect = r;
-exports.createEvent = b;
-exports.createNode = e;
-exports.createStore = E;
-exports.fromObservable = y;
-exports.merge = h;
-exports.restore = R;
-exports.restoreEffect = F;
-exports.restoreEvent = H;
-exports.restoreObject = D;
-exports.sample = T;
-exports.setStoreName = C;
-exports.split = g;
-exports.version = exports.step = exports.launch = exports.is = exports.forward = exports.clearNode = exports.blocks = exports.Kind = void 0;
+exports.getNextPositionByDirection = getNextPositionByDirection;
+exports.getDirectionByPosition = getDirectionByPosition;
+exports.createTimeController = createTimeController;
+exports.canvasInput = exports.CanvasInput = void 0;
 
-var _symbolObservable = _interopRequireDefault(require("symbol-observable"));
+var _config = require("./config");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function e(_ref) {
-  var {
-    node: e,
-    child: t = [],
-    scope: n = {},
-    meta: r = {},
-    family: o = {}
-  } = _ref;
-  var a = (o.links || []).map(ne),
-      s = (o.owners || []).map(ne),
-      i = {
-    seq: e,
-    next: t.map(ne),
-    meta: r,
-    scope: n,
-    family: {
-      type: o.type || 'regular',
-      links: a,
-      owners: s
-    }
-  };
-
-  for (var _e2 = 0; _e2 < a.length; _e2++) {
-    re(a[_e2]).push(i);
-  }
-
-  for (var _e3 = 0; _e3 < s.length; _e3++) {
-    oe(s[_e3]).push(i);
-  }
-
-  return i;
-}
-
-function t(_ref2) {
-  var {
-    name: e,
-    parent: t,
-    config: n
-  } = _ref2;
-  var {
-    handler: r
-  } = n,
-      o = s({
-    name: e,
-    parent: t,
-    config: n
-  }),
-      a = o.create,
-      i = s({
-    name: o.shortName + ' done',
-    parent: t,
-    config: n
-  }),
-      c = s({
-    name: o.shortName + ' fail',
-    parent: t,
-    config: n
-  }),
-      f = s({
-    name: o.shortName + ' finally',
-    parent: t,
-    config: n
-  });
-  i.graphite.seq.push(Be), c.graphite.seq.push(Be);
-
-  var u = r || function () {
-    return console.error("no handler used in " + o.getType()), Promise.resolve();
-  };
-
-  o.done = i, o.fail = c, o.finally = f, o.use = function (e) {
-    return u = e, o;
-  };
-
-  var l = function () {
-    return u;
-  };
-
-  o.use.getCurrent = l, o.kind = K, o.graphite.scope = {
-    done: i,
-    fail: c,
-    anyway: f,
-    getHandler: l
-  }, o.graphite.seq.push(te.compute({
-    fn: function (e) {
-      return 'object' == _typeof(e) && null !== e && 'ɔ' in e ? e.ɔ : {
-        params: e,
-        req: {
-          rs: function (e) {},
-          rj: function (e) {}
-        }
-      };
-    }
-  }), te.run({
-    fn: function (_ref3, _ref4) {
-      var {
-        params: e,
-        req: t
-      } = _ref3;
-      var {
-        getHandler: n,
-        done: r,
-        fail: o,
-        anyway: a
-      } = _ref4;
-      return function (e, t, n, r) {
-        var o,
-            a,
-            s = 0;
-
-        try {
-          a = e(t);
-        } catch (e) {
-          s = 1, o = e;
-        }
-
-        s ? r(o) : 'object' != _typeof(a) || null === a || 'function' != typeof a.then ? n(a) : a.then(n, r);
-      }(n(), e, Y(He, {
-        event: r,
-        anyway: a,
-        params: e,
-        handler: t.rs
-      }), Y(Re, {
-        event: o,
-        anyway: a,
-        params: e,
-        handler: t.rj
-      })), e;
-    }
-  })), o.create = function (e, t, n) {
-    var r = new Fe();
-    return a({
-      "ɔ": {
-        params: e,
-        req: r
-      }
-    }, o.getType(), n), r.req;
-  };
-  var p = E(Boolean(0)).on(o, function () {
-    return Boolean(1);
-  }).reset(i).reset(c);
-  return o.pending = p, ce(o, i), ce(o, c), ce(o, f), ce(o, p), o;
-}
-
-function n(e, t) {
-  var n = 'object' == _typeof(e) ? Object.assign({}, Te(t), e) : Te(t);
-  return {
-    config: n,
-    name: 'object' == _typeof(e) || void 0 === e ? n.name : e
-  };
-}
-
-function r(e, r) {
-  return t(n(e, r));
-}
-
-function o(e, t) {
-  var n, r;
-  var o = e;
-  return void 0 === t ? (n = 0 === e.length ? [] : [e], r = e) : 0 === e.length ? (n = t.path, r = t.fullName) : (n = t.path.concat([e]), r = 0 === t.fullName.length ? e : t.fullName + '/' + e), new _e(o, r, n);
-}
-
-function a() {
-  var e = this.indexOf();
-  -1 !== e && (this.splice(e, 1), this.indexOf = ze, this.splice = Ge);
-}
-
-function s(_ref5) {
-  var {
-    name: t,
-    parent: n,
-    config: r = {}
-  } = _ref5;
-
-  var a = Ve(),
-      s = t || a,
-      d = o(s, n),
-      m = d.fullName,
-      h = e({
-    node: []
-  }),
-      g = function (e) {
-    for (var _len = arguments.length, t = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      t[_key - 1] = arguments[_key];
-    }
-
-    return g.create(e, m, t);
-  };
-
-  return g.getType = function () {
-    return m;
-  }, g.create = function (e) {
-    return Ce(g, e), e;
-  }, g.graphite = h, g.shortName = s, g.domainName = n, g.compositeName = d, g.defaultConfig = r, g.kind = _, g[_symbolObservable.default] = function () {
-    return g;
-  }, g.id = a, g.watch = Y(p, g), g.map = Y(f, g), g.filter = Y(u, g), g.filterMap = Y(l, g), g.prepend = Y(c, g), g.subscribe = Y(i, g), g.thru = Y(Ke, g), g;
-}
-
-function i(e, t) {
-  return e.watch(function (e) {
-    return t.next(e);
-  });
-}
-
-function c(e, t) {
-  var n = s({
-    name: '* → ' + e.shortName,
-    parent: e.domainName
-  });
-  return Qe(n, e, {
-    scope: {
-      handler: t
-    },
-    node: [te.compute({
-      fn: function (e, _ref6) {
-        var {
-          handler: t
-        } = _ref6;
-        return t(e);
-      }
-    })]
-  }), n;
-}
-
-function f(e, t) {
-  var n = s({
-    name: e.shortName + ' → *',
-    parent: e.domainName
-  });
-  return Qe(e, n, {
-    scope: {
-      handler: t
-    },
-    node: [te.compute({
-      fn: function (e, _ref7) {
-        var {
-          handler: t
-        } = _ref7;
-        return t(e);
-      }
-    })]
-  }), n;
-}
-
-function u(e, t) {
-  if ('function' == typeof t) return console.error('.filter(fn) is deprecated, use .filterMap instead'), l(e, t);
-  var n = s({
-    name: e.shortName + ' →? *',
-    parent: e.domainName
-  });
-  return Qe(e, n, {
-    scope: {
-      fn: t.fn
-    },
-    node: [te.filter({
-      fn: function (e) {
-        function t(t, n) {
-          return e.apply(this, arguments);
-        }
-
-        return t.toString = function () {
-          return e.toString();
-        }, t;
-      }(function (e, _ref8) {
-        var {
-          fn: t
-        } = _ref8;
-        return t(e);
-      })
-    })]
-  }), n;
-}
-
-function l(e, t) {
-  var n = s({
-    name: e.shortName + ' →? *',
-    parent: e.domainName
-  });
-  return Qe(e, n, {
-    scope: {
-      fn: t
-    },
-    node: [te.compute({
-      fn: function (e) {
-        function t(t, n) {
-          return e.apply(this, arguments);
-        }
-
-        return t.toString = function () {
-          return e.toString();
-        }, t;
-      }(function (e, _ref9) {
-        var {
-          fn: t
-        } = _ref9;
-        return t(e);
-      })
-    }), te.filter({
-      fn: function (e) {
-        return void 0 !== e;
-      }
-    })]
-  }), n;
-}
-
-function p(e, n) {
-  var r = t({
-    name: e.shortName + ' watcher',
-    parent: e.domainName,
-    config: {
-      handler: n
-    }
-  }),
-      o = Le(e, r, {
-    node: [Ae, te.run({
-      fn: function (e) {
-        return e;
-      }
-    })]
-  });
-  return ce(e, r), o.fail = r.fail, o.done = r.done, o;
-}
-
-function d(e) {
-  return e.compositeName ? e.compositeName.fullName : e.domainName ? e.domainName.fullName : e.id;
-}
-
-function m(e) {
-  var t = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "combine";
-  var n = t + '(',
-      r = '',
-      o = 0;
-
-  for (var _t in e) {
-    var _a = e[_t];
-    if (n += r, n += J(_a) ? d(_a) : _a.toString(), (o += 1) === We) break;
-    r = ', ';
-  }
-
-  return n + ')';
-}
-
-function h(e) {
-  var t = s({
-    name: m(e, 'merge')
-  });
-
-  for (var _n of e) {
-    Ue({
-      from: _n,
-      to: t
-    });
-  }
-
-  return t;
-}
-
-function g(e, t) {
-  var n = {};
-  var r = Q(e) ? e.updates : e;
-
-  for (var _e4 in t) {
-    n[_e4] = r.filter({
-      fn: t[_e4]
-    }), r = r.filter({
-      fn: Y(Xe, t[_e4])
-    });
-  }
-
-  return n.__ = r, n;
-}
-
-function b(e) {
-  var t = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  return s(n(e, t));
-}
-
-function y(e) {
-  if (e !== Object(e)) throw Error('expect observable to be an object');
-  var t = _symbolObservable.default in e ? e[_symbolObservable.default]() : e;
-  if (!t.subscribe) throw Error('expect observable to have .subscribe');
-  var n = b(),
-      r = ie.bind(null, n, {});
-  return t.subscribe({
-    next: n,
-    error: r,
-    complete: r
-  }), n;
-}
-
-function N(e) {
-  for (var _len2 = arguments.length, t = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-    t[_key2 - 1] = arguments[_key2];
-  }
-
-  for (var _n2 of t) {
-    e.on(_n2, function () {
-      return e.defaultState;
-    });
-  }
-
-  return e;
-}
-
-function v(e, t) {
-  var n = e.subscribers.get(t);
-  return void 0 !== n && (n(), e.subscribers.delete(t)), e;
-}
-
-function w(e, t, n) {
-  return e.off(t), e.subscribers.set(t, Le(t, e, {
-    scope: {
-      handler: n,
-      state: e.stateRef
-    },
-    node: [te.compute({
-      fn: function (e, _ref10) {
-        var {
-          handler: t,
-          state: n
-        } = _ref10;
-        var r = t(le(n), e);
-        if (void 0 !== r) return pe(n, r);
-      }
-    })]
-  })), e;
-}
-
-function S(e) {
-  var t = {
-    subscribe: function (t) {
-      if (t !== Object(t)) throw Error('expect observer to be an object');
-      return x(e, function (e) {
-        t.next && t.next(e);
-      });
-    }
-  };
-  return t[_symbolObservable.default] = function () {
-    return this;
-  }, t;
-}
-
-function k(e, t, n) {
-  if (!n || !J(t)) {
-    if ('function' != typeof t) throw Error('watch requires function handler');
-    return x(e, t);
-  }
-
-  if ('function' != typeof n) throw Error('second argument should be a function');
-  return t.watch(function (t) {
-    return n(e.getState(), t);
-  });
-}
-
-function x(e, n) {
-  if ('function' != typeof n) throw Error('expect listener to be a function');
-  var r = t({
-    name: e.shortName + ' watcher',
-    parent: e.domainName,
-    config: {
-      handler: n
-    }
-  });
-  r(e.getState());
-  var o = Le(e, r, {
-    node: [Ae, te.run({
-      fn: function (e) {
-        return e;
-      }
-    })]
-  });
-  return o.fail = r.fail, o.done = r.done, ce(e, r), o;
-}
-
-function j(e, t, n) {
-  var r;
-  var o = e.getState();
-  void 0 !== o && (r = t(o, n));
-  var a = q({
-    config: {
-      name: e.shortName + ' → *'
-    },
-    currentState: r,
-    parent: e.domainName
-  });
-  return Qe(e, a, {
-    scope: {
-      handler: t,
-      state: a.stateRef
-    },
-    node: [te.compute({
-      fn: function (e, _ref11) {
-        var {
-          state: t,
-          handler: n
-        } = _ref11;
-        return n(e, le(t));
-      }
-    }), Me]
-  }), a;
-}
-
-function q(t) {
-  var {
-    currentState: n,
-    config: r,
-    parent: a
-  } = t,
-      {
-    name: s
-  } = r,
-      i = ue(n),
-      c = s || i.id,
-      f = n,
-      u = o(c, a),
-      l = b('update ' + c),
-      p = {
-    subscribers: new Map(),
-    compositeName: u,
-    graphite: e({
-      scope: {
-        state: i,
-        oldState: n
-      },
-      node: [te.filter({
-        fn: function (e) {
-          return void 0 !== e;
-        }
-      }), te.update({
-        store: i
-      }), te.filter({
-        fn: function (e, t) {
-          return e === t.oldState ? 0 : (t.oldState = e, 1);
-        }
-      })]
-    }),
-    kind: P,
-    id: i.id,
-    shortName: c,
-    domainName: a,
-    updates: l,
-    defaultConfig: r,
-    defaultState: f,
-    getState: Y(le, i),
-    stateRef: i
-  };
-  return p.subscribe = Y(x, p), p.watch = Y(k, p), p.reset = Y(N, p), p.on = Y(w, p), p.off = Y(v, p), p.map = Y(j, p), p.thru = Y(Ke, p), p.setState = Y(Ie, p), p[_symbolObservable.default] = Y(S, p), Ue({
-    from: p,
-    to: l
-  }), ce(p, l), p;
-}
-
-function E(e, t) {
-  if (void 0 === e) throw Error("current state can't be undefined, use null instead");
-  return q({
-    currentState: e,
-    config: Te(t)
-  });
-}
-
-function C(e, t) {
-  var n = o(t, e.domainName);
-  e.shortName = t, e.compositeName ? (e.compositeName.path = n.path, e.compositeName.shortName = n.shortName, e.compositeName.fullName = n.fullName) : e.compositeName = n;
-}
-
-function I(e, t) {
-  var n = Array.isArray(e) ? Ye(e, function (e) {
-    return e.slice();
-  }, []) : Ye(e, function (e) {
-    return Object.assign({}, e);
-  }, {});
-  return t ? n.map(t) : n;
-}
-
-function O(e, t) {
-  var n = {};
-
-  for (var _r in t) {
-    var _o = t[_r],
-        _a2 = n[_r] = b(_r);
-
-    e.on(_a2, _o);
-  }
-
-  return n;
-}
-
-function D(e) {
-  var t = {};
-
-  for (var _n3 in e) {
-    var _r2 = e[_n3];
-    t[_n3] = Q(_r2) ? _r2 : q({
-      currentState: _r2,
-      config: {
-        name: _n3
-      }
-    });
-  }
-
-  return t;
-}
-
-function F(e, t) {
-  var n = q({
-    currentState: t,
-    parent: e.domainName,
-    config: {
-      name: e.shortName
-    }
-  });
-  return n.on(e.done, function (e, _ref12) {
-    var {
-      result: t
-    } = _ref12;
-    return t;
-  }), n;
-}
-
-function H(e, t) {
-  var n = q({
-    currentState: t,
-    parent: e.domainName,
-    config: {
-      name: e.shortName
-    }
-  });
-  return n.on(e, function (e, t) {
-    return t;
-  }), n;
-}
-
-function R(e, t) {
-  return Q(e) ? e : U(e) ? H(e, t) : V(e) ? F(e, t) : D(e);
-}
-
-function B() {
-  for (var _len3 = arguments.length, e = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-    e[_key3] = arguments[_key3];
-  }
-
-  if (0 === e.length) throw Error('at least one argument required');
-  var t, n, r, o;
-  {
-    var _r3 = e[e.length - 1];
-    'function' == typeof _r3 ? (n = e.slice(0, -1), t = _r3) : n = e;
-  }
-
-  if (1 === n.length) {
-    var _e5 = n[0];
-    Q(_e5) || (r = _e5, o = 1);
-  }
-
-  return o || (r = n, t && (t = Ze(t))), I(r, t);
-}
-
-function T(e, t, n) {
-  var r = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-  var o;
-  void 0 === t && 'source' in e && (t = e.clock || e.sampler, n = e.fn, r = e.greedy, o = e.target, e = e.source), void 0 === t && (t = e);
-  var a = rt(e),
-      s = rt(t);
-  return 'boolean' == typeof n && (r = n, n = void 0), (Q(a) ? Q(s) ? tt : et : nt)(a, s, n, r, o);
-}
-
-function M(e) {
-  var r = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  return function e(_ref13) {
-    var {
-      name: n,
-      config: r = {},
-      parent: a,
-      parentHooks: i
-    } = _ref13;
-
-    var c = ct(),
-        f = o(n || '', a),
-        u = new ot(),
-        l = function (e, t, n) {
-      var r;
-      return (r = n ? st(n) : at(t)).domain.watch(function (t) {
-        e.domains.add(t);
-      }), r.event.watch(function (t) {
-        e.events.add(t);
-      }), r.store.watch(function (t) {
-        e.storages.add(t);
-      }), r.effect.watch(function (t) {
-        e.effects.add(t);
-      }), r;
-    }(u, f, i);
-
-    return {
-      compositeName: f,
-      id: c,
-      defaultConfig: r,
-      getType: function () {
-        return f.fullName;
-      },
-      onCreateEvent: function (e) {
-        return u.events.forEach(e), l.event.watch(e);
-      },
-      onCreateEffect: function (e) {
-        return u.effects.forEach(e), l.effect.watch(e);
-      },
-      onCreateStore: function (e) {
-        return u.storages.forEach(e), l.store.watch(e);
-      },
-      onCreateDomain: function (e) {
-        return u.domains.forEach(e), l.domain.watch(e);
-      },
-      event: function (e, t) {
-        var n = s({
-          name: e,
-          parent: f,
-          config: Te(t)
-        });
-        return l.event(n), n;
-      },
-      effect: function (e, n) {
-        var r = t({
-          name: e,
-          parent: f,
-          config: Te(n)
-        });
-        return l.effect(r), r;
-      },
-      domain: function (t, n) {
-        var r = e({
-          name: t,
-          parent: f,
-          parentHooks: l,
-          config: Te(n)
-        });
-        return l.domain(r), r;
-      },
-      store: function (e, t) {
-        var n = q({
-          currentState: e,
-          parent: f,
-          config: Te(t)
-        });
-        return l.store(n), n;
-      },
-      kind: z
-    };
-  }(n(e, r));
-}
-
-var P = 'store',
-    _ = 'event',
-    K = 'effect',
-    z = 'domain';
-var G = {
-  store: P,
-  event: _,
-  effect: K,
-  domain: z
-};
-exports.Kind = G;
-
-var J = function (e) {
-  return ('function' == typeof e || 'object' == _typeof(e) && null !== e) && 'kind' in e;
-},
-    L = function (e) {
-  return function (t) {
-    return J(t) && t.kind === e;
-  };
-},
-    Q = L(P),
-    U = L(_),
-    V = L(K),
-    W = L(z);
-
-var X = {
-  unit: J,
-  store: Q,
-  event: U,
-  effect: V,
-  domain: W
-};
-exports.is = X;
-
-var Y = function (e, t) {
-  return e.bind(null, t);
-},
-    Z = function () {
-  var e = 0;
-  return function () {
-    return (++e).toString(36);
-  };
-},
-    $ = Z(),
-    ee = function (e, t) {
-  return {
-    id: $(),
-    type: e,
-    data: t
-  };
-},
-    te = {
-  barrier: function (_ref14) {
-    var {
-      barrierID: e,
-      priority: t = "barrier"
-    } = _ref14;
-    return ee('barrier', {
-      barrierID: e,
-      priority: t
-    });
-  },
-  compute: ee.bind(null, 'compute'),
-  filter: ee.bind(null, 'filter'),
-  run: ee.bind(null, 'run'),
-  tap: ee.bind(null, 'tap'),
-  update: ee.bind(null, 'update')
-},
-    ne = function (e) {
-  return e.graphite || e;
-},
-    re = function (e) {
-  return e.family.owners;
-},
-    oe = function (e) {
-  return e.family.links;
-},
-    ae = function (e, t) {
-  var n = e.indexOf(t);
-  -1 !== n && e.splice(n, 1);
-},
-    se = function (e, t) {
-  var n;
-  e.next.length = 0, e.seq.length = 0, e.scope = null;
-  var r = oe(e);
-
-  for (; n = r.pop();) {
-    ae(re(n), e), (t || 'crosslink' === n.family.type) && se(n, t);
-  }
-
-  for (r = re(e); n = r.pop();) {
-    ae(n.next, e), ae(oe(n), e), 'crosslink' === n.family.type && se(n, t);
-  }
-},
-    ie = function (e) {
-  var {
-    deep: t
-  } = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  Q(e) && e.subscribers.clear(), se(ne(e), !!t);
-},
-    ce = function (e, t) {
-  var n = ne(e),
-      r = ne(t);
-  r.family.type = 'crosslink', re(r).push(n), oe(n).push(r);
-},
-    fe = Z(),
-    ue = function (e) {
-  return {
-    id: fe(),
-    current: e
-  };
-},
-    le = function (_ref15) {
-  var {
-    current: e
-  } = _ref15;
-  return e;
-},
-    pe = function (e, t) {
-  return e.current = t;
-},
-    de = Z(),
-    me = function (e) {
-  switch (e) {
-    case 'child':
-      return 0;
-
-    case 'pure':
-      return 1;
-
-    case 'barrier':
-      return 2;
-
-    case 'sampler':
-      return 3;
-
-    case 'effect':
-      return 4;
-
-    default:
-      return -1;
-  }
-};
-
-exports.clearNode = ie;
-exports.step = te;
-
-var he = function he(e, t, n, r) {
-  _classCallCheck(this, he);
-
-  this.value = e, this.rank = t, this.left = n, this.right = r;
-};
-
-var ge = function (e) {
-  return e ? be(e.left, e.right) : null;
-},
-    be = function (e, t) {
-  if (null === e) return t;
-  if (null === t) return e;
-  var n;
-  (function (e, t) {
-    return e.type === t.type ? e.id > t.id : me(e.type) > me(t.type);
-  })(e.value, t.value) && (n = e, e = t, t = n);
-  var r = be(e.right, t),
-      o = e.left,
-      a = e.rank;
-  return null === o ? (o = r, r = null) : (o.rank < r.rank && (n = o, o = r, r = n), a = r.rank + 1), new he(e.value, a, o, r);
-};
-
-var ye = function ye(e, t) {
-  _classCallCheck(this, ye);
-
-  this.value = {
-    current: e
-  }, this.parent = t;
-};
-
-var Ne = function Ne(e) {
-  _classCallCheck(this, Ne);
-
-  this.isChanged = 1, this.isFailed = 0, this.scope = e;
-};
-
-var ve = 0,
-    we = null;
-
-var Se = new Set(),
-    ke = function (e) {
-  we = function (e, t) {
-    return be(new he(e, 1, null, null), t);
-  }(e, we);
-},
-    xe = function (_ref16, o) {
-  var {
-    step: e,
-    firstIndex: t,
-    scope: n,
-    resetStop: r
-  } = _ref16;
-  var a = new Ne(e.scope);
-
-  for (var _r4 = t; _r4 < e.seq.length && !o.stop; _r4++) {
-    var _s = e.seq[_r4];
-    if (_r4 === t) 'barrier' === _s.type && Se.delete(_s.data.barrierID);else switch (_s.type) {
-      case 'run':
-        return void ke({
-          step: e,
-          firstIndex: _r4,
-          scope: n,
-          resetStop: 0,
-          type: 'effect',
-          id: ++ve
-        });
-
-      case 'barrier':
-        {
-          var _t2 = _s.data.barrierID;
-          return void (Se.has(_t2) || (Se.add(_t2), ke({
-            step: e,
-            firstIndex: _r4,
-            scope: n,
-            resetStop: 0,
-            type: _s.data.priority,
-            id: ++ve
-          })));
-        }
-    }
-    (0, Oe[_s.type])(a, _s.data, n.value), o.stop = a.isFailed || !a.isChanged;
-  }
-
-  if (!o.stop) for (var _t3 = 0; _t3 < e.next.length; _t3++) {
-    var _r5 = new ye(le(n.value), n);
-
-    ke({
-      step: e.next[_t3],
-      firstIndex: 0,
-      scope: _r5,
-      resetStop: 1,
-      type: 'child',
-      id: ++ve
-    });
-  }
-  r && (o.stop = 0);
-};
-
-var je = 0;
-
-var qe = function (e, t) {
-  ke({
-    step: ne(e),
-    firstIndex: 0,
-    scope: new ye(t, null),
-    resetStop: 0,
-    type: 'pure',
-    id: ++ve
-  });
-},
-    Ee = function () {
-  var e = je;
-  je = 1;
-  var t = {
-    stop: 0
-  };
-  var n;
-
-  for (; we;) {
-    n = we.value, we = ge(we), xe(n, t);
-  }
-
-  je = e;
-},
-    Ce = function (e, t) {
-  qe(e, t), Ee();
-},
-    Ie = function (e, t) {
-  qe(e, t), je || Ee();
-},
-    Oe = {
-  barrier: function (e, t, n) {
-    e.isFailed = 0, e.isChanged = 1;
-  },
-  filter: function (e, t, n) {
-    e.isChanged = !!De(e, t, n);
-  },
-  run: function (e, t, n) {
-    pe(n, De(e, t, n));
-  },
-  update: function (e, t, n) {
-    pe(t.store, le(n));
-  },
-  compute: function (e, t, n) {
-    pe(n, De(e, t, n));
-  },
-  tap: function (e, t, n) {
-    De(e, t, n);
-  }
-},
-    De = function (e, _ref17, n) {
-  var {
-    fn: t
-  } = _ref17;
-  var r = null,
-      o = 0;
-
-  try {
-    r = t(le(n), e.scope);
-  } catch (e) {
-    console.error(e), o = 1;
-  }
-
-  return e.isFailed = o, r;
-};
-
-exports.launch = Ce;
-
-var Fe = function Fe() {
-  var _this = this;
-
-  _classCallCheck(this, Fe);
-
-  var e = new Promise(function (e, t) {
-    _this.rs = e, _this.rj = t;
-  });
-  this.req = e, e.catch(function () {});
-};
-
-var He = function (_ref18, o) {
-  var {
-    event: e,
-    anyway: t,
-    params: n,
-    handler: r
-  } = _ref18;
-  Ie(t, {
-    status: 'done',
-    params: n,
-    result: o
-  }), Ie(e, {
-    handler: r,
-    toHandler: o,
-    result: {
-      params: n,
-      result: o
-    }
-  });
-},
-    Re = function (_ref19, o) {
-  var {
-    event: e,
-    anyway: t,
-    params: n,
-    handler: r
-  } = _ref19;
-  Ie(t, {
-    status: 'fail',
-    params: n,
-    error: o
-  }), Ie(e, {
-    handler: r,
-    toHandler: o,
-    result: {
-      params: n,
-      error: o
-    }
-  });
-},
-    Be = te.run({
-  fn: function (_ref20) {
-    var {
-      handler: e,
-      toHandler: t,
-      result: n
-    } = _ref20;
-    return e(t), n;
-  }
-}),
-    Te = function () {
-  var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return Object.assign({}, e, e.ɔ || {});
-},
-    Me = te.filter({
-  fn: function (e, _ref21) {
-    var {
-      state: t
-    } = _ref21;
-    return e !== le(t) && void 0 !== e;
-  }
-}),
-    Ae = te.compute({
-  fn: function (e) {
-    return e;
-  }
-});
-
-var Pe = {
-  filterChanged: Me,
-  noop: Ae
-};
-exports.blocks = Pe;
-
-var _e = function _e(e, t, n) {
-  _classCallCheck(this, _e);
-
-  this.shortName = e, this.fullName = t, this.path = n;
-};
-
-var Ke = function (e, t) {
-  return t(e);
-},
-    ze = function () {
-  return -1;
-},
-    Ge = function () {
-  return [];
-},
-    Je = function (e) {
-  var t = e.parent.next,
-      n = {
-    indexOf: t.indexOf.bind(t, e.child),
-    splice: t.splice.bind(t)
-  },
-      r = a.bind(n);
-  return r.unsubscribe = a.bind(n), r;
-},
-    Le = function (e, t, n) {
-  return Je({
-    parent: ne(e),
-    child: Qe(e, t, n)
-  });
-},
-    Qe = function (t, n, _ref22) {
-  var {
-    node: r,
-    scope: o,
-    meta: a
-  } = _ref22;
-  var s = ne(t),
-      i = e({
-    node: r,
-    child: [n],
-    scope: o,
-    meta: a,
-    family: {
-      type: 'crosslink',
-      owners: [s, n],
-      links: [n]
-    }
-  });
-  return s.next.push(i), i;
-},
-    Ue = function (e) {
-  var t = ne(e.from),
-      n = ne(e.to);
-  return t.next.push(n), Je({
-    child: n,
-    parent: t
-  });
-},
-    Ve = Z(),
-    We = 25,
-    Xe = function (e, t) {
-  return !e(t);
-},
-    Ye = function (e, t, n) {
-  var r = [te.filter({
-    fn: function (e, _ref23) {
-      var {
-        target: t,
-        key: n
-      } = _ref23;
-      return e !== le(t)[n] && void 0 !== e;
-    }
-  }), te.tap({
-    fn: function (e, _ref24) {
-      var {
-        isFresh: t,
-        target: n,
-        clone: r
-      } = _ref24;
-      le(t) || (pe(n, r(le(n))), pe(t, 1));
-    }
-  }), te.tap({
-    fn: function (e, _ref25) {
-      var {
-        target: t,
-        key: n
-      } = _ref25;
-      le(t)[n] = e;
-    }
-  }), te.barrier({
-    barrierID: de()
-  }), te.compute({
-    fn: function (e, _ref26) {
-      var {
-        isFresh: t,
-        target: n
-      } = _ref26;
-      return pe(t, 0), le(n);
-    }
-  })],
-      o = t(n),
-      a = q({
-    currentState: o,
-    config: {
-      name: m(e)
-    }
-  }),
-      s = ue(0);
-
-  for (var _i in e) {
-    var _c = e[_i];
-    Q(_c) ? (n[_i] = _c.defaultState, o[_i] = _c.getState(), Qe(_c, a, {
-      scope: {
-        key: _i,
-        clone: t,
-        target: a.stateRef,
-        isFresh: s
-      },
-      node: r
-    })) : o[_i] = n[_i] = _c;
-  }
-
-  return a.defaultShape = e, a.defaultState = n, a;
-},
-    Ze = function (e) {
-  return function (t) {
-    return e.apply(void 0, _toConsumableArray(t));
-  };
-},
-    $e = function (e, t, n, r, o) {
-  return ce(e, Qe(t, o, {
-    scope: {
-      state: e.stateRef,
-      fn: n
-    },
-    node: [!r && Ae, !r && te.barrier({
-      barrierID: de(),
-      priority: 'sampler'
-    }), te.compute({
-      fn: n ? function (e, _ref27) {
-        var {
-          state: t,
-          fn: n
-        } = _ref27;
-        return n(le(t), e);
-      } : function (e, _ref28) {
-        var {
-          state: t
-        } = _ref28;
-        return le(t);
-      }
-    })].filter(Boolean)
-  })), o;
-},
-    et = function (e, t, n, r, o) {
-  return $e(e, t, n, r, o || s({
-    name: e.shortName,
-    parent: e.domainName
-  }));
-},
-    tt = function (e, t, n, r, o) {
-  var a = le(e.stateRef);
-  return $e(e, t, n, r, o || q({
-    currentState: n ? n(a, le(t.stateRef)) : a,
-    config: {
-      name: e.shortName
-    },
-    parent: e.domainName
-  }));
-},
-    nt = function (e, t, n, r, o) {
-  o = o || s({
-    name: e.shortName,
-    parent: e.domainName
-  });
-  var a = ue(0),
-      i = ue(),
-      c = ue();
-  return ce(t, Qe(e, o, {
-    scope: {
-      hasSource: a
-    },
-    node: [te.update({
-      store: i
-    }), te.compute({
-      fn: function (e, _ref29) {
-        var {
-          hasSource: t
-        } = _ref29;
-        pe(t, 1);
-      }
-    }), te.filter({
-      fn: function () {
-        return 0;
-      }
-    })]
-  })), ce(e, Qe(t, o, {
-    scope: {
-      sourceState: i,
-      clockState: c,
-      hasSource: a,
-      fn: n
-    },
-    node: [te.update({
-      store: c
-    }), te.filter({
-      fn: function (e, _ref30) {
-        var {
-          hasSource: t
-        } = _ref30;
-        return le(t);
-      }
-    }), !r && te.barrier({
-      barrierID: de(),
-      priority: 'sampler'
-    }), te.compute({
-      fn: n ? function (e, _ref31) {
-        var {
-          sourceState: t,
-          clockState: n,
-          fn: r
-        } = _ref31;
-        return r(le(t), le(n));
-      } : function (e, _ref32) {
-        var {
-          sourceState: t
-        } = _ref32;
-        return le(t);
-      }
-    })].filter(Boolean)
-  })), o;
-},
-    rt = function (e) {
-  return J(e) ? e : I(e);
-};
-
-exports.forward = Ue;
-
-var ot = function ot() {
-  _classCallCheck(this, ot);
-
-  this.events = new Set(), this.effects = new Set(), this.storages = new Set(), this.domains = new Set();
-};
-
-var at = function (e) {
-  return {
-    event: s({
-      name: e.fullName + " event hook",
-      parent: e
-    }),
-    effect: s({
-      name: e.fullName + " effect hook",
-      parent: e
-    }),
-    store: s({
-      name: e.fullName + " store hook",
-      parent: e
-    }),
-    domain: s({
-      parent: e
-    })
-  };
-},
-    st = function (e) {
-  return {
-    event: e.event.prepend(function (e) {
-      return e;
-    }),
-    effect: e.effect.prepend(function (e) {
-      return e;
-    }),
-    store: e.store.prepend(function (e) {
-      return e;
-    }),
-    domain: e.domain.prepend(function (e) {
-      return e;
-    })
-  };
-},
-    ct = Z(),
-    ft = "20.1.1";
-
-exports.version = ft;
-},{"symbol-observable":"node_modules/symbol-observable/es/index.js"}],"src/algorithms/graph.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Graph = void 0;
+var _utils = require("./utils");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-/*
-  Note:
-
-  Представление графа в виде массива index => [top,left,down,right]
-  Это все можно узнать из одномеррного массива, но в качестве оптимизации
-    тут это статичиски построется
-  Вся карта змеек это представление ячеек
-    [0][1][2]
-    [3][4][5]
-    [6][7][8]
-
-  reference: https://habr.com/ru/post/331192/
-*/
-var Graph =
-/*#__PURE__*/
-function () {
-  function Graph(_ref) {
-    var _this = this;
-
-    var w = _ref.w,
-        h = _ref.h,
-        _ref$withBounds = _ref.withBounds,
-        withBounds = _ref$withBounds === void 0 ? false : _ref$withBounds;
-
-    _classCallCheck(this, Graph);
-
-    this.w = w;
-    this.h = h;
-    this.withBounds = withBounds;
-    this.graph = Array.from({
-      length: w * h
-    }, function (_, index) {
-      return [_this.getTopNeigbour(index), _this.getLeftNeigbour(index), _this.getDownNeigbour(index), _this.getRightNeigbour(index)].filter(function (i) {
-        return typeof i !== 'undefined';
-      });
-    });
-  }
-
-  _createClass(Graph, [{
-    key: "getTopNeigbour",
-    value: function getTopNeigbour(index) {
-      var hasTopNeighbour = Math.floor(index / this.w) > 0;
-
-      if (hasTopNeighbour) {
-        return index - this.w;
-      }
-
-      return this.withBounds ? undefined : this.w * (this.h - 1) + index % this.w;
-    }
-  }, {
-    key: "getLeftNeigbour",
-    value: function getLeftNeigbour(index) {
-      var hasLeftNeighbour = index % this.w > 0;
-
-      if (hasLeftNeighbour) {
-        return index - 1;
-      }
-
-      return this.withBounds ? undefined : index + (this.w - 1);
-    }
-  }, {
-    key: "getRightNeigbour",
-    value: function getRightNeigbour(index) {
-      var hasRightNeighbour = index % this.w < this.w - 1;
-
-      if (hasRightNeighbour) {
-        return index + 1;
-      }
-
-      return this.withBounds ? undefined : index - (this.w - 1);
-    }
-  }, {
-    key: "getDownNeigbour",
-    value: function getDownNeigbour(index) {
-      var hasDownNeighbour = Math.floor(index / this.w) < this.h - 1;
-
-      if (hasDownNeighbour) {
-        return index + this.w;
-      }
-
-      return this.withBounds ? undefined : index % this.w;
-    }
-  }, {
-    key: "getNeighbors",
-    value: function getNeighbors(index) {
-      return this.graph[index] || [];
-    }
-  }]);
-
-  return Graph;
-}();
-
-exports.Graph = Graph;
-},{}],"src/algorithms/restore-path.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.restorePath = restorePath;
-
-function restorePath(end, start, parent) {
-  var path = [end];
-  var goal = parent[end];
-
-  while (goal !== start) {
-    path.unshift(goal);
-    goal = parent[goal];
-  }
-
-  return path;
-}
-},{}],"src/algorithms/breadth-first-search.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.breadthFirstSearch = breadthFirstSearch;
-
-var _utils = require("../utils");
-
-var _restorePath = require("./restore-path");
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-/*
-  Note:
-
-  Поиск происходит равномерно во всех направлениях, алгоритм  не знает как ускорится
-    он просто перебирает по уровням (если искомая точка существует, он 100% найдет крратчайший путь к нее)
-    разумеется кратчайший по веершинам (!)
-
-  Пример гррафа (для простоты понимания это будет привычный граф - не одномерный массив)
-    найти кратчайший путь из A в G
-    если посмоттреть на граф, то видно что кратчайший путь это A-E-F-G -через 2 вершины
-
-  A~~~~B~~~~C
-  ~ ~       ~
-  ~   ~     ~
-  D~~~~E~~~~F~~~~G
-
-  Как работает алгоритм
-    Дано
-      queue: очередь
-      procesed: мапа с верршинами которые прошли
-      isTraverse: флаг говорящий что мы нашли то что искали (простая оптимизация)
-      parent: мапа хранит то, из какой точки пришли (понадобится для восстановления пути)
-
-    задаем точку старта и искомую (A,G)
-      алгоритм исполтзует простую очередь и добавляет в нее соседей
-      помещаем точку А в очередь
-      queue: [A]
-
-    Старт происходит если очередь не пуста
-      забираем вершину и начинаем работать над ней (для всех верщин процедура одинакова) 
-      ищем соседей и добавляем в очередь, так же помечаем вершину как пройденную
-      queue: []
-      processed: [A]
-
-      проход по соседям
-        3 соседа на данномм этапе,  соответственно 3 этапа
-          1) queue: [B]
-             parent: {B: A}
-             processed: [A, B]
-          2) queue: [B, E]
-             parent: {B: A, E: A}
-             processed: [A, B, E]
-          3) queue: [B, E, D]
-             parent: {B: A, E: A, D: A}
-             processed: [A, B, E, D]
-
-          Из соседей у вершины А нету искомой точки - работа происходит дальше
-          На очереди точка B - ее соседи это А и C
-          проходить по ним в том же алгоритме
-            1) A - помечена как пройдена. Пропускаем
-            3) queue: [E, D, C]
-               parent: {B: A, E: A, D: A, C: B}
-               processed: [A, B, E, D, C]
-
-          Из соседей у вершины B нету искомой точки - работа происходит дальше
-          На очереди точка E - ее соседи это D,A,F
-          проходить по ним в том же алгоритме
-            1) D - помечена как пройдена. Пропускаем
-            2) A - помечена как пройдена. Пропускаем
-            3) queue: [D, C, F]
-               parent: {B: A, E: A, D: A, C: B, F: E}
-               processed: [A, B, E, D, C, F]
-
-          Из соседей у вершины E нету искомой точки - работа происходит дальше
-          На очереди точка D - ее соседи это A,E
-          проходить по ним в том же алгоритме
-            1) A - помечена как пройдена. Пропускаем
-            2) E - помечена как пройдена. Пропускаем
-                queue: [C, F]
-
-          Из соседей у вершины D нету искомой точки - работа происходит дальше
-          Все соседи у данной вершины помечены как пройденные
-          На очереди точка C - ее соседи это B,F
-          проходить по ним в том же алгоритме
-            1) B - помечена как пройдена. Пропускаем
-            2) F - помечена как пройдена. Пропускаем
-                queue: [F]
-
-          Из соседей у вершины C нету искомой точки - работа происходит дальше
-          Все соседи у данной вершины помечены как пройденные
-          На очереди точка F - ее соседи это E,C,G
-          проходить по ним в том же алгоритме
-            1) E - помечена как пройдена. Пропускаем
-            2) C - помечена как пройдена. Пропускаем
-            3) F - найденная вершина
-                queue: [G]
-                parent: {B: A, E: A, D: A, C: B, F: E, G: F}
-                processed: [A, B, E, D, C, F, G]
-                isTraverse: true
-
-    Теперь все вершины пройдены и мы можем восстановить путь по parent (как я писал выше, для чего эта переменная)
-      найденный путь - (G-F-E-A).reverse()
-      цепочка восстанавливается от искомой точки, путь как пройти от искомой к начальной
-
-    Вывод:
-        Данный алгоритм полезен если нужно найти кратчайшее расстояние по вершинам
-      но если появится вес у ребра (к примеру учивать дистанцию),  данный алгоритм не поможет
-      для этого существует алгоритм Дейкстры (./dijkstra.js) - который тоже тут рассмотрет и можно 
-      увидеть визуализацию
-        Так же есть варианты этого алгоритма, но которые учитывают эвристику,
-      за счет которой могут отсеять не нужные направления (./greedy.js, ./a-star.js)
-*/
-function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
-      _ref$withLogger = _ref.withLogger,
-      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
-  var queue = [startIndex];
-  var processed = new Map();
-  var parent = {};
-  var isTraverse = false;
-  var logger = (0, _utils.createOperationLogger)('breadthFirstSearch');
-
-  while (!isTraverse && queue.length > 0) {
-    var currentIndex = queue.shift();
-    var neigbors = graph.getNeighbors(currentIndex); // eslint-disable-next-line unicorn/no-for-loop
-
-    for (var i = 0; i < neigbors.length; i++) {
-      var next = neigbors[i];
-
-      if (canTraverse(next) && !processed.has(next)) {
-        queue.push(next);
-        processed.set(next, true);
-        parent[next] = currentIndex;
-
-        if (endIndex === next) {
-          isTraverse = true;
-          break;
-        }
-
-        logger.increment();
-      }
-    }
-  }
-
-  if (withLogger) {
-    logger.log();
-  }
-
-  return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
-    processed: _toConsumableArray(processed.keys())
-  };
-}
-},{"../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"src/algorithms/depth-first-search.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.depthFirstSearch = depthFirstSearch;
-
-var _utils = require("../utils");
-
-var _restorePath = require("./restore-path");
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function depthFirstSearch(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
-      _ref$withLogger = _ref.withLogger,
-      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
-  var stack = [startIndex];
-  var processed = new Map([[startIndex, true]]);
-  var parent = {};
-  var isTraverse = false;
-  var logger = (0, _utils.createOperationLogger)('depthFirstSearch');
-
-  while (!isTraverse && stack.length > 0) {
-    var currentIndex = stack.shift();
-    var neigbors = graph.getNeighbors(currentIndex); // eslint-disable-next-line unicorn/no-for-loop
-
-    for (var i = 0; i < neigbors.length; i++) {
-      var next = neigbors[i];
-
-      if (canTraverse(next) && !processed.has(next)) {
-        parent[next] = currentIndex;
-        stack.unshift(next);
-        processed.set(next, true);
-
-        if (endIndex === next) {
-          isTraverse = true;
-          break;
-        }
-
-        logger.increment();
-      }
-    }
-  }
-
-  if (withLogger) {
-    logger.log();
-  }
-
-  return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
-    processed: _toConsumableArray(processed.keys())
-  };
-}
-},{"../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"node_modules/fastpriorityqueue/FastPriorityQueue.js":[function(require,module,exports) {
-/**
- * FastPriorityQueue.js : a fast heap-based priority queue  in JavaScript.
- * (c) the authors
- * Licensed under the Apache License, Version 2.0.
- *
- * Speed-optimized heap-based priority queue for modern browsers and JavaScript engines.
- *
- * Usage :
-         Installation (in shell, if you use node):
-         $ npm install fastpriorityqueue
-
-         Running test program (in JavaScript):
-
-         // var FastPriorityQueue = require("fastpriorityqueue");// in node
-         var x = new FastPriorityQueue();
-         x.add(1);
-         x.add(0);
-         x.add(5);
-         x.add(4);
-         x.add(3);
-         x.peek(); // should return 0, leaves x unchanged
-         x.size; // should return 5, leaves x unchanged
-         while(!x.isEmpty()) {
-           console.log(x.poll());
-         } // will print 0 1 3 4 5
-         x.trim(); // (optional) optimizes memory usage
- */
-'use strict';
-
-var defaultcomparator = function(a, b) {
-  return a < b;
-};
-
-// the provided comparator function should take a, b and return *true* when a < b
-function FastPriorityQueue(comparator) {
-  if (!(this instanceof FastPriorityQueue)) return new FastPriorityQueue(comparator);
-  this.array = [];
-  this.size = 0;
-  this.compare = comparator || defaultcomparator;
-}
-
-// copy the priority queue into another, and return it. Queue items are shallow-copied.
-// Runs in `O(n)` time.
-FastPriorityQueue.prototype.clone = function() {
-  var fpq = new FastPriorityQueue(this.compare);
-  fpq.size = this.size;
-  for (var i = 0; i < this.size; i++) {
-    fpq.array.push(this.array[i]);
-  }
-  return fpq;
-};
-
-// Add an element into the queue
-// runs in O(log n) time
-FastPriorityQueue.prototype.add = function(myval) {
-  var i = this.size;
-  this.array[this.size] = myval;
-  this.size += 1;
-  var p;
-  var ap;
-  while (i > 0) {
-    p = (i - 1) >> 1;
-    ap = this.array[p];
-    if (!this.compare(myval, ap)) {
-      break;
-    }
-    this.array[i] = ap;
-    i = p;
-  }
-  this.array[i] = myval;
-};
-
-// replace the content of the heap by provided array and "heapify it"
-FastPriorityQueue.prototype.heapify = function(arr) {
-  this.array = arr;
-  this.size = arr.length;
-  var i;
-  for (i = this.size >> 1; i >= 0; i--) {
-    this._percolateDown(i);
-  }
-};
-
-// for internal use
-FastPriorityQueue.prototype._percolateUp = function(i, force) {
-  var myval = this.array[i];
-  var p;
-  var ap;
-  while (i > 0) {
-    p = (i - 1) >> 1;
-    ap = this.array[p];
-    // force will skip the compare
-    if (!force && !this.compare(myval, ap)) {
-      break;
-    }
-    this.array[i] = ap;
-    i = p;
-  }
-  this.array[i] = myval;
-};
-
-// for internal use
-FastPriorityQueue.prototype._percolateDown = function(i) {
-  var size = this.size;
-  var hsize = this.size >>> 1;
-  var ai = this.array[i];
-  var l;
-  var r;
-  var bestc;
-  while (i < hsize) {
-    l = (i << 1) + 1;
-    r = l + 1;
-    bestc = this.array[l];
-    if (r < size) {
-      if (this.compare(this.array[r], bestc)) {
-        l = r;
-        bestc = this.array[r];
-      }
-    }
-    if (!this.compare(bestc, ai)) {
-      break;
-    }
-    this.array[i] = bestc;
-    i = l;
-  }
-  this.array[i] = ai;
-};
-
-// internal
-// _removeAt(index) will remove the item at the given index from the queue,
-// retaining balance. returns the removed item, or undefined if nothing is removed.
-FastPriorityQueue.prototype._removeAt = function(index) {
-  if (index > this.size - 1 || index < 0) return undefined;
-
-  // impl1:
-  //this.array.splice(index, 1);
-  //this.heapify(this.array);
-  // impl2:
-  this._percolateUp(index, true);
-  return this.poll();
-};
-
-// remove(myval) will remove an item matching the provided value from the
-// queue, checked for equality by using the queue's comparator.
-// return true if removed, false otherwise.
-FastPriorityQueue.prototype.remove = function(myval) {
-  for (var i = 0; i < this.size; i++) {
-    if (!this.compare(this.array[i], myval) && !this.compare(myval, this.array[i])) {
-      // items match, comparator returns false both ways, remove item
-      this._removeAt(i);
-      return true;
-    }
-  }
-  return false;
-};
-
-// internal
-// removes and returns items for which the callback returns true.
-FastPriorityQueue.prototype._batchRemove = function(callback, limit) {
-  // initialize return array with max size of the limit or current queue size
-  var retArr = new Array(limit ? limit : this.size);
-  var count = 0;
-
-  if (typeof callback === 'function' && this.size) {
-    var i = 0;
-    while (i < this.size && count < retArr.length) {
-      if (callback(this.array[i])) {
-        retArr[count] = this._removeAt(i);
-        count++;
-        // move up a level in the heap if we remove an item
-        i = i >> 1;
-      } else {
-        i++;
-      }
-    } 
-  }
-  retArr.length = count;
-  return retArr;
-}
-
-// removeOne(callback) will execute the callback function for each item of the queue
-// and will remove the first item for which the callback will return true.
-// return the removed item, or undefined if nothing is removed.
-FastPriorityQueue.prototype.removeOne = function(callback) {
-  var arr = this._batchRemove(callback, 1);
-  return arr.length > 0 ? arr[0] : undefined;
-};
-
-// remove(callback[, limit]) will execute the callback function for each item of
-// the queue and will remove each item for which the callback returns true, up to
-// a max limit of removed items if specified or no limit if unspecified.
-// return an array containing the removed items.
-FastPriorityQueue.prototype.removeMany = function(callback, limit) {
-  return this._batchRemove(callback, limit);
-};
-
-// Look at the top of the queue (one of the smallest elements) without removing it
-// executes in constant time
-//
-// Calling peek on an empty priority queue returns
-// the "undefined" value.
-// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/undefined
-//
-FastPriorityQueue.prototype.peek = function() {
-  if (this.size == 0) return undefined;
-  return this.array[0];
-};
-
-// remove the element on top of the heap (one of the smallest elements)
-// runs in logarithmic time
-//
-// If the priority queue is empty, the function returns the
-// "undefined" value.
-// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/undefined
-//
-// For long-running and large priority queues, or priority queues
-// storing large objects, you may  want to call the trim function
-// at strategic times to recover allocated memory.
-FastPriorityQueue.prototype.poll = function() {
-  if (this.size == 0) return undefined;
-  var ans = this.array[0];
-  if (this.size > 1) {
-    this.array[0] = this.array[--this.size];
-    this._percolateDown(0);
-  } else {
-    this.size -= 1;
-  }
-  return ans;
-};
-
-// This function adds the provided value to the heap, while removing
-// and returning one of the smallest elements (like poll). The size of the queue
-// thus remains unchanged.
-FastPriorityQueue.prototype.replaceTop = function(myval) {
-  if (this.size == 0) return undefined;
-  var ans = this.array[0];
-  this.array[0] = myval;
-  this._percolateDown(0);
-  return ans;
-};
-
-// recover unused memory (for long-running priority queues)
-FastPriorityQueue.prototype.trim = function() {
-  this.array = this.array.slice(0, this.size);
-};
-
-// Check whether the heap is empty
-FastPriorityQueue.prototype.isEmpty = function() {
-  return this.size === 0;
-};
-
-// iterate over the items in order, pass a callback that receives (item, index) as args.
-// TODO once we transpile, uncomment
-// if (Symbol && Symbol.iterator) {
-//   FastPriorityQueue.prototype[Symbol.iterator] = function*() {
-//     if (this.isEmpty()) return;
-//     var fpq = this.clone();
-//     while (!fpq.isEmpty()) {
-//       yield fpq.poll();
-//     }
-//   };
-// }
-FastPriorityQueue.prototype.forEach = function(callback) {
-  if (this.isEmpty() || typeof callback != 'function') return;
-  var i = 0;
-  var fpq = this.clone();
-  while (!fpq.isEmpty()) {
-    callback(fpq.poll(), i++);
-  }
-};
-
-// return the k 'smallest' elements of the queue
-// runs in O(k log k) time
-// this is the equivalent of repeatedly calling poll, but
-// it has a better computational complexity, which can be
-// important for large data sets.
-FastPriorityQueue.prototype.kSmallest = function(k) {
-  if (this.size == 0) return [];
-  var comparator = this.compare;
-  var arr = this.array
-  var fpq = new FastPriorityQueue(function(a,b){
-   return comparator(arr[a],arr[b]);
-  });
-  k = Math.min(this.size, k);
-  var smallest = new Array(k);
-  var j = 0;
-  fpq.add(0);
-  while (j < k) {
-    var small = fpq.poll();
-    smallest[j++] = this.array[small];
-    var l = (small << 1) + 1;
-    var r = l + 1;
-    if (l < this.size) fpq.add(l);
-    if (r < this.size) fpq.add(r);
-  }
-  return smallest;
-}
-
-// just for illustration purposes
-var main = function() {
-  // main code
-  var x = new FastPriorityQueue(function(a, b) {
-    return a < b;
-  });
-  x.add(1);
-  x.add(0);
-  x.add(5);
-  x.add(4);
-  x.add(3);
-  while (!x.isEmpty()) {
-    console.log(x.poll());
-  }
-};
-
-if (require.main === module) {
-  main();
-}
-
-module.exports = FastPriorityQueue;
-
-},{}],"src/algorithms/dijkstra.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.dijkstra = dijkstra;
-
-var _fastpriorityqueue = _interopRequireDefault(require("fastpriorityqueue"));
-
-var _utils = require("../utils");
-
-var _restorePath = require("./restore-path");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function dijkstra(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
-      getCostByIndex = _ref.getCostByIndex,
-      _ref$withLogger = _ref.withLogger,
-      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
-  var queue = new _fastpriorityqueue.default(function (a, b) {
-    return a[1] < b[1];
-  });
-  var processed = new Map();
-  var parent = {};
-  var costFar = {};
-  var isTraverse = false;
-  var logger = (0, _utils.createOperationLogger)('dijkstra');
-  queue.add([startIndex, 0]);
-  costFar[startIndex] = 0;
-
-  while (!isTraverse && !queue.isEmpty()) {
-    var currentChild = queue.poll();
-    var neigbors = graph.getNeighbors(currentChild[0]); // eslint-disable-next-line unicorn/no-for-loop
-
-    for (var i = 0; i < neigbors.length; i++) {
-      var next = neigbors[i];
-
-      if (canTraverse(next)) {
-        var nextCost = costFar[currentChild[0]] + getCostByIndex(next);
-        var nextCostIsLower = nextCost <= (costFar[next] || Infinity);
-
-        if (nextCostIsLower && !processed.has(next)) {
-          queue.add([next, nextCost]);
-          processed.set(next, true);
-          costFar[next] = nextCost; // eslint-disable-next-line prefer-destructuring
-
-          parent[next] = currentChild[0];
-
-          if (endIndex === next) {
-            isTraverse = true;
-            break;
-          }
-
-          logger.increment();
-        }
-      }
-    }
-  }
-
-  if (withLogger) {
-    logger.log();
-  }
-
-  return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
-    processed: _toConsumableArray(processed.keys())
-  };
-}
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"src/algorithms/heuristic.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.manhattanDistance = manhattanDistance;
-exports.chebyshevDistance = chebyshevDistance;
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -2774,276 +2327,191 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-/*
-  Note:
+function getNextPositionByDirection(_ref, direction) {
+  var _ref2 = _slicedToArray(_ref, 2),
+      x = _ref2[0],
+      y = _ref2[1];
 
-  эвристики помогающие определить лучший вариант для определенного случая
-  (конкретно тут выбрать следующую позицию которая приблизит к цели)
-*/
-// reference http://lightcone.ru/manhattan/
-function manhattanDistance(_ref, _ref2) {
-  var _ref3 = _slicedToArray(_ref, 2),
-      x = _ref3[0],
-      y = _ref3[1];
+  switch (direction) {
+    case _config.DIRECTIONS.LEFT:
+      return [x - 1, y];
 
-  var _ref4 = _slicedToArray(_ref2, 2),
-      x1 = _ref4[0],
-      y1 = _ref4[1];
+    case _config.DIRECTIONS.RIGHT:
+      return [x + 1, y];
 
-  return Math.abs(x - x1) + Math.abs(y - y1);
+    case _config.DIRECTIONS.TOP:
+      return [x, y - 1];
+
+    case _config.DIRECTIONS.DOWN:
+      return [x, y + 1];
+
+    default:
+      return [x, y];
+  }
 }
 
-function chebyshevDistance(_ref5, _ref6) {
-  var _ref7 = _slicedToArray(_ref5, 2),
-      x = _ref7[0],
-      y = _ref7[1];
-
-  var _ref8 = _slicedToArray(_ref6, 2),
-      x1 = _ref8[0],
-      y1 = _ref8[1];
-
-  return Math.max(x - x1, y - y1);
-}
-},{}],"src/algorithms/greedy.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.greedy = greedy;
-
-var _fastpriorityqueue = _interopRequireDefault(require("fastpriorityqueue"));
-
-var _utils = require("../utils");
-
-var _restorePath = require("./restore-path");
-
-var _heuristic = require("./heuristic");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function greedy(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
-      _ref$heuristic = _ref.heuristic,
-      heuristic = _ref$heuristic === void 0 ? _heuristic.manhattanDistance : _ref$heuristic,
-      _ref$withLogger = _ref.withLogger,
-      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
-  var queue = new _fastpriorityqueue.default(function (a, b) {
-    return a[1] < b[1];
-  });
-  var processed = new Map();
-  var parent = {};
-  var goal = (0, _utils.getPositionByIndex)(endIndex);
-  var isTraverse = false;
-  var logger = (0, _utils.createOperationLogger)('greedy');
-  queue.add([startIndex, 0]);
-
-  while (!isTraverse && !queue.isEmpty()) {
-    var currentChild = queue.poll();
-    var neigbors = graph.getNeighbors(currentChild[0]); // eslint-disable-next-line unicorn/no-for-loop
-
-    for (var i = 0; i < neigbors.length; i++) {
-      var next = neigbors[i];
-
-      if (canTraverse(next)) {
-        var nextCost = heuristic(goal, (0, _utils.getPositionByIndex)(next));
-
-        if (!processed.has(next)) {
-          queue.add([next, nextCost]);
-          processed.set(next, true); // eslint-disable-next-line prefer-destructuring
-
-          parent[next] = currentChild[0];
-
-          if (endIndex === next) {
-            isTraverse = true;
-            break;
-          }
-        }
-
-        logger.increment();
-      }
-    }
+function getDirectionByPosition(currentPosition, nextPosition) {
+  if (currentPosition[0] < nextPosition[0] && currentPosition[1] === nextPosition[1]) {
+    return _config.DIRECTIONS.RIGHT;
   }
 
-  if (withLogger) {
-    logger.log();
+  if (currentPosition[0] > nextPosition[0] && currentPosition[1] === nextPosition[1]) {
+    return _config.DIRECTIONS.LEFT;
+  }
+
+  if (currentPosition[0] === nextPosition[0] && currentPosition[1] > nextPosition[1]) {
+    return _config.DIRECTIONS.TOP;
+  }
+
+  if (currentPosition[0] === nextPosition[0] && currentPosition[1] < nextPosition[1]) {
+    return _config.DIRECTIONS.DOWN;
+  }
+
+  return _config.DIRECTIONS.RIGHT;
+}
+
+function createTimeController(fps) {
+  var fpsInterval = 1000 / fps;
+  var callback = null;
+  var now = null;
+  var then = Date.now();
+
+  function loop() {
+    now = Date.now();
+    var delta = now - then;
+    var isPLay = _config.GAME_STATE.IS_PLAY;
+    requestAnimationFrame(loop);
+
+    if (delta > fpsInterval) {
+      then = now - delta % fpsInterval; // if (callback) {
+      //   callback(isPLay)
+      // }
+    }
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
-    processed: _toConsumableArray(processed.keys())
+    start: function start(fn) {
+      callback = fn;
+      loop();
+    },
+    pause: function pause() {// onStop()
+    },
+    play: function play() {// onPlay()
+    }
   };
 }
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./heuristic":"src/algorithms/heuristic.js"}],"src/algorithms/a-star.js":[function(require,module,exports) {
-"use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.aStar = aStar;
+var CanvasInput =
+/*#__PURE__*/
+function () {
+  function CanvasInput() {
+    _classCallCheck(this, CanvasInput);
 
-var _fastpriorityqueue = _interopRequireDefault(require("fastpriorityqueue"));
+    this.events = [];
+    /* :Arrray<{type: string, eventListener: (index) => void }> */
 
-var _utils = require("../utils");
+    this.eventRegistar = [];
+    /* :Arrray<() => void> */
 
-var _restorePath = require("./restore-path");
+    this.isMouseDown = false;
+  }
 
-var _heuristic = require("./heuristic");
+  _createClass(CanvasInput, [{
+    key: "registerEventRegistar",
+    value: function registerEventRegistar(eventBuilder
+    /* :() => void */
+    ) {
+      this.eventRegistar.push(eventBuilder);
+    }
+  }, {
+    key: "callEventRegistars",
+    value: function callEventRegistars() {
+      this.eventRegistar.forEach(function (builder) {
+        return builder();
+      });
+    }
+  }, {
+    key: "registerClickEventToCanvas",
+    value: function registerClickEventToCanvas(canvas) {
+      var _this = this;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function aStar(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
-      getCostByIndex = _ref.getCostByIndex,
-      _ref$withLogger = _ref.withLogger,
-      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger,
-      _ref$heuristic = _ref.heuristic,
-      heuristic = _ref$heuristic === void 0 ? _heuristic.manhattanDistance : _ref$heuristic;
-  var goal = (0, _utils.getPositionByIndex)(endIndex);
-  var queue = new _fastpriorityqueue.default(function (a, b) {
-    return a[1] < b[1];
-  });
-  var processed = new Map();
-  var parent = {};
-  var costFar = {};
-  var isTraverse = false;
-  var logger = (0, _utils.createOperationLogger)('aStar');
-  queue.add([startIndex, 0]);
-  costFar[startIndex] = 0;
-
-  while (!isTraverse && !queue.isEmpty()) {
-    var currentChild = queue.poll();
-    var neigbors = graph.getNeighbors(currentChild[0]); // eslint-disable-next-line unicorn/no-for-loop
-
-    for (var i = 0; i < neigbors.length; i++) {
-      var next = neigbors[i];
-
-      if (canTraverse(next)) {
-        var nextCost = costFar[currentChild[0]] + getCostByIndex(next);
-        var nextCostIsLower = nextCost < (costFar[next] || Infinity);
-
-        if (nextCostIsLower && !processed.has(next)) {
-          queue.add([next, nextCost + heuristic(goal, (0, _utils.getPositionByIndex)(next))]);
-          processed.set(next, true);
-          costFar[next] = nextCost; // eslint-disable-next-line prefer-destructuring
-
-          parent[next] = currentChild[0];
-
-          if (endIndex === next) {
-            isTraverse = true;
-            break;
-          }
-
-          logger.increment();
-        }
+      function getTargetIndex(event) {
+        var x = event.pageX - canvas.offsetLeft;
+        var y = event.pageY - canvas.offsetTop;
+        var targetPosition = [Math.floor((x + _config.cellSize % x / _config.cellSize) / _config.cellSize), Math.floor((y + _config.cellSize % y / _config.cellSize) / _config.cellSize)];
+        return (0, _utils.getIndexByPosition)(targetPosition);
       }
+
+      canvas.addEventListener('mousedown', function (event) {
+        var index = getTargetIndex(event);
+
+        _this.events.filter(function (userEvent) {
+          return userEvent.type === 'mousedown';
+        }).forEach(function (userEvent) {
+          return userEvent.eventListener(index);
+        });
+
+        _this.isMouseDown = true;
+      });
+      canvas.addEventListener('mouseup', function () {
+        _this.isMouseDown = false;
+      });
+      canvas.addEventListener('mousemove', function (event) {
+        if (_this.isMouseDown) {
+          var index = getTargetIndex(event);
+
+          _this.events.filter(function (userEvent) {
+            return userEvent.type === 'mousemove';
+          }).forEach(function (userEvent) {
+            return userEvent.eventListener(index);
+          });
+        }
+      });
     }
-  }
+  }, {
+    key: "addMouseDownEvent",
+    value: function addMouseDownEvent(eventListener) {
+      this.events.push({
+        type: 'mousedown',
+        eventListener: eventListener
+      });
+    }
+  }, {
+    key: "addMouseMoveEvent",
+    value: function addMouseMoveEvent(eventListener) {
+      this.events.push({
+        type: 'mousemove',
+        eventListener: eventListener
+      });
+    }
+  }]);
 
-  if (withLogger) {
-    logger.log();
-  }
+  return CanvasInput;
+}();
 
-  return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
-    processed: _toConsumableArray(processed.keys())
-  };
-}
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./heuristic":"src/algorithms/heuristic.js"}],"src/algorithms/index.js":[function(require,module,exports) {
+exports.CanvasInput = CanvasInput;
+var canvasInput = new CanvasInput();
+exports.canvasInput = canvasInput;
+},{"./config":"src/config.js","./utils":"src/utils.js"}],"src/canvas.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.setCanvasSize = setCanvasSize;
+exports.convigureCanvas = convigureCanvas;
 
-var _graph = require("./graph");
+function setCanvasSize(canvas, _ref) {
+  var w = _ref.w,
+      h = _ref.h;
+  canvas.height = h;
+  canvas.width = w;
+}
 
-Object.keys(_graph).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _graph[key];
-    }
-  });
-});
-
-var _breadthFirstSearch = require("./breadth-first-search");
-
-Object.keys(_breadthFirstSearch).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _breadthFirstSearch[key];
-    }
-  });
-});
-
-var _depthFirstSearch = require("./depth-first-search");
-
-Object.keys(_depthFirstSearch).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _depthFirstSearch[key];
-    }
-  });
-});
-
-var _dijkstra = require("./dijkstra");
-
-Object.keys(_dijkstra).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _dijkstra[key];
-    }
-  });
-});
-
-var _greedy = require("./greedy");
-
-Object.keys(_greedy).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _greedy[key];
-    }
-  });
-});
-
-var _aStar = require("./a-star");
-
-Object.keys(_aStar).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _aStar[key];
-    }
-  });
-});
-},{"./graph":"src/algorithms/graph.js","./breadth-first-search":"src/algorithms/breadth-first-search.js","./depth-first-search":"src/algorithms/depth-first-search.js","./dijkstra":"src/algorithms/dijkstra.js","./greedy":"src/algorithms/greedy.js","./a-star":"src/algorithms/a-star.js"}],"node_modules/color-name/index.js":[function(require,module,exports) {
+function convigureCanvas(canvas, localSize, globalSize) {
+  setCanvasSize(canvas, globalSize);
+}
+},{}],"node_modules/color-name/index.js":[function(require,module,exports) {
 'use strict'
 
 module.exports = {
@@ -5008,13 +4476,13 @@ function zeroArray(arr, length) {
 
 module.exports = Color;
 
-},{"color-string":"node_modules/color-string/index.js","color-convert":"node_modules/color-convert/index.js"}],"src/model/snake.js":[function(require,module,exports) {
+},{"color-string":"node_modules/color-string/index.js","color-convert":"node_modules/color-convert/index.js"}],"src/models/snake.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.moveSnake = moveSnake;
+exports.updateBody = updateBody;
 exports.headSnake = headSnake;
 exports.tailSnake = tailSnake;
 exports.addPeaceOfSnake = addPeaceOfSnake;
@@ -5070,7 +4538,9 @@ function () {
     key: "build",
     value: function build(headPosition, _ref) {
       var colors = _ref.colors,
-          id = _ref.id;
+          id = _ref.id,
+          isAi = _ref.isAi,
+          updater = _ref.updater;
       return {
         id: id,
         body: [headPosition, [headPosition[0] + 1, headPosition[1]]],
@@ -5078,7 +4548,9 @@ function () {
         direction: _config.DIRECTIONS.RIGHT,
         weight: 1,
         score: 0,
-        colors: colors
+        colors: colors,
+        isAi: isAi,
+        updater: updater
       };
     }
   }]);
@@ -5088,7 +4560,7 @@ function () {
 
 exports.Snake = Snake;
 
-function moveSnake(snake, nextPosition) {
+function updateBody(snake, nextPosition) {
   var _snake$body = _toArray(snake.body),
       _ = _snake$body[0],
       rest = _snake$body.slice(1);
@@ -5151,23 +4623,15 @@ function buildSettingsForSnake() {
     activeHeuristic: 'manhattan'
   };
 }
-},{"color":"node_modules/color/index.js","../config":"src/config.js"}],"src/model/game.store.js":[function(require,module,exports) {
+},{"color":"node_modules/color/index.js","../config":"src/config.js"}],"src/algorithms/graph.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$enableLoggerStore = exports.$indexesVisibleStore = exports.$userInGameStore = exports.$brickStore = exports.$settingsForSnakesStore = exports.$algorithmsStore = exports.$heuristicsStore = exports.$snakeIterator = exports.$gameCollisionStateStore = exports.$snakesStore = exports.$gameMapStore = exports.$foodsStore = exports.$gameStateStore = exports.PLACE_TYPE = exports.GAME_STATE = void 0;
+exports.Graph = void 0;
 
-var _effector = require("effector");
-
-var _algorithms = require("../algorithms");
-
-var _heuristic = require("../algorithms/heuristic");
-
-var _utils = require("../utils");
-
-var _snake = require("./snake");
+var _config = require("../config");
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -5175,167 +4639,149 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var GAME_STATE = {
-  IS_PLAY: 1,
-  IS_PAUSE: 2
-};
-exports.GAME_STATE = GAME_STATE;
-var PLACE_TYPE = {
-  EMPTY: undefined,
-  GAME_OBJECT: 1,
-  BRICK: 2,
-  FOOD: 3
-};
-exports.PLACE_TYPE = PLACE_TYPE;
-var $gameStateStore = (0, _effector.createStore)(GAME_STATE.IS_PAUSE);
-exports.$gameStateStore = $gameStateStore;
-var $foodsStore = (0, _effector.createStore)((0, _utils.generateRandomFoodByCount)(10));
-exports.$foodsStore = $foodsStore;
-var $gameMapStore = (0, _effector.createStore)({});
-exports.$gameMapStore = $gameMapStore;
-var $snakesStore = (0, _effector.createStore)([_snake.Snake.build((0, _utils.randomPosition)(), {
-  colors: (0, _snake.getColorsForSnake)(),
-  id: 'ai'
-})]);
-exports.$snakesStore = $snakesStore;
-var $gameCollisionStateStore = (0, _effector.createStore)(true);
-exports.$gameCollisionStateStore = $gameCollisionStateStore;
-var $snakeIterator = (0, _effector.createStore)(Array.from({
-  length: $snakesStore.getState().length
-}, function (_, i) {
-  return $snakesStore.getState()[i].id;
-}));
-exports.$snakeIterator = $snakeIterator;
-var $heuristicsStore = (0, _effector.createStore)([{
-  id: 'manhattan',
-  name: 'Manhattan',
-  alg: _heuristic.manhattanDistance
-}, {
-  id: 'chebyshev',
-  name: 'Chebyshev',
-  alg: _heuristic.chebyshevDistance
-}]);
-exports.$heuristicsStore = $heuristicsStore;
-var $algorithmsStore = (0, _effector.createStore)([{
-  id: 'breadth',
-  alg: _algorithms.breadthFirstSearch,
-  name: 'Breadth first search'
-}, {
-  id: 'depth',
-  alg: _algorithms.depthFirstSearch,
-  name: 'Depth first search'
-}, {
-  id: 'dijkstra',
-  alg: _algorithms.dijkstra,
-  name: 'Dijkstra algorighm'
-}, {
-  id: 'greedy',
-  alg: _algorithms.greedy,
-  name: 'Greedy algorighm (has heuristic)',
-  activeHeuristic: 'manhattan',
-  hasHeuristic: true
-}, {
-  id: 'aStar',
-  alg: _algorithms.aStar,
-  name: 'A* algorighm (has heuristic)',
-  activeHeuristic: 'manhattan',
-  hasHeuristic: true
-}]);
-exports.$algorithmsStore = $algorithmsStore;
-var $settingsForSnakesStore = (0, _effector.createStore)($snakesStore.getState().reduce(function (acc, snake) {
-  return _objectSpread({}, acc, _defineProperty({}, snake.id, (0, _snake.buildSettingsForSnake)()));
-}, {}));
-exports.$settingsForSnakesStore = $settingsForSnakesStore;
-var $brickStore = (0, _effector.createStore)([]);
-exports.$brickStore = $brickStore;
-var $userInGameStore = (0, _effector.createStore)(false);
-exports.$userInGameStore = $userInGameStore;
-var $indexesVisibleStore = (0, _effector.createStore)(false);
-exports.$indexesVisibleStore = $indexesVisibleStore;
-var $enableLoggerStore = (0, _effector.createStore)(false);
-exports.$enableLoggerStore = $enableLoggerStore;
-},{"effector":"node_modules/effector/effector.es.js","../algorithms":"src/algorithms/index.js","../algorithms/heuristic":"src/algorithms/heuristic.js","../utils":"src/utils.js","./snake":"src/model/snake.js"}],"src/model/game.events.js":[function(require,module,exports) {
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Graph =
+/*#__PURE__*/
+function () {
+  function Graph(_ref) {
+    var _this = this;
+
+    var w = _ref.w,
+        h = _ref.h,
+        _ref$withBounds = _ref.withBounds,
+        withBounds = _ref$withBounds === void 0 ? false : _ref$withBounds,
+        emptyGraph = _ref.emptyGraph,
+        graph = _ref.graph;
+
+    _classCallCheck(this, Graph);
+
+    this.w = w;
+    this.h = h;
+    this.withBounds = withBounds; // for quick copy
+
+    this.emptyGraph = typeof emptyGraph !== 'undefined' ? emptyGraph : Array.from({
+      length: w * h
+    }, function (_, index) {
+      return {
+        neigbors: [_this.getTopNeigbour(index), _this.getLeftNeigbour(index), _this.getDownNeigbour(index), _this.getRightNeigbour(index)].filter(function (i) {
+          return typeof i !== 'undefined';
+        }),
+        value: _config.PLACE_TYPE.EMPTY
+      };
+    });
+    this.graph = typeof graph !== 'undefined' ? graph : this.emptyGraph.slice();
+  }
+
+  _createClass(Graph, [{
+    key: "getTopNeigbour",
+    value: function getTopNeigbour(index) {
+      var hasTopNeighbour = Math.floor(index / this.w) > 0;
+
+      if (hasTopNeighbour) {
+        return index - this.w;
+      }
+
+      return this.withBounds ? undefined : this.w * (this.h - 1) + index % this.w;
+    }
+  }, {
+    key: "getLeftNeigbour",
+    value: function getLeftNeigbour(index) {
+      var hasLeftNeighbour = index % this.w > 0;
+
+      if (hasLeftNeighbour) {
+        return index - 1;
+      }
+
+      return this.withBounds ? undefined : index + (this.w - 1);
+    }
+  }, {
+    key: "getRightNeigbour",
+    value: function getRightNeigbour(index) {
+      var hasRightNeighbour = index % this.w < this.w - 1;
+
+      if (hasRightNeighbour) {
+        return index + 1;
+      }
+
+      return this.withBounds ? undefined : index - (this.w - 1);
+    }
+  }, {
+    key: "getDownNeigbour",
+    value: function getDownNeigbour(index) {
+      var hasDownNeighbour = Math.floor(index / this.w) < this.h - 1;
+
+      if (hasDownNeighbour) {
+        return index + this.w;
+      }
+
+      return this.withBounds ? undefined : index % this.w;
+    }
+  }, {
+    key: "getVertex",
+    value: function getVertex(index) {
+      return this.graph[index];
+    }
+  }, {
+    key: "setValueByIndex",
+    value: function setValueByIndex(index, value) {
+      if (this.graph[index]) {
+        this.graph[index] = _objectSpread({}, this.graph[index], {
+          value: value
+        });
+      }
+    }
+  }], [{
+    key: "extend",
+    value: function extend(graph) {
+      return new Graph({
+        w: graph.w,
+        h: graph.h,
+        withBounds: graph.withBounds,
+        graph: graph.graph.slice(),
+        emptyGraph: graph.emptyGraph.slice()
+      });
+    }
+  }]);
+
+  return Graph;
+}();
+
+exports.Graph = Graph;
+},{"../config":"src/config.js"}],"src/algorithms/restore-path.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.onUpdateSettingForSnake = exports.onToggleLoggerState = exports.onSetIndexesVisible = exports.onSetAiPathVisibleToTarget = exports.onRemoveUserFromGame = exports.onAddUserToGame = exports.onRemoveBrick = exports.onAddBrick = exports.onSetCollisionState = exports.onChangeHeuristic = exports.onChangeAlgorithm = exports.onUpdateGameMapWithNexState = exports.onUpdateGameMap = exports.onClearGameMap = exports.onRemoveSnake = exports.onAddSnake = exports.onCrashSnake = exports.onSetDirectionForSnake = exports.onMoveSnake = exports.onGenerateFoods = exports.onEatFood = exports.onRestart = exports.onStop = exports.onPlay = void 0;
+exports.restorePath = restorePath;
 
-var _effector = require("effector");
+function restorePath(end, start, parent) {
+  var path = [end];
+  var goal = parent[end];
 
-var onPlay = (0, _effector.createEvent)('play game');
-exports.onPlay = onPlay;
-var onStop = (0, _effector.createEvent)('stop game');
-exports.onStop = onStop;
-var onRestart = (0, _effector.createEvent)('restart game');
-exports.onRestart = onRestart;
-var onEatFood = (0, _effector.createEvent)('eat food');
-exports.onEatFood = onEatFood;
-var onGenerateFoods = (0, _effector.createEvent)('generate food');
-exports.onGenerateFoods = onGenerateFoods;
-var onMoveSnake = (0, _effector.createEvent)('move snake');
-exports.onMoveSnake = onMoveSnake;
-var onSetDirectionForSnake = (0, _effector.createEvent)("set snake's direction");
-exports.onSetDirectionForSnake = onSetDirectionForSnake;
-var onCrashSnake = (0, _effector.createEvent)('on crash snake');
-exports.onCrashSnake = onCrashSnake;
-var onAddSnake = (0, _effector.createEvent)('add snake to game');
-exports.onAddSnake = onAddSnake;
-var onRemoveSnake = (0, _effector.createEvent)('remove snake from game');
-exports.onRemoveSnake = onRemoveSnake;
-var onClearGameMap = (0, _effector.createEvent)('clear game map');
-exports.onClearGameMap = onClearGameMap;
-var onUpdateGameMap = (0, _effector.createEvent)('upadte game map');
-exports.onUpdateGameMap = onUpdateGameMap;
-var onUpdateGameMapWithNexState = (0, _effector.createEvent)('upadte game map with next state');
-exports.onUpdateGameMapWithNexState = onUpdateGameMapWithNexState;
-var onChangeAlgorithm = (0, _effector.createEvent)('change algoright');
-exports.onChangeAlgorithm = onChangeAlgorithm;
-var onChangeHeuristic = (0, _effector.createEvent)('change heuristic');
-exports.onChangeHeuristic = onChangeHeuristic;
-var onSetCollisionState = (0, _effector.createEvent)('set collision state');
-exports.onSetCollisionState = onSetCollisionState;
-var onAddBrick = (0, _effector.createEvent)('add brick');
-exports.onAddBrick = onAddBrick;
-var onRemoveBrick = (0, _effector.createEvent)('remove brick');
-exports.onRemoveBrick = onRemoveBrick;
-var onAddUserToGame = (0, _effector.createEvent)('add user to game');
-exports.onAddUserToGame = onAddUserToGame;
-var onRemoveUserFromGame = (0, _effector.createEvent)('remove user from game');
-exports.onRemoveUserFromGame = onRemoveUserFromGame;
-var onSetAiPathVisibleToTarget = (0, _effector.createEvent)('set visible path to target');
-exports.onSetAiPathVisibleToTarget = onSetAiPathVisibleToTarget;
-var onSetIndexesVisible = (0, _effector.createEvent)('set visible indexes');
-exports.onSetIndexesVisible = onSetIndexesVisible;
-var onToggleLoggerState = (0, _effector.createEvent)('on toggle logger');
-exports.onToggleLoggerState = onToggleLoggerState;
-var onUpdateSettingForSnake = (0, _effector.createEvent)('upadte setting for snake');
-exports.onUpdateSettingForSnake = onUpdateSettingForSnake;
-},{"effector":"node_modules/effector/effector.es.js"}],"src/model/game.model.js":[function(require,module,exports) {
+  while (goal !== start) {
+    path.unshift(goal);
+    goal = parent[goal];
+  }
+
+  return path;
+}
+},{}],"src/algorithms/breadth-first-search.js":[function(require,module,exports) {
 "use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.breadthFirstSearch = breadthFirstSearch;
 
 var _utils = require("../utils");
 
-var _game = require("./game.store");
-
-var _game2 = require("./game.events");
-
-var _snake = require("./snake");
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var _restorePath = require("./restore-path");
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -5345,332 +4791,616 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function getUserSnake() {
-  return _snake.Snake.build((0, _utils.randomPosition)(), {
-    colors: (0, _snake.getColorsForSnake)(),
-    id: 'user'
-  });
+/*
+  Note:
+
+  Поиск происходит равномерно во всех направлениях, алгоритм  не знает как ускорится
+    он просто перебирает по уровням (если искомая точка существует, он 100% найдет крратчайший путь к нее)
+    разумеется кратчайший по веершинам (!)
+
+  Пример гррафа (для простоты понимания это будет привычный граф - не одномерный массив)
+    найти кратчайший путь из A в G
+    если посмоттреть на граф, то видно что кратчайший путь это A-E-F-G -через 2 вершины
+
+  A~~~~B~~~~C
+  ~ ~       ~
+  ~   ~     ~
+  D~~~~E~~~~F~~~~G
+
+  Как работает алгоритм
+    Дано
+      queue: очередь
+      procesed: мапа с верршинами которые прошли
+      isTraverse: флаг говорящий что мы нашли то что искали (простая оптимизация)
+      parent: мапа хранит то, из какой точки пришли (понадобится для восстановления пути)
+
+    задаем точку старта и искомую (A,G)
+      алгоритм исполтзует простую очередь и добавляет в нее соседей
+      помещаем точку А в очередь
+      queue: [A]
+
+    Старт происходит если очередь не пуста
+      забираем вершину и начинаем работать над ней (для всех верщин процедура одинакова) 
+      ищем соседей и добавляем в очередь, так же помечаем вершину как пройденную
+      queue: []
+      processed: [A]
+
+      проход по соседям
+        3 соседа на данномм этапе,  соответственно 3 этапа
+          1) queue: [B]
+             parent: {B: A}
+             processed: [A, B]
+          2) queue: [B, E]
+             parent: {B: A, E: A}
+             processed: [A, B, E]
+          3) queue: [B, E, D]
+             parent: {B: A, E: A, D: A}
+             processed: [A, B, E, D]
+
+          Из соседей у вершины А нету искомой точки - работа происходит дальше
+          На очереди точка B - ее соседи это А и C
+          проходить по ним в том же алгоритме
+            1) A - помечена как пройдена. Пропускаем
+            3) queue: [E, D, C]
+               parent: {B: A, E: A, D: A, C: B}
+               processed: [A, B, E, D, C]
+
+          Из соседей у вершины B нету искомой точки - работа происходит дальше
+          На очереди точка E - ее соседи это D,A,F
+          проходить по ним в том же алгоритме
+            1) D - помечена как пройдена. Пропускаем
+            2) A - помечена как пройдена. Пропускаем
+            3) queue: [D, C, F]
+               parent: {B: A, E: A, D: A, C: B, F: E}
+               processed: [A, B, E, D, C, F]
+
+          Из соседей у вершины E нету искомой точки - работа происходит дальше
+          На очереди точка D - ее соседи это A,E
+          проходить по ним в том же алгоритме
+            1) A - помечена как пройдена. Пропускаем
+            2) E - помечена как пройдена. Пропускаем
+                queue: [C, F]
+
+          Из соседей у вершины D нету искомой точки - работа происходит дальше
+          Все соседи у данной вершины помечены как пройденные
+          На очереди точка C - ее соседи это B,F
+          проходить по ним в том же алгоритме
+            1) B - помечена как пройдена. Пропускаем
+            2) F - помечена как пройдена. Пропускаем
+                queue: [F]
+
+          Из соседей у вершины C нету искомой точки - работа происходит дальше
+          Все соседи у данной вершины помечены как пройденные
+          На очереди точка F - ее соседи это E,C,G
+          проходить по ним в том же алгоритме
+            1) E - помечена как пройдена. Пропускаем
+            2) C - помечена как пройдена. Пропускаем
+            3) F - найденная вершина
+                queue: [G]
+                parent: {B: A, E: A, D: A, C: B, F: E, G: F}
+                processed: [A, B, E, D, C, F, G]
+                isTraverse: true
+
+    Теперь все вершины пройдены и мы можем восстановить путь по parent (как я писал выше, для чего эта переменная)
+      найденный путь - (G-F-E-A).reverse()
+      цепочка восстанавливается от искомой точки, путь как пройти от искомой к начальной
+
+    Вывод:
+        Данный алгоритм полезен если нужно найти кратчайшее расстояние по вершинам
+      но если появится вес у ребра (к примеру учивать дистанцию),  данный алгоритм не поможет
+      для этого существует алгоритм Дейкстры (./dijkstra.js) - который тоже тут рассмотрет и можно 
+      увидеть визуализацию
+        Так же есть варианты этого алгоритма, но которые учитывают эвристику,
+      за счет которой могут отсеять не нужные направления (./greedy.js, ./a-star.js)
+*/
+function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
+  var canTraverse = _ref.canTraverse,
+      _ref$withLogger = _ref.withLogger,
+      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
+  var queue = [startIndex];
+  var processed = new Map();
+  var parent = {};
+  var isTraverse = false;
+  var logger = (0, _utils.createOperationLogger)('breadthFirstSearch');
+
+  while (!isTraverse && queue.length > 0) {
+    var currentIndex = queue.shift();
+    var neigbors = graph.getVertex(currentIndex); // eslint-disable-next-line unicorn/no-for-loop
+
+    for (var i = 0; i < neigbors.length; i++) {
+      var next = neigbors[i];
+
+      if (canTraverse(next) && !processed.has(next)) {
+        queue.push(next);
+        processed.set(next, true);
+        parent[next] = currentIndex;
+
+        if (endIndex === next) {
+          isTraverse = true;
+          break;
+        }
+
+        logger.increment();
+      }
+    }
+  }
+
+  if (withLogger) {
+    logger.log();
+  }
+
+  return {
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    processed: _toConsumableArray(processed.keys())
+  };
 }
-
-_game.$gameStateStore.on(_game2.onPlay, function () {
-  return _game.GAME_STATE.IS_PLAY;
-}).on(_game2.onStop, function () {
-  return _game.GAME_STATE.IS_PAUSE;
-}).reset(_game2.onRestart); // [[x,y], id]
-
-
-_game.$foodsStore.on(_game2.onEatFood, function (state, _ref) {
-  var foodId = _ref.foodId;
-  return state.map(function (food) {
-    if (food[1] === foodId) {
-      return [(0, _utils.randomPosition)(), food[1]];
-    }
-
-    return food;
-  });
-}).on(_game2.onGenerateFoods, function (state, foods) {
-  return [].concat(_toConsumableArray(state), _toConsumableArray(foods));
-}).reset(_game2.onRestart);
-
-_game.$snakesStore.on(_game2.onEatFood, function (snakes, _ref2) {
-  var id = _ref2.id,
-      peaceOfSnake = _ref2.peaceOfSnake;
-  return snakes.map(function (snake) {
-    if (snake.id === id) {
-      return (0, _snake.addPeaceOfSnake)((0, _snake.setScore)(snake, snake.score + 1), peaceOfSnake);
-    }
-
-    return snake;
-  });
-}).on(_game2.onMoveSnake, function (snakes, _ref3) {
-  var id = _ref3.id,
-      nextPosition = _ref3.nextPosition;
-  return snakes.map(function (snake) {
-    if (snake.id === id) {
-      return (0, _snake.moveSnake)(snake, nextPosition);
-    }
-
-    return snake;
-  });
-}).on(_game2.onSetDirectionForSnake, function (snakes, _ref4) {
-  var id = _ref4.id,
-      direction = _ref4.direction;
-  return snakes.map(function (snake) {
-    if (snake.id === id) {
-      return (0, _snake.setDirection)(snake, direction);
-    }
-
-    return snake;
-  });
-}).on(_game2.onCrashSnake, function (snakes, id) {
-  return snakes.map(function (snake) {
-    if (snake.id === id) {
-      return (0, _snake.setCrash)(snake, true);
-    }
-
-    return snake;
-  });
-}).on(_game2.onAddUserToGame, function (snakes) {
-  return [].concat(_toConsumableArray(snakes), [getUserSnake()]);
-}).on(_game2.onRemoveUserFromGame, function (snakes) {
-  return snakes.filter(function (snake) {
-    return snake.id !== 'user';
-  });
-}).on(_game2.onAddSnake, function (snakes, snakeId) {
-  return [].concat(_toConsumableArray(snakes), [_snake.Snake.build((0, _utils.randomPosition)(), {
-    colors: (0, _snake.getColorsForSnake)(),
-    id: snakeId
-  })]);
-}).on(_game2.onRemoveSnake, function (snakes, snakeId) {
-  return snakes.filter(function (snake) {
-    return snake.id !== snakeId;
-  });
-}).reset(_game2.onRestart);
-
-_game.$gameMapStore.on(_game2.onUpdateGameMap, function (state, _ref5) {
-  var index = _ref5.index,
-      placeType = _ref5.placeType;
-  return _objectSpread({}, state, _defineProperty({}, index, placeType));
-}).on(_game2.onAddBrick, function (state, index) {
-  return _objectSpread({}, state, _defineProperty({}, index, _game.PLACE_TYPE.BRICK));
-}).on(_game2.onRemoveBrick, function (state, index) {
-  return _objectSpread({}, state, _defineProperty({}, index, undefined));
-}).on(_game2.onUpdateGameMapWithNexState, function (state, nextState) {
-  return _objectSpread({}, state, {}, nextState);
-}).on(_game2.onClearGameMap, function () {
-  return {};
-}).reset(_game2.onRestart);
-
-_game.$gameCollisionStateStore.on(_game2.onSetCollisionState, function (_, state) {
-  return state;
-});
-
-_game.$brickStore.on(_game2.onAddBrick, function (bricks, index) {
-  return [].concat(_toConsumableArray(bricks), [(0, _utils.getPositionByIndex)(index)]);
-}).on(_game2.onRemoveBrick, function (bricks, index) {
-  var _getPositionByIndex = (0, _utils.getPositionByIndex)(index),
-      _getPositionByIndex2 = _slicedToArray(_getPositionByIndex, 2),
-      x = _getPositionByIndex2[0],
-      y = _getPositionByIndex2[1];
-
-  return bricks.filter(function (_ref6) {
-    var _ref7 = _slicedToArray(_ref6, 2),
-        x1 = _ref7[0],
-        y1 = _ref7[1];
-
-    return x1 !== x || y1 !== y;
-  });
-}).reset(_game2.onRestart);
-
-_game.$userInGameStore.on(_game2.onAddUserToGame, function () {
-  return true;
-}).on(_game2.onRemoveUserFromGame, function () {
-  return false;
-}).reset(_game2.onRestart);
-
-_game.$snakeIterator.on(_game2.onAddUserToGame, function (snakeIds) {
-  return [].concat(_toConsumableArray(snakeIds), ['user']);
-}).on(_game2.onRemoveUserFromGame, function (snakeIds) {
-  return snakeIds.filter(function (id) {
-    return id !== 'user';
-  });
-}).on(_game2.onAddSnake, function (snakeIds, snakeId) {
-  return [].concat(_toConsumableArray(snakeIds), [snakeId]);
-}).on(_game2.onRemoveSnake, function (snakeIds, snakeId) {
-  return snakeIds.filter(function (id) {
-    return id !== snakeId;
-  });
-}).reset(_game2.onRestart);
-
-_game.$indexesVisibleStore.on(_game2.onSetIndexesVisible, function (_, state) {
-  return state;
-}).reset(_game2.onRestart);
-
-_game.$enableLoggerStore.on(_game2.onToggleLoggerState, function (_, state) {
-  return state;
-}).reset(_game2.onRestart);
-
-_game.$settingsForSnakesStore.on(_game2.onUpdateSettingForSnake, function (state, _ref8) {
-  var snakeId = _ref8.snakeId,
-      settingName = _ref8.settingName,
-      value = _ref8.value;
-  return _objectSpread({}, state, _defineProperty({}, snakeId, _objectSpread({}, state[snakeId], _defineProperty({}, settingName, value))));
-}).on(_game2.onAddSnake, function (settings, snakeId) {
-  return _objectSpread({}, settings, _defineProperty({}, snakeId, (0, _snake.buildSettingsForSnake)()));
-}).reset(_game2.onRestart);
-},{"../utils":"src/utils.js","./game.store":"src/model/game.store.js","./game.events":"src/model/game.events.js","./snake":"src/model/snake.js"}],"src/model/to-canvas.store.js":[function(require,module,exports) {
+},{"../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"src/algorithms/depth-first-search.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getNearestFood = exports.getHeuristicStateById = exports.getAlgorithmStateById = exports.getSettingsForSnakeState = exports.getLoggerState = exports.getIndexesVisibleStore = exports.getBrickState = exports.getGameCollisionState = exports.getSnakesState = exports.getGameMapState = exports.getFoodsState = exports.getGameState = void 0;
-
-var _heuristic = require("../algorithms/heuristic");
+exports.depthFirstSearch = depthFirstSearch;
 
 var _utils = require("../utils");
 
-var _game = require("./game.store");
+var _restorePath = require("./restore-path");
 
-var getGameState = function getGameState() {
-  return _game.$gameStateStore.getState();
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function depthFirstSearch(startIndex, endIndex, graph, _ref) {
+  var canTraverse = _ref.canTraverse,
+      _ref$withLogger = _ref.withLogger,
+      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
+  var stack = [startIndex];
+  var processed = new Map([[startIndex, true]]);
+  var parent = {};
+  var isTraverse = false;
+  var logger = (0, _utils.createOperationLogger)('depthFirstSearch');
+
+  while (!isTraverse && stack.length > 0) {
+    var currentIndex = stack.shift();
+    var neigbors = graph.getVertex(currentIndex); // eslint-disable-next-line unicorn/no-for-loop
+
+    for (var i = 0; i < neigbors.length; i++) {
+      var next = neigbors[i];
+
+      if (canTraverse(next) && !processed.has(next)) {
+        parent[next] = currentIndex;
+        stack.unshift(next);
+        processed.set(next, true);
+
+        if (endIndex === next) {
+          isTraverse = true;
+          break;
+        }
+
+        logger.increment();
+      }
+    }
+  }
+
+  if (withLogger) {
+    logger.log();
+  }
+
+  return {
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    processed: _toConsumableArray(processed.keys())
+  };
+}
+},{"../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"node_modules/fastpriorityqueue/FastPriorityQueue.js":[function(require,module,exports) {
+/**
+ * FastPriorityQueue.js : a fast heap-based priority queue  in JavaScript.
+ * (c) the authors
+ * Licensed under the Apache License, Version 2.0.
+ *
+ * Speed-optimized heap-based priority queue for modern browsers and JavaScript engines.
+ *
+ * Usage :
+         Installation (in shell, if you use node):
+         $ npm install fastpriorityqueue
+
+         Running test program (in JavaScript):
+
+         // var FastPriorityQueue = require("fastpriorityqueue");// in node
+         var x = new FastPriorityQueue();
+         x.add(1);
+         x.add(0);
+         x.add(5);
+         x.add(4);
+         x.add(3);
+         x.peek(); // should return 0, leaves x unchanged
+         x.size; // should return 5, leaves x unchanged
+         while(!x.isEmpty()) {
+           console.log(x.poll());
+         } // will print 0 1 3 4 5
+         x.trim(); // (optional) optimizes memory usage
+ */
+'use strict';
+
+var defaultcomparator = function(a, b) {
+  return a < b;
 };
 
-exports.getGameState = getGameState;
+// the provided comparator function should take a, b and return *true* when a < b
+function FastPriorityQueue(comparator) {
+  if (!(this instanceof FastPriorityQueue)) return new FastPriorityQueue(comparator);
+  this.array = [];
+  this.size = 0;
+  this.compare = comparator || defaultcomparator;
+}
 
-var getFoodsState = function getFoodsState() {
-  return _game.$foodsStore.getState();
+// copy the priority queue into another, and return it. Queue items are shallow-copied.
+// Runs in `O(n)` time.
+FastPriorityQueue.prototype.clone = function() {
+  var fpq = new FastPriorityQueue(this.compare);
+  fpq.size = this.size;
+  for (var i = 0; i < this.size; i++) {
+    fpq.array.push(this.array[i]);
+  }
+  return fpq;
 };
 
-exports.getFoodsState = getFoodsState;
-
-var getGameMapState = function getGameMapState() {
-  return _game.$gameMapStore.getState();
+// Add an element into the queue
+// runs in O(log n) time
+FastPriorityQueue.prototype.add = function(myval) {
+  var i = this.size;
+  this.array[this.size] = myval;
+  this.size += 1;
+  var p;
+  var ap;
+  while (i > 0) {
+    p = (i - 1) >> 1;
+    ap = this.array[p];
+    if (!this.compare(myval, ap)) {
+      break;
+    }
+    this.array[i] = ap;
+    i = p;
+  }
+  this.array[i] = myval;
 };
 
-exports.getGameMapState = getGameMapState;
-
-var getSnakesState = function getSnakesState() {
-  return _game.$snakesStore.getState();
+// replace the content of the heap by provided array and "heapify it"
+FastPriorityQueue.prototype.heapify = function(arr) {
+  this.array = arr;
+  this.size = arr.length;
+  var i;
+  for (i = this.size >> 1; i >= 0; i--) {
+    this._percolateDown(i);
+  }
 };
 
-exports.getSnakesState = getSnakesState;
-
-var getGameCollisionState = function getGameCollisionState() {
-  return _game.$gameCollisionStateStore.getState();
+// for internal use
+FastPriorityQueue.prototype._percolateUp = function(i, force) {
+  var myval = this.array[i];
+  var p;
+  var ap;
+  while (i > 0) {
+    p = (i - 1) >> 1;
+    ap = this.array[p];
+    // force will skip the compare
+    if (!force && !this.compare(myval, ap)) {
+      break;
+    }
+    this.array[i] = ap;
+    i = p;
+  }
+  this.array[i] = myval;
 };
 
-exports.getGameCollisionState = getGameCollisionState;
-
-var getBrickState = function getBrickState() {
-  return _game.$brickStore.getState();
+// for internal use
+FastPriorityQueue.prototype._percolateDown = function(i) {
+  var size = this.size;
+  var hsize = this.size >>> 1;
+  var ai = this.array[i];
+  var l;
+  var r;
+  var bestc;
+  while (i < hsize) {
+    l = (i << 1) + 1;
+    r = l + 1;
+    bestc = this.array[l];
+    if (r < size) {
+      if (this.compare(this.array[r], bestc)) {
+        l = r;
+        bestc = this.array[r];
+      }
+    }
+    if (!this.compare(bestc, ai)) {
+      break;
+    }
+    this.array[i] = bestc;
+    i = l;
+  }
+  this.array[i] = ai;
 };
 
-exports.getBrickState = getBrickState;
+// internal
+// _removeAt(index) will remove the item at the given index from the queue,
+// retaining balance. returns the removed item, or undefined if nothing is removed.
+FastPriorityQueue.prototype._removeAt = function(index) {
+  if (index > this.size - 1 || index < 0) return undefined;
 
-var getIndexesVisibleStore = function getIndexesVisibleStore() {
-  return _game.$indexesVisibleStore.getState();
+  // impl1:
+  //this.array.splice(index, 1);
+  //this.heapify(this.array);
+  // impl2:
+  this._percolateUp(index, true);
+  return this.poll();
 };
 
-exports.getIndexesVisibleStore = getIndexesVisibleStore;
-
-var getLoggerState = function getLoggerState() {
-  return _game.$enableLoggerStore.getState();
+// remove(myval) will remove an item matching the provided value from the
+// queue, checked for equality by using the queue's comparator.
+// return true if removed, false otherwise.
+FastPriorityQueue.prototype.remove = function(myval) {
+  for (var i = 0; i < this.size; i++) {
+    if (!this.compare(this.array[i], myval) && !this.compare(myval, this.array[i])) {
+      // items match, comparator returns false both ways, remove item
+      this._removeAt(i);
+      return true;
+    }
+  }
+  return false;
 };
 
-exports.getLoggerState = getLoggerState;
+// internal
+// removes and returns items for which the callback returns true.
+FastPriorityQueue.prototype._batchRemove = function(callback, limit) {
+  // initialize return array with max size of the limit or current queue size
+  var retArr = new Array(limit ? limit : this.size);
+  var count = 0;
 
-var getSettingsForSnakeState = function getSettingsForSnakeState(snakeId) {
-  return _game.$settingsForSnakesStore.getState()[snakeId];
+  if (typeof callback === 'function' && this.size) {
+    var i = 0;
+    while (i < this.size && count < retArr.length) {
+      if (callback(this.array[i])) {
+        retArr[count] = this._removeAt(i);
+        count++;
+        // move up a level in the heap if we remove an item
+        i = i >> 1;
+      } else {
+        i++;
+      }
+    } 
+  }
+  retArr.length = count;
+  return retArr;
+}
+
+// removeOne(callback) will execute the callback function for each item of the queue
+// and will remove the first item for which the callback will return true.
+// return the removed item, or undefined if nothing is removed.
+FastPriorityQueue.prototype.removeOne = function(callback) {
+  var arr = this._batchRemove(callback, 1);
+  return arr.length > 0 ? arr[0] : undefined;
 };
 
-exports.getSettingsForSnakeState = getSettingsForSnakeState;
+// remove(callback[, limit]) will execute the callback function for each item of
+// the queue and will remove each item for which the callback returns true, up to
+// a max limit of removed items if specified or no limit if unspecified.
+// return an array containing the removed items.
+FastPriorityQueue.prototype.removeMany = function(callback, limit) {
+  return this._batchRemove(callback, limit);
+};
 
-var getAlgorithmStateById = function getAlgorithmStateById(id) {
-  return _game.$algorithmsStore.getState().find(function (alg) {
-    return alg.id === id;
+// Look at the top of the queue (one of the smallest elements) without removing it
+// executes in constant time
+//
+// Calling peek on an empty priority queue returns
+// the "undefined" value.
+// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/undefined
+//
+FastPriorityQueue.prototype.peek = function() {
+  if (this.size == 0) return undefined;
+  return this.array[0];
+};
+
+// remove the element on top of the heap (one of the smallest elements)
+// runs in logarithmic time
+//
+// If the priority queue is empty, the function returns the
+// "undefined" value.
+// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/undefined
+//
+// For long-running and large priority queues, or priority queues
+// storing large objects, you may  want to call the trim function
+// at strategic times to recover allocated memory.
+FastPriorityQueue.prototype.poll = function() {
+  if (this.size == 0) return undefined;
+  var ans = this.array[0];
+  if (this.size > 1) {
+    this.array[0] = this.array[--this.size];
+    this._percolateDown(0);
+  } else {
+    this.size -= 1;
+  }
+  return ans;
+};
+
+// This function adds the provided value to the heap, while removing
+// and returning one of the smallest elements (like poll). The size of the queue
+// thus remains unchanged.
+FastPriorityQueue.prototype.replaceTop = function(myval) {
+  if (this.size == 0) return undefined;
+  var ans = this.array[0];
+  this.array[0] = myval;
+  this._percolateDown(0);
+  return ans;
+};
+
+// recover unused memory (for long-running priority queues)
+FastPriorityQueue.prototype.trim = function() {
+  this.array = this.array.slice(0, this.size);
+};
+
+// Check whether the heap is empty
+FastPriorityQueue.prototype.isEmpty = function() {
+  return this.size === 0;
+};
+
+// iterate over the items in order, pass a callback that receives (item, index) as args.
+// TODO once we transpile, uncomment
+// if (Symbol && Symbol.iterator) {
+//   FastPriorityQueue.prototype[Symbol.iterator] = function*() {
+//     if (this.isEmpty()) return;
+//     var fpq = this.clone();
+//     while (!fpq.isEmpty()) {
+//       yield fpq.poll();
+//     }
+//   };
+// }
+FastPriorityQueue.prototype.forEach = function(callback) {
+  if (this.isEmpty() || typeof callback != 'function') return;
+  var i = 0;
+  var fpq = this.clone();
+  while (!fpq.isEmpty()) {
+    callback(fpq.poll(), i++);
+  }
+};
+
+// return the k 'smallest' elements of the queue
+// runs in O(k log k) time
+// this is the equivalent of repeatedly calling poll, but
+// it has a better computational complexity, which can be
+// important for large data sets.
+FastPriorityQueue.prototype.kSmallest = function(k) {
+  if (this.size == 0) return [];
+  var comparator = this.compare;
+  var arr = this.array
+  var fpq = new FastPriorityQueue(function(a,b){
+   return comparator(arr[a],arr[b]);
   });
-};
+  k = Math.min(this.size, k);
+  var smallest = new Array(k);
+  var j = 0;
+  fpq.add(0);
+  while (j < k) {
+    var small = fpq.poll();
+    smallest[j++] = this.array[small];
+    var l = (small << 1) + 1;
+    var r = l + 1;
+    if (l < this.size) fpq.add(l);
+    if (r < this.size) fpq.add(r);
+  }
+  return smallest;
+}
 
-exports.getAlgorithmStateById = getAlgorithmStateById;
-
-var getHeuristicStateById = function getHeuristicStateById(id) {
-  return _game.$heuristicsStore.getState().find(function (heuristic) {
-    return heuristic.id === id;
+// just for illustration purposes
+var main = function() {
+  // main code
+  var x = new FastPriorityQueue(function(a, b) {
+    return a < b;
   });
+  x.add(1);
+  x.add(0);
+  x.add(5);
+  x.add(4);
+  x.add(3);
+  while (!x.isEmpty()) {
+    console.log(x.poll());
+  }
 };
 
-exports.getHeuristicStateById = getHeuristicStateById;
+if (require.main === module) {
+  main();
+}
 
-var getNearestFood = function getNearestFood(position) {
-  var gameMap = getGameMapState();
+module.exports = FastPriorityQueue;
 
-  var foods = _game.$foodsStore.getState();
-
-  return foods.filter(function (food) {
-    return (0, _utils.extractTypeFromMap)(gameMap[(0, _utils.getIndexByPosition)(food[0])]) === _game.PLACE_TYPE.FOOD;
-  }).sort(function (a, b) {
-    return (0, _heuristic.manhattanDistance)(a[0], position) - (0, _heuristic.manhattanDistance)(b[0], position);
-  })[0] || foods[0];
-};
-
-exports.getNearestFood = getNearestFood;
-},{"../algorithms/heuristic":"src/algorithms/heuristic.js","../utils":"src/utils.js","./game.store":"src/model/game.store.js"}],"src/model/index.js":[function(require,module,exports) {
+},{}],"src/algorithms/dijkstra.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.dijkstra = dijkstra;
 
-var _game = require("./game.model");
+var _fastpriorityqueue = _interopRequireDefault(require("fastpriorityqueue"));
 
-Object.keys(_game).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _game[key];
-    }
+var _utils = require("../utils");
+
+var _restorePath = require("./restore-path");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function dijkstra(startIndex, endIndex, graph, _ref) {
+  var canTraverse = _ref.canTraverse,
+      getCostByIndex = _ref.getCostByIndex,
+      _ref$withLogger = _ref.withLogger,
+      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
+  var queue = new _fastpriorityqueue.default(function (a, b) {
+    return a[1] < b[1];
   });
-});
+  var processed = new Map();
+  var parent = {};
+  var costFar = {};
+  var isTraverse = false;
+  var logger = (0, _utils.createOperationLogger)('dijkstra');
+  queue.add([startIndex, 0]);
+  costFar[startIndex] = 0;
 
-var _toCanvas = require("./to-canvas.store");
+  while (!isTraverse && !queue.isEmpty()) {
+    var currentChild = queue.poll();
+    var neigbors = graph.getVertex(currentChild[0]); // eslint-disable-next-line unicorn/no-for-loop
 
-Object.keys(_toCanvas).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _toCanvas[key];
+    for (var i = 0; i < neigbors.length; i++) {
+      var next = neigbors[i];
+
+      if (canTraverse(next)) {
+        var nextCost = costFar[currentChild[0]] + getCostByIndex(next);
+        var nextCostIsLower = nextCost <= (costFar[next] || Infinity);
+
+        if (nextCostIsLower && !processed.has(next)) {
+          queue.add([next, nextCost]);
+          processed.set(next, true);
+          costFar[next] = nextCost; // eslint-disable-next-line prefer-destructuring
+
+          parent[next] = currentChild[0];
+
+          if (endIndex === next) {
+            isTraverse = true;
+            break;
+          }
+
+          logger.increment();
+        }
+      }
     }
-  });
-});
+  }
 
-var _game2 = require("./game.store");
+  if (withLogger) {
+    logger.log();
+  }
 
-Object.keys(_game2).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _game2[key];
-    }
-  });
-});
-
-var _game3 = require("./game.events");
-
-Object.keys(_game3).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _game3[key];
-    }
-  });
-});
-},{"./game.model":"src/model/game.model.js","./to-canvas.store":"src/model/to-canvas.store.js","./game.store":"src/model/game.store.js","./game.events":"src/model/game.events.js"}],"src/controll.js":[function(require,module,exports) {
+  return {
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    processed: _toConsumableArray(processed.keys())
+  };
+}
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"src/algorithms/heuristic.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getNextPositionByDirection = getNextPositionByDirection;
-exports.getDirectionByPosition = getDirectionByPosition;
-exports.createTimeController = createTimeController;
-exports.canvasInput = exports.CanvasInput = void 0;
-
-var _config = require("./config");
-
-var _model = require("./model");
-
-var _utils = require("./utils");
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+exports.manhattanDistance = manhattanDistance;
+exports.chebyshevDistance = chebyshevDistance;
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -5680,197 +5410,276 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function getNextPositionByDirection(_ref, direction) {
-  var _ref2 = _slicedToArray(_ref, 2),
-      x = _ref2[0],
-      y = _ref2[1];
+/*
+  Note:
 
-  switch (direction) {
-    case _config.DIRECTIONS.LEFT:
-      return [x - 1, y];
+  эвристики помогающие определить лучший вариант для определенного случая
+  (конкретно тут выбрать следующую позицию которая приблизит к цели)
+*/
+// reference http://lightcone.ru/manhattan/
+function manhattanDistance(_ref, _ref2) {
+  var _ref3 = _slicedToArray(_ref, 2),
+      x = _ref3[0],
+      y = _ref3[1];
 
-    case _config.DIRECTIONS.RIGHT:
-      return [x + 1, y];
+  var _ref4 = _slicedToArray(_ref2, 2),
+      x1 = _ref4[0],
+      y1 = _ref4[1];
 
-    case _config.DIRECTIONS.TOP:
-      return [x, y - 1];
-
-    case _config.DIRECTIONS.DOWN:
-      return [x, y + 1];
-
-    default:
-      return [x, y];
-  }
+  return Math.abs(x - x1) + Math.abs(y - y1);
 }
 
-function getDirectionByPosition(currentPosition, nextPosition) {
-  if (currentPosition[0] < nextPosition[0] && currentPosition[1] === nextPosition[1]) {
-    return _config.DIRECTIONS.RIGHT;
-  }
+function chebyshevDistance(_ref5, _ref6) {
+  var _ref7 = _slicedToArray(_ref5, 2),
+      x = _ref7[0],
+      y = _ref7[1];
 
-  if (currentPosition[0] > nextPosition[0] && currentPosition[1] === nextPosition[1]) {
-    return _config.DIRECTIONS.LEFT;
-  }
+  var _ref8 = _slicedToArray(_ref6, 2),
+      x1 = _ref8[0],
+      y1 = _ref8[1];
 
-  if (currentPosition[0] === nextPosition[0] && currentPosition[1] > nextPosition[1]) {
-    return _config.DIRECTIONS.TOP;
-  }
-
-  if (currentPosition[0] === nextPosition[0] && currentPosition[1] < nextPosition[1]) {
-    return _config.DIRECTIONS.DOWN;
-  }
-
-  return _config.DIRECTIONS.RIGHT;
+  return Math.max(x - x1, y - y1);
 }
-
-function createTimeController(fps) {
-  var fpsInterval = 1000 / fps;
-  var callback = null;
-  var now = null;
-  var then = Date.now();
-
-  function loop() {
-    now = Date.now();
-    var delta = now - then;
-
-    var isPLay = (0, _model.getGameState)() === _model.GAME_STATE.IS_PLAY;
-
-    requestAnimationFrame(loop);
-
-    if (delta > fpsInterval) {
-      then = now - delta % fpsInterval;
-
-      if (callback) {
-        callback(isPLay);
-      }
-    }
-  }
-
-  return {
-    start: function start(fn) {
-      callback = fn;
-      loop();
-    },
-    pause: function pause() {
-      (0, _model.onStop)();
-    },
-    play: function play() {
-      (0, _model.onPlay)();
-    }
-  };
-}
-
-var CanvasInput =
-/*#__PURE__*/
-function () {
-  function CanvasInput() {
-    _classCallCheck(this, CanvasInput);
-
-    this.events = [];
-    /* :Arrray<{type: string, eventListener: (index) => void }> */
-
-    this.eventRegistar = [];
-    /* :Arrray<() => void> */
-
-    this.isMouseDown = false;
-  }
-
-  _createClass(CanvasInput, [{
-    key: "registerEventRegistar",
-    value: function registerEventRegistar(eventBuilder
-    /* :() => void */
-    ) {
-      this.eventRegistar.push(eventBuilder);
-    }
-  }, {
-    key: "callEventRegistars",
-    value: function callEventRegistars() {
-      this.eventRegistar.forEach(function (builder) {
-        return builder();
-      });
-    }
-  }, {
-    key: "registerClickEventToCanvas",
-    value: function registerClickEventToCanvas(canvas) {
-      var _this = this;
-
-      function getTargetIndex(event) {
-        var x = event.pageX - canvas.offsetLeft;
-        var y = event.pageY - canvas.offsetTop;
-        var targetPosition = [Math.floor((x + _config.cellSize % x / _config.cellSize) / _config.cellSize), Math.floor((y + _config.cellSize % y / _config.cellSize) / _config.cellSize)];
-        return (0, _utils.getIndexByPosition)(targetPosition);
-      }
-
-      canvas.addEventListener('mousedown', function (event) {
-        var index = getTargetIndex(event);
-
-        _this.events.filter(function (userEvent) {
-          return userEvent.type === 'mousedown';
-        }).forEach(function (userEvent) {
-          return userEvent.eventListener(index);
-        });
-
-        _this.isMouseDown = true;
-      });
-      canvas.addEventListener('mouseup', function () {
-        _this.isMouseDown = false;
-      });
-      canvas.addEventListener('mousemove', function (event) {
-        if (_this.isMouseDown) {
-          var index = getTargetIndex(event);
-
-          _this.events.filter(function (userEvent) {
-            return userEvent.type === 'mousemove';
-          }).forEach(function (userEvent) {
-            return userEvent.eventListener(index);
-          });
-        }
-      });
-    }
-  }, {
-    key: "addMouseDownEvent",
-    value: function addMouseDownEvent(eventListener) {
-      this.events.push({
-        type: 'mousedown',
-        eventListener: eventListener
-      });
-    }
-  }, {
-    key: "addMouseMoveEvent",
-    value: function addMouseMoveEvent(eventListener) {
-      this.events.push({
-        type: 'mousemove',
-        eventListener: eventListener
-      });
-    }
-  }]);
-
-  return CanvasInput;
-}();
-
-exports.CanvasInput = CanvasInput;
-var canvasInput = new CanvasInput();
-exports.canvasInput = canvasInput;
-},{"./config":"src/config.js","./model":"src/model/index.js","./utils":"src/utils.js"}],"src/canvas.js":[function(require,module,exports) {
+},{}],"src/algorithms/greedy.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.setCanvasSize = setCanvasSize;
-exports.convigureCanvas = convigureCanvas;
+exports.greedy = greedy;
 
-function setCanvasSize(canvas, _ref) {
-  var w = _ref.w,
-      h = _ref.h;
-  canvas.height = h;
-  canvas.width = w;
-}
+var _fastpriorityqueue = _interopRequireDefault(require("fastpriorityqueue"));
 
-function convigureCanvas(canvas, localSize, globalSize) {
-  setCanvasSize(canvas, globalSize);
+var _utils = require("../utils");
+
+var _restorePath = require("./restore-path");
+
+var _heuristic = require("./heuristic");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function greedy(startIndex, endIndex, graph, _ref) {
+  var canTraverse = _ref.canTraverse,
+      _ref$heuristic = _ref.heuristic,
+      heuristic = _ref$heuristic === void 0 ? _heuristic.manhattanDistance : _ref$heuristic,
+      _ref$withLogger = _ref.withLogger,
+      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
+  var queue = new _fastpriorityqueue.default(function (a, b) {
+    return a[1] < b[1];
+  });
+  var processed = new Map();
+  var parent = {};
+  var goal = (0, _utils.getPositionByIndex)(endIndex);
+  var isTraverse = false;
+  var logger = (0, _utils.createOperationLogger)('greedy');
+  queue.add([startIndex, 0]);
+
+  while (!isTraverse && !queue.isEmpty()) {
+    var currentChild = queue.poll();
+    var neigbors = graph.getVertex(currentChild[0]); // eslint-disable-next-line unicorn/no-for-loop
+
+    for (var i = 0; i < neigbors.length; i++) {
+      var next = neigbors[i];
+
+      if (canTraverse(next)) {
+        var nextCost = heuristic(goal, (0, _utils.getPositionByIndex)(next));
+
+        if (!processed.has(next)) {
+          queue.add([next, nextCost]);
+          processed.set(next, true); // eslint-disable-next-line prefer-destructuring
+
+          parent[next] = currentChild[0];
+
+          if (endIndex === next) {
+            isTraverse = true;
+            break;
+          }
+        }
+
+        logger.increment();
+      }
+    }
+  }
+
+  if (withLogger) {
+    logger.log();
+  }
+
+  return {
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    processed: _toConsumableArray(processed.keys())
+  };
 }
-},{}],"node_modules/object-assign/index.js":[function(require,module,exports) {
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./heuristic":"src/algorithms/heuristic.js"}],"src/algorithms/a-star.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.aStar = aStar;
+
+var _fastpriorityqueue = _interopRequireDefault(require("fastpriorityqueue"));
+
+var _utils = require("../utils");
+
+var _restorePath = require("./restore-path");
+
+var _heuristic = require("./heuristic");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function aStar(startIndex, endIndex, graph, _ref) {
+  var canTraverse = _ref.canTraverse,
+      getCostByIndex = _ref.getCostByIndex,
+      _ref$withLogger = _ref.withLogger,
+      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger,
+      _ref$heuristic = _ref.heuristic,
+      heuristic = _ref$heuristic === void 0 ? _heuristic.manhattanDistance : _ref$heuristic;
+  var goal = (0, _utils.getPositionByIndex)(endIndex);
+  var queue = new _fastpriorityqueue.default(function (a, b) {
+    return a[1] < b[1];
+  });
+  var processed = new Map();
+  var parent = {};
+  var costFar = {};
+  var isTraverse = false;
+  var logger = (0, _utils.createOperationLogger)('aStar');
+  queue.add([startIndex, 0]);
+  costFar[startIndex] = 0;
+
+  while (!isTraverse && !queue.isEmpty()) {
+    var currentChild = queue.poll();
+    var vertex = graph.getVertex(currentChild[0]); // eslint-disable-next-line unicorn/no-for-loop
+
+    for (var i = 0; vertex && i < vertex.neigbors.length; i++) {
+      var next = vertex.neigbors[i];
+
+      if (canTraverse(graph.getVertex(next), next)) {
+        var nextCost = costFar[currentChild[0]] + getCostByIndex(next);
+        var nextCostIsLower = nextCost < (costFar[next] || Infinity);
+
+        if (nextCostIsLower && !processed.has(next)) {
+          queue.add([next, nextCost + heuristic(goal, (0, _utils.getPositionByIndex)(next))]);
+          processed.set(next, true);
+          costFar[next] = nextCost; // eslint-disable-next-line prefer-destructuring
+
+          parent[next] = currentChild[0];
+
+          if (endIndex === next) {
+            isTraverse = true;
+            break;
+          }
+
+          logger.increment();
+        }
+      }
+    }
+  }
+
+  if (withLogger) {
+    logger.log();
+  }
+
+  return {
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    processed: _toConsumableArray(processed.keys())
+  };
+}
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./heuristic":"src/algorithms/heuristic.js"}],"src/algorithms/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _graph = require("./graph");
+
+Object.keys(_graph).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _graph[key];
+    }
+  });
+});
+
+var _breadthFirstSearch = require("./breadth-first-search");
+
+Object.keys(_breadthFirstSearch).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _breadthFirstSearch[key];
+    }
+  });
+});
+
+var _depthFirstSearch = require("./depth-first-search");
+
+Object.keys(_depthFirstSearch).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _depthFirstSearch[key];
+    }
+  });
+});
+
+var _dijkstra = require("./dijkstra");
+
+Object.keys(_dijkstra).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _dijkstra[key];
+    }
+  });
+});
+
+var _greedy = require("./greedy");
+
+Object.keys(_greedy).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _greedy[key];
+    }
+  });
+});
+
+var _aStar = require("./a-star");
+
+Object.keys(_aStar).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _aStar[key];
+    }
+  });
+});
+},{"./graph":"src/algorithms/graph.js","./breadth-first-search":"src/algorithms/breadth-first-search.js","./depth-first-search":"src/algorithms/depth-first-search.js","./dijkstra":"src/algorithms/dijkstra.js","./greedy":"src/algorithms/greedy.js","./a-star":"src/algorithms/a-star.js"}],"node_modules/object-assign/index.js":[function(require,module,exports) {
 /*
 object-assign
 (c) Sindre Sorhus
@@ -31507,20 +31316,29 @@ if ("development" === 'production') {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.connect = u;
-exports.createComponent = t;
-exports.createContextComponent = s;
-exports.createGate = a;
-exports.createReactState = c;
-exports.createStoreConsumer = e;
-exports.useGate = i;
-exports.useList = o;
-exports.useStore = r;
-exports.useStoreMap = n;
+exports.connect = c;
+exports.createComponent = r;
+exports.createContextComponent = n;
+exports.createGate = i;
+exports.createReactState = a;
+exports.createStoreConsumer = o;
+exports.useEvent = p;
+exports.useGate = u;
+exports.useList = s;
+exports.useStore = t;
+exports.useStoreMap = e;
 
 var _react = require("react");
 
 var _effector = require("effector");
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -31540,20 +31358,99 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function t(t, e) {
-  var s, r, n, o;
-  var c, u;
-  if (_effector.is.store(t)) u = t;else if ('function' == typeof t) c = t;else {
-    if ('object' != _typeof(t) || null === t) throw Error('shape should be a store or object with stores');
-    u = (0, _effector.createStoreObject)(t);
+function t(t) {
+  if (!_effector.is.store(t)) throw Error('expect useStore argument to be a store');
+  var e = (0, _react.useReducer)(A, void 0, t.getState)[1],
+      r = (0, _react.useMemo)(function () {
+    var r = t.updates.watch(function (t) {
+      r.active && e(t);
+    });
+    return r.active = 1, r;
+  }, [t]);
+  return j(function () {
+    return function () {
+      r.active = 0, r();
+    };
+  }, [r]), t.getState();
+}
+
+function e(_ref) {
+  var {
+    store: e,
+    keys: r,
+    fn: o
+  } = _ref;
+  if (!_effector.is.store(e)) throw Error('useStoreMap expects a store');
+  if (!Array.isArray(r)) throw Error('useStoreMap expects an array as keys');
+  if ('function' != typeof o) throw Error('useStoreMap expects a function');
+  var n = (0, _react.useMemo)(function () {
+    return (0, _effector.createStore)(o(e.getState(), r)).on(e, function (t, e) {
+      return o(e, r);
+    });
+  }, r),
+      s = t(n);
+  return j(function () {
+    return function () {
+      n.off(e), (0, _effector.clearNode)(n, {
+        deep: 1
+      });
+    };
+  }, r), s;
+}
+
+function r(e, r) {
+  function o(e) {
+    var o = (0, _react.useRef)(e),
+        n = (0, _react.useMemo)(function () {
+      return f(e);
+    }, []),
+        s = t(n);
+    j(function () {
+      return i({
+        props: o.current,
+        state: n.getState()
+      }), function () {
+        p({
+          props: o.current,
+          state: n.getState()
+        });
+      };
+    }, []);
+    var a = r(e, s);
+    return o.current = e, a;
   }
-  var i = null !== (s = null === (r = u) || void 0 === r ? void 0 : r.shortName) && void 0 !== s ? s : 'Unknown',
-      a = (0, _effector.createEvent)(i + ".View mounted"),
-      h = (0, _effector.createEvent)(i + ".View unmounted");
-  return o = n =
+
+  var n, s;
+  var a, c;
+  if (_effector.is.store(e)) c = e;else if ('function' == typeof e) a = e;else {
+    if ('object' != _typeof(e) || null === e) throw Error('shape should be a store or object with stores');
+    c = (0, _effector.createStoreObject)(e);
+  }
+  var u = null !== (n = null === (s = c) || void 0 === s ? void 0 : s.shortName) && void 0 !== n ? n : 'Unknown',
+      i = (0, _effector.createEvent)(u + ".View mounted"),
+      p = (0, _effector.createEvent)(u + ".View unmounted"),
+      f = 'function' == typeof e ? a : function () {
+    return c;
+  };
+  return o.displayName = u + ".View", o.mounted = i, o.unmounted = p, o;
+}
+
+function o(t) {
+  return r(t, function (_ref2, e) {
+    var {
+      children: t
+    } = _ref2;
+    return t(e);
+  });
+}
+
+function n(t, e, r) {
+  var n, s;
+  var a = o(t);
+  return s = n =
   /*#__PURE__*/
-  function (_p) {
-    _inherits(n, _p);
+  function (_y) {
+    _inherits(n, _y);
 
     function n() {
       var _getPrototypeOf2;
@@ -31562,320 +31459,227 @@ function t(t, e) {
 
       _classCallCheck(this, n);
 
-      for (var _len = arguments.length, e = new Array(_len), _key = 0; _key < _len; _key++) {
-        e[_key] = arguments[_key];
+      for (var _len = arguments.length, t = new Array(_len), _key = 0; _key < _len; _key++) {
+        t[_key] = arguments[_key];
       }
 
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(n)).call.apply(_getPrototypeOf2, [this].concat(e))), _this._unsubscribe = null, _this._hasUnmounted = 0, _this.store = 'function' == typeof t ? c(_this.props) : u, _this.state = {
-        currentState: _this.store.getState()
+      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(n)).call.apply(_getPrototypeOf2, [this].concat(t))), _this.renderProp = function (t) {
+        return r(_this.props, t, _this.context);
       };
       return _this;
     }
 
     _createClass(n, [{
-      key: "componentDidMount",
-      value: function componentDidMount() {
-        a({
-          props: this.props,
-          state: this.store.getState()
-        }), this.subscribe();
-      }
-    }, {
-      key: "componentWillUnmount",
-      value: function componentWillUnmount() {
-        h({
-          props: this.props,
-          state: this.store.getState()
-        }), this.unsubscribe(), this._hasUnmounted = 1;
-      }
-    }, {
       key: "render",
       value: function render() {
-        return e(this.props, this.state.currentState);
-      }
-    }, {
-      key: "subscribe",
-      value: function subscribe() {
-        var _this2 = this;
-
-        this._unsubscribe = this.store.watch(function (t) {
-          _this2._hasUnmounted || _this2.setState(function (e) {
-            return t === e.currentState ? null : {
-              currentState: t
-            };
-          });
-        });
-      }
-    }, {
-      key: "unsubscribe",
-      value: function unsubscribe() {
-        'function' == typeof this._unsubscribe && this._unsubscribe(), this._unsubscribe = null;
+        return (0, _react.createElement)(a, null, this.renderProp);
       }
     }]);
 
     return n;
-  }(_react.Component), n.displayName = i + ".View", n.mounted = a, n.unmounted = h, o;
+  }(_react.Component), n.contextType = e, s;
 }
 
-function e(e) {
-  return t(e, function (_ref, e) {
-    var {
-      children: t
-    } = _ref;
-    return t(e);
-  });
-}
-
-function s(t, s, r) {
-  var n, o;
-  var c = e(t);
-  return o = n =
-  /*#__PURE__*/
-  function (_p2) {
-    _inherits(n, _p2);
-
-    function n() {
-      var _getPrototypeOf3;
-
-      var _this3;
-
-      _classCallCheck(this, n);
-
-      for (var _len2 = arguments.length, t = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        t[_key2] = arguments[_key2];
-      }
-
-      _this3 = _possibleConstructorReturn(this, (_getPrototypeOf3 = _getPrototypeOf(n)).call.apply(_getPrototypeOf3, [this].concat(t))), _this3.renderProp = function (t) {
-        return r(_this3.props, t, _this3.context);
-      };
-      return _this3;
-    }
-
-    _createClass(n, [{
-      key: "render",
-      value: function render() {
-        return (0, _react.createElement)(c, null, this.renderProp);
-      }
-    }]);
-
-    return n;
-  }(_react.Component), n.contextType = s, o;
-}
-
-function r(t) {
-  if (!_effector.is.store(t)) throw Error('expect useStore argument to be a store');
-  var e = (0, _react.useReducer)(E, void 0, t.getState)[1],
-      s = (0, _react.useMemo)(function () {
-    var s = t.updates.watch(function (t) {
-      s.active && e(t);
-    });
-    return s.active = 1, s;
-  }, [t]);
-  return _(function () {
-    return function () {
-      s.active = 0, s();
-    };
-  }, [s]), t.getState();
-}
-
-function n(_ref2) {
-  var {
-    store: t,
-    keys: e,
-    fn: s
-  } = _ref2;
-  if (!_effector.is.store(t)) throw Error('useStoreMap expects a store');
-  if (!Array.isArray(e)) throw Error('useStoreMap expects an array as keys');
-  if ('function' != typeof s) throw Error('useStoreMap expects a function');
-  var n = (0, _react.useMemo)(function () {
-    return (0, _effector.createStore)(s(t.getState(), e)).on(t, function (t, r) {
-      return s(r, e);
-    });
-  }, e),
-      o = r(n);
-  return _(function () {
-    return function () {
-      n.off(t), (0, _effector.clearNode)(n, {
-        deep: 1
-      });
-    };
-  }, e), o;
-}
-
-function o(t, e) {
-  if (!_effector.is.store(t)) throw Error('expect useList first argument to be a store');
-  if ('function' != typeof e) throw Error('expect useList second argument to be a function');
+function s(t, r) {
+  var o,
+      n = [];
+  if ('object' == _typeof(r) && null !== r ? (r.keys && (n = r.keys), o = r.fn) : o = r, !_effector.is.store(t)) throw Error('expect useList first argument to be a store');
+  if ('function' != typeof o) throw Error("expect useList's renderItem to be a function");
+  if (!Array.isArray(n)) throw Error("expect useList's keys to be an array");
   var s = (0, _react.useMemo)(function () {
-    var s = function (_ref3) {
+    var r = function (_ref3) {
       var {
-        index: s
+        index: r,
+        keys: o
       } = _ref3;
-      var r = n({
+      var n = e({
         store: t,
-        keys: [s],
+        keys: [r].concat(_toConsumableArray(o)),
         fn: function (t, e) {
           return t[e[0]];
         }
       });
-      return e(r, s);
+      return c.current(n, r);
     };
 
-    return s.displayName = (t.shortName || 'Unknown') + ".Item", (0, _react.memo)(s);
+    return r.displayName = (t.shortName || 'Unknown') + ".Item", (0, _react.memo)(r);
   }, [t]),
-      r = n({
+      a = e({
     store: t,
     keys: [t],
     fn: function (t) {
       return t.length;
     }
-  });
+  }),
+      c = (0, _react.useRef)(o);
+  c.current = o;
+  var u = (0, _react.useMemo)(function () {
+    return n;
+  }, n);
   return Array.from({
-    length: r
+    length: a
   }, function (t, e) {
     return (0, _react.createElement)(s, {
       index: e,
-      key: e
+      key: e,
+      keys: u
     });
   });
 }
 
-function c(t, s) {
-  var r = e(t),
+function a(t, e) {
+  var r = o(t),
       n = function (t) {
-    return (0, _react.createElement)(r, null, function (e) {
-      return (0, _react.createElement)(s, Object.assign({}, t, e));
+    return (0, _react.createElement)(r, null, function (r) {
+      return (0, _react.createElement)(e, Object.assign({}, t, r));
     });
   };
 
-  return n.displayName = "Connect(" + (s.displayName || s.name || 'Unknown') + ")", n;
+  return n.displayName = "Connect(" + (e.displayName || e.name || 'Unknown') + ")", n;
 }
 
-function u(t) {
+function c(t) {
   return function (e) {
-    return c(e, t);
+    return a(e, t);
   };
 }
 
-function i(t) {
+function u(t) {
   var e = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  (0, _react.useEffect)(function () {
-    return t.open(), function () {
-      return t.close();
+  var r = (0, _react.useRef)(e);
+  r.current = e, j(function () {
+    return t.open(r.current), function () {
+      return t.close(r.current);
     };
   }, [t]), t.set(e);
 }
 
-function a() {
+function i() {
   var t = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "gate";
   var e = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var s = N(0),
-      r = N(e),
+  var r;
+  'object' == _typeof(t) && null !== t && ('defaultState' in t && (e = t.defaultState), t.domain && (r = t.domain), t = t.name || 'gate');
+  var o = (0, _effector.createStore)(Boolean(0)),
+      n = (0, _effector.createStore)(e),
       {
-    set: n
-  } = (0, _effector.createApi)(r, {
+    set: s
+  } = (0, _effector.createApi)(n, {
     set: function (t, e) {
       return e;
     }
   }),
       {
-    open: o,
+    open: a,
     close: c,
     destructor: u
-  } = (0, _effector.createApi)(s, {
+  } = (0, _effector.createApi)(o, {
     open: function () {
-      return i.predicate() && 1;
+      return p.predicate() && Boolean(1);
     },
     close: function () {
-      return 0;
+      return Boolean(0);
     },
     destructor: function () {
-      return 0;
+      return Boolean(0);
     }
   });
 
-  var i =
+  var p =
   /*#__PURE__*/
-  function (_b) {
-    _inherits(i, _b);
+  function (_S) {
+    _inherits(p, _S);
 
-    function i() {
-      _classCallCheck(this, i);
+    function p() {
+      _classCallCheck(this, p);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(i).apply(this, arguments));
+      return _possibleConstructorReturn(this, _getPrototypeOf(p).apply(this, arguments));
     }
 
-    _createClass(i, [{
+    _createClass(p, [{
       key: "componentDidMount",
       value: function componentDidMount() {
-        i.open();
+        p.open(this.props);
       }
     }, {
       key: "componentWillUnmount",
       value: function componentWillUnmount() {
-        i.close();
+        p.close(this.props);
       }
     }, {
       key: "render",
       value: function render() {
-        return i.set(this.props), null;
+        return p.set(this.props), null;
       }
     }], [{
       key: "childGate",
       value: function childGate() {
         var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "Subgate";
-        var s = a(t + "/" + e);
+        console.error('childGate is deprecated');
+        var r = i(t + "/" + e);
 
-        s.predicate = function () {
-          return i.status.getState();
+        r.predicate = function () {
+          return p.status.getState();
         };
 
-        var r = 0,
+        var o = 0,
             n = 0;
-        return s.open.watch(function () {
-          n || (r = 1);
-        }), s.close.watch(function () {
-          n || (r = 0);
-        }), i.status.watch(function (t) {
-          n = 1, r && t && !s.status.getState() && s.open(), n = 0;
-        }), i.close.watch(function () {
-          n = 1, s.close(), n = 0;
-        }), i.destructor.watch(function () {
-          return s.destructor();
-        }), s;
+        return r.open.watch(function () {
+          n || (o = 1);
+        }), r.close.watch(function () {
+          n || (o = 0);
+        }), p.status.watch(function (t) {
+          n = 1, o && t && !r.status.getState() && r.open(), n = 0;
+        }), p.close.watch(function () {
+          n = 1, r.close(), n = 0;
+        }), p.destructor.watch(function () {
+          return r.destructor();
+        }), r;
       }
     }]);
 
-    return i;
+    return p;
   }(_react.PureComponent);
 
-  i.predicate = function () {
-    return 1;
-  }, i.displayName = "Gate:" + t, i.isOpen = 0, i.current = r.getState(), i.open = o, i.close = c, i.status = s, i.state = r, i.set = n, i.destructor = u, i.isTerminated = 0;
-  var p = s.watch(function (t) {
-    return i.isOpen = t;
+  p.predicate = function () {
+    return Boolean(1);
+  }, p.displayName = "Gate:" + t, p.isOpen = Boolean(0), p.current = n.getState(), p.open = a, p.close = c, p.status = o, p.state = n, p.set = s, p.destructor = u, p.isTerminated = Boolean(0);
+  var f = o.watch(function (t) {
+    return p.isOpen = t;
   }),
-      h = r.watch(function (t) {
-    return i.current = t;
+      l = n.watch(function (t) {
+    return p.current = t;
   });
-  s.map(function (t) {
-    t || (i.current = e);
-  }), r.reset(c);
-  var f = u.watch(function () {
-    i.isTerminated = 1;
+  o.map(function (t) {
+    return t || (p.current = e), null;
+  }), n.reset(c);
+  var d = u.watch(function () {
+    p.isTerminated = Boolean(1);
   }),
-      d = u.watch(function () {
-    d(), p(), h(), f(), i.status.off(i.open), i.status.off(i.close), i.status.off(i.destructor), i.state.off(i.set);
+      h = u.watch(function () {
+    h(), f(), l(), d(), p.status.off(p.open), p.status.off(p.close), p.status.off(p.destructor), p.state.off(p.set);
   });
-  return i;
+
+  if (r) {
+    var {
+      hooks: _t
+    } = r;
+    (0, _effector.launch)({
+      target: [_t.store, _t.store, _t.event, _t.event, _t.event],
+      params: [o, n, a, c, s]
+    });
+  }
+
+  return p;
 }
 
-var _ = 'undefined' != typeof window ? _react.useLayoutEffect : _react.useEffect,
-    E = function (t, e) {
+function p(t) {
+  return t;
+}
+
+var j = 'undefined' != typeof window ? _react.useLayoutEffect : _react.useEffect,
+    A = function (t, e) {
   return e;
-},
-    {
-  store: N
-} = (0, _effector.createDomain)('Gate');
+};
 },{"react":"node_modules/react/index.js","effector":"node_modules/effector/effector.es.js"}],"node_modules/stylis/stylis.min.js":[function(require,module,exports) {
 var define;
 !function(e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e(null):"function"==typeof define&&define.amd?define(e(null)):window.stylis=e(null)}(function e(a){"use strict";var r=/^\0+/g,c=/[\0\r\f]/g,s=/: */g,t=/zoo|gra/,i=/([,: ])(transform)/g,f=/,+\s*(?![^(]*[)])/g,n=/ +\s*(?![^(]*[)])/g,l=/ *[\0] */g,o=/,\r+?/g,h=/([\t\r\n ])*\f?&/g,u=/:global\(((?:[^\(\)\[\]]*|\[.*\]|\([^\(\)]*\))*)\)/g,d=/\W+/g,b=/@(k\w+)\s*(\S*)\s*/,p=/::(place)/g,k=/:(read-only)/g,g=/\s+(?=[{\];=:>])/g,A=/([[}=:>])\s+/g,C=/(\{[^{]+?);(?=\})/g,w=/\s{2,}/g,v=/([^\(])(:+) */g,m=/[svh]\w+-[tblr]{2}/,x=/\(\s*(.*)\s*\)/g,$=/([\s\S]*?);/g,y=/-self|flex-/g,O=/[^]*?(:[rp][el]a[\w-]+)[^]*/,j=/stretch|:\s*\w+\-(?:conte|avail)/,z=/([^-])(image-set\()/,N="-webkit-",S="-moz-",F="-ms-",W=59,q=125,B=123,D=40,E=41,G=91,H=93,I=10,J=13,K=9,L=64,M=32,P=38,Q=45,R=95,T=42,U=44,V=58,X=39,Y=34,Z=47,_=62,ee=43,ae=126,re=0,ce=12,se=11,te=107,ie=109,fe=115,ne=112,le=111,oe=105,he=99,ue=100,de=112,be=1,pe=1,ke=0,ge=1,Ae=1,Ce=1,we=0,ve=0,me=0,xe=[],$e=[],ye=0,Oe=null,je=-2,ze=-1,Ne=0,Se=1,Fe=2,We=3,qe=0,Be=1,De="",Ee="",Ge="";function He(e,a,s,t,i){for(var f,n,o=0,h=0,u=0,d=0,g=0,A=0,C=0,w=0,m=0,$=0,y=0,O=0,j=0,z=0,R=0,we=0,$e=0,Oe=0,je=0,ze=s.length,Je=ze-1,Re="",Te="",Ue="",Ve="",Xe="",Ye="";R<ze;){if(C=s.charCodeAt(R),R===Je)if(h+d+u+o!==0){if(0!==h)C=h===Z?I:Z;d=u=o=0,ze++,Je++}if(h+d+u+o===0){if(R===Je){if(we>0)Te=Te.replace(c,"");if(Te.trim().length>0){switch(C){case M:case K:case W:case J:case I:break;default:Te+=s.charAt(R)}C=W}}if(1===$e)switch(C){case B:case q:case W:case Y:case X:case D:case E:case U:$e=0;case K:case J:case I:case M:break;default:for($e=0,je=R,g=C,R--,C=W;je<ze;)switch(s.charCodeAt(je++)){case I:case J:case W:++R,C=g,je=ze;break;case V:if(we>0)++R,C=g;case B:je=ze}}switch(C){case B:for(g=(Te=Te.trim()).charCodeAt(0),y=1,je=++R;R<ze;){switch(C=s.charCodeAt(R)){case B:y++;break;case q:y--;break;case Z:switch(A=s.charCodeAt(R+1)){case T:case Z:R=Qe(A,R,Je,s)}break;case G:C++;case D:C++;case Y:case X:for(;R++<Je&&s.charCodeAt(R)!==C;);}if(0===y)break;R++}if(Ue=s.substring(je,R),g===re)g=(Te=Te.replace(r,"").trim()).charCodeAt(0);switch(g){case L:if(we>0)Te=Te.replace(c,"");switch(A=Te.charCodeAt(1)){case ue:case ie:case fe:case Q:f=a;break;default:f=xe}if(je=(Ue=He(a,f,Ue,A,i+1)).length,me>0&&0===je)je=Te.length;if(ye>0)if(f=Ie(xe,Te,Oe),n=Pe(We,Ue,f,a,pe,be,je,A,i,t),Te=f.join(""),void 0!==n)if(0===(je=(Ue=n.trim()).length))A=0,Ue="";if(je>0)switch(A){case fe:Te=Te.replace(x,Me);case ue:case ie:case Q:Ue=Te+"{"+Ue+"}";break;case te:if(Ue=(Te=Te.replace(b,"$1 $2"+(Be>0?De:"")))+"{"+Ue+"}",1===Ae||2===Ae&&Le("@"+Ue,3))Ue="@"+N+Ue+"@"+Ue;else Ue="@"+Ue;break;default:if(Ue=Te+Ue,t===de)Ve+=Ue,Ue=""}else Ue="";break;default:Ue=He(a,Ie(a,Te,Oe),Ue,t,i+1)}Xe+=Ue,O=0,$e=0,z=0,we=0,Oe=0,j=0,Te="",Ue="",C=s.charCodeAt(++R);break;case q:case W:if((je=(Te=(we>0?Te.replace(c,""):Te).trim()).length)>1){if(0===z)if((g=Te.charCodeAt(0))===Q||g>96&&g<123)je=(Te=Te.replace(" ",":")).length;if(ye>0)if(void 0!==(n=Pe(Se,Te,a,e,pe,be,Ve.length,t,i,t)))if(0===(je=(Te=n.trim()).length))Te="\0\0";switch(g=Te.charCodeAt(0),A=Te.charCodeAt(1),g){case re:break;case L:if(A===oe||A===he){Ye+=Te+s.charAt(R);break}default:if(Te.charCodeAt(je-1)===V)break;Ve+=Ke(Te,g,A,Te.charCodeAt(2))}}O=0,$e=0,z=0,we=0,Oe=0,Te="",C=s.charCodeAt(++R)}}switch(C){case J:case I:if(h+d+u+o+ve===0)switch($){case E:case X:case Y:case L:case ae:case _:case T:case ee:case Z:case Q:case V:case U:case W:case B:case q:break;default:if(z>0)$e=1}if(h===Z)h=0;else if(ge+O===0&&t!==te&&Te.length>0)we=1,Te+="\0";if(ye*qe>0)Pe(Ne,Te,a,e,pe,be,Ve.length,t,i,t);be=1,pe++;break;case W:case q:if(h+d+u+o===0){be++;break}default:switch(be++,Re=s.charAt(R),C){case K:case M:if(d+o+h===0)switch(w){case U:case V:case K:case M:Re="";break;default:if(C!==M)Re=" "}break;case re:Re="\\0";break;case ce:Re="\\f";break;case se:Re="\\v";break;case P:if(d+h+o===0&&ge>0)Oe=1,we=1,Re="\f"+Re;break;case 108:if(d+h+o+ke===0&&z>0)switch(R-z){case 2:if(w===ne&&s.charCodeAt(R-3)===V)ke=w;case 8:if(m===le)ke=m}break;case V:if(d+h+o===0)z=R;break;case U:if(h+u+d+o===0)we=1,Re+="\r";break;case Y:case X:if(0===h)d=d===C?0:0===d?C:d;break;case G:if(d+h+u===0)o++;break;case H:if(d+h+u===0)o--;break;case E:if(d+h+o===0)u--;break;case D:if(d+h+o===0){if(0===O)switch(2*w+3*m){case 533:break;default:y=0,O=1}u++}break;case L:if(h+u+d+o+z+j===0)j=1;break;case T:case Z:if(d+o+u>0)break;switch(h){case 0:switch(2*C+3*s.charCodeAt(R+1)){case 235:h=Z;break;case 220:je=R,h=T}break;case T:if(C===Z&&w===T&&je+2!==R){if(33===s.charCodeAt(je+2))Ve+=s.substring(je,R+1);Re="",h=0}}}if(0===h){if(ge+d+o+j===0&&t!==te&&C!==W)switch(C){case U:case ae:case _:case ee:case E:case D:if(0===O){switch(w){case K:case M:case I:case J:Re+="\0";break;default:Re="\0"+Re+(C===U?"":"\0")}we=1}else switch(C){case D:if(z+7===R&&108===w)z=0;O=++y;break;case E:if(0==(O=--y))we=1,Re+="\0"}break;case K:case M:switch(w){case re:case B:case q:case W:case U:case ce:case K:case M:case I:case J:break;default:if(0===O)we=1,Re+="\0"}}if(Te+=Re,C!==M&&C!==K)$=C}}m=w,w=C,R++}if(je=Ve.length,me>0)if(0===je&&0===Xe.length&&0===a[0].length==false)if(t!==ie||1===a.length&&(ge>0?Ee:Ge)===a[0])je=a.join(",").length+2;if(je>0){if(f=0===ge&&t!==te?function(e){for(var a,r,s=0,t=e.length,i=Array(t);s<t;++s){for(var f=e[s].split(l),n="",o=0,h=0,u=0,d=0,b=f.length;o<b;++o){if(0===(h=(r=f[o]).length)&&b>1)continue;if(u=n.charCodeAt(n.length-1),d=r.charCodeAt(0),a="",0!==o)switch(u){case T:case ae:case _:case ee:case M:case D:break;default:a=" "}switch(d){case P:r=a+Ee;case ae:case _:case ee:case M:case E:case D:break;case G:r=a+r+Ee;break;case V:switch(2*r.charCodeAt(1)+3*r.charCodeAt(2)){case 530:if(Ce>0){r=a+r.substring(8,h-1);break}default:if(o<1||f[o-1].length<1)r=a+Ee+r}break;case U:a="";default:if(h>1&&r.indexOf(":")>0)r=a+r.replace(v,"$1"+Ee+"$2");else r=a+r+Ee}n+=r}i[s]=n.replace(c,"").trim()}return i}(a):a,ye>0)if(void 0!==(n=Pe(Fe,Ve,f,e,pe,be,je,t,i,t))&&0===(Ve=n).length)return Ye+Ve+Xe;if(Ve=f.join(",")+"{"+Ve+"}",Ae*ke!=0){if(2===Ae&&!Le(Ve,2))ke=0;switch(ke){case le:Ve=Ve.replace(k,":"+S+"$1")+Ve;break;case ne:Ve=Ve.replace(p,"::"+N+"input-$1")+Ve.replace(p,"::"+S+"$1")+Ve.replace(p,":"+F+"input-$1")+Ve}ke=0}}return Ye+Ve+Xe}function Ie(e,a,r){var c=a.trim().split(o),s=c,t=c.length,i=e.length;switch(i){case 0:case 1:for(var f=0,n=0===i?"":e[0]+" ";f<t;++f)s[f]=Je(n,s[f],r,i).trim();break;default:f=0;var l=0;for(s=[];f<t;++f)for(var h=0;h<i;++h)s[l++]=Je(e[h]+" ",c[f],r,i).trim()}return s}function Je(e,a,r,c){var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);switch(t){case P:switch(ge+c){case 0:case 1:if(0===e.trim().length)break;default:return s.replace(h,"$1"+e.trim())}break;case V:switch(s.charCodeAt(1)){case 103:if(Ce>0&&ge>0)return s.replace(u,"$1").replace(h,"$1"+Ge);break;default:return e.trim()+s.replace(h,"$1"+e.trim())}default:if(r*ge>0&&s.indexOf("\f")>0)return s.replace(h,(e.charCodeAt(0)===V?"":"$1")+e.trim())}return e+s}function Ke(e,a,r,c){var l,o=0,h=e+";",u=2*a+3*r+4*c;if(944===u)return function(e){var a=e.length,r=e.indexOf(":",9)+1,c=e.substring(0,r).trim(),s=e.substring(r,a-1).trim();switch(e.charCodeAt(9)*Be){case 0:break;case Q:if(110!==e.charCodeAt(10))break;default:for(var t=s.split((s="",f)),i=0,r=0,a=t.length;i<a;r=0,++i){for(var l=t[i],o=l.split(n);l=o[r];){var h=l.charCodeAt(0);if(1===Be&&(h>L&&h<90||h>96&&h<123||h===R||h===Q&&l.charCodeAt(1)!==Q))switch(isNaN(parseFloat(l))+(-1!==l.indexOf("("))){case 1:switch(l){case"infinite":case"alternate":case"backwards":case"running":case"normal":case"forwards":case"both":case"none":case"linear":case"ease":case"ease-in":case"ease-out":case"ease-in-out":case"paused":case"reverse":case"alternate-reverse":case"inherit":case"initial":case"unset":case"step-start":case"step-end":break;default:l+=De}}o[r++]=l}s+=(0===i?"":",")+o.join(" ")}}if(s=c+s+";",1===Ae||2===Ae&&Le(s,1))return N+s+s;return s}(h);else if(0===Ae||2===Ae&&!Le(h,1))return h;switch(u){case 1015:return 97===h.charCodeAt(10)?N+h+h:h;case 951:return 116===h.charCodeAt(3)?N+h+h:h;case 963:return 110===h.charCodeAt(5)?N+h+h:h;case 1009:if(100!==h.charCodeAt(4))break;case 969:case 942:return N+h+h;case 978:return N+h+S+h+h;case 1019:case 983:return N+h+S+h+F+h+h;case 883:if(h.charCodeAt(8)===Q)return N+h+h;if(h.indexOf("image-set(",11)>0)return h.replace(z,"$1"+N+"$2")+h;return h;case 932:if(h.charCodeAt(4)===Q)switch(h.charCodeAt(5)){case 103:return N+"box-"+h.replace("-grow","")+N+h+F+h.replace("grow","positive")+h;case 115:return N+h+F+h.replace("shrink","negative")+h;case 98:return N+h+F+h.replace("basis","preferred-size")+h}return N+h+F+h+h;case 964:return N+h+F+"flex-"+h+h;case 1023:if(99!==h.charCodeAt(8))break;return l=h.substring(h.indexOf(":",15)).replace("flex-","").replace("space-between","justify"),N+"box-pack"+l+N+h+F+"flex-pack"+l+h;case 1005:return t.test(h)?h.replace(s,":"+N)+h.replace(s,":"+S)+h:h;case 1e3:switch(o=(l=h.substring(13).trim()).indexOf("-")+1,l.charCodeAt(0)+l.charCodeAt(o)){case 226:l=h.replace(m,"tb");break;case 232:l=h.replace(m,"tb-rl");break;case 220:l=h.replace(m,"lr");break;default:return h}return N+h+F+l+h;case 1017:if(-1===h.indexOf("sticky",9))return h;case 975:switch(o=(h=e).length-10,u=(l=(33===h.charCodeAt(o)?h.substring(0,o):h).substring(e.indexOf(":",7)+1).trim()).charCodeAt(0)+(0|l.charCodeAt(7))){case 203:if(l.charCodeAt(8)<111)break;case 115:h=h.replace(l,N+l)+";"+h;break;case 207:case 102:h=h.replace(l,N+(u>102?"inline-":"")+"box")+";"+h.replace(l,N+l)+";"+h.replace(l,F+l+"box")+";"+h}return h+";";case 938:if(h.charCodeAt(5)===Q)switch(h.charCodeAt(6)){case 105:return l=h.replace("-items",""),N+h+N+"box-"+l+F+"flex-"+l+h;case 115:return N+h+F+"flex-item-"+h.replace(y,"")+h;default:return N+h+F+"flex-line-pack"+h.replace("align-content","").replace(y,"")+h}break;case 973:case 989:if(h.charCodeAt(3)!==Q||122===h.charCodeAt(4))break;case 931:case 953:if(true===j.test(e))if(115===(l=e.substring(e.indexOf(":")+1)).charCodeAt(0))return Ke(e.replace("stretch","fill-available"),a,r,c).replace(":fill-available",":stretch");else return h.replace(l,N+l)+h.replace(l,S+l.replace("fill-",""))+h;break;case 962:if(h=N+h+(102===h.charCodeAt(5)?F+h:"")+h,r+c===211&&105===h.charCodeAt(13)&&h.indexOf("transform",10)>0)return h.substring(0,h.indexOf(";",27)+1).replace(i,"$1"+N+"$2")+h}return h}function Le(e,a){var r=e.indexOf(1===a?":":"{"),c=e.substring(0,3!==a?r:10),s=e.substring(r+1,e.length-1);return Oe(2!==a?c:c.replace(O,"$1"),s,a)}function Me(e,a){var r=Ke(a,a.charCodeAt(0),a.charCodeAt(1),a.charCodeAt(2));return r!==a+";"?r.replace($," or ($1)").substring(4):"("+a+")"}function Pe(e,a,r,c,s,t,i,f,n,l){for(var o,h=0,u=a;h<ye;++h)switch(o=$e[h].call(Te,e,u,r,c,s,t,i,f,n,l)){case void 0:case false:case true:case null:break;default:u=o}if(u!==a)return u}function Qe(e,a,r,c){for(var s=a+1;s<r;++s)switch(c.charCodeAt(s)){case Z:if(e===T)if(c.charCodeAt(s-1)===T&&a+2!==s)return s+1;break;case I:if(e===Z)return s+1}return s}function Re(e){for(var a in e){var r=e[a];switch(a){case"keyframe":Be=0|r;break;case"global":Ce=0|r;break;case"cascade":ge=0|r;break;case"compress":we=0|r;break;case"semicolon":ve=0|r;break;case"preserve":me=0|r;break;case"prefix":if(Oe=null,!r)Ae=0;else if("function"!=typeof r)Ae=1;else Ae=2,Oe=r}}return Re}function Te(a,r){if(void 0!==this&&this.constructor===Te)return e(a);var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);if(Be>0)De=s.replace(d,t===G?"":"-");if(t=1,1===ge)Ge=s;else Ee=s;var i,f=[Ge];if(ye>0)if(void 0!==(i=Pe(ze,r,f,f,pe,be,0,0,0,0))&&"string"==typeof i)r=i;var n=He(xe,f,r,0,0);if(ye>0)if(void 0!==(i=Pe(je,n,f,f,pe,be,n.length,0,0,0))&&"string"!=typeof(n=i))t=0;return De="",Ge="",Ee="",ke=0,pe=1,be=1,we*t==0?n:n.replace(c,"").replace(g,"").replace(A,"$1").replace(C,"$1").replace(w," ")}if(Te.use=function e(a){switch(a){case void 0:case null:ye=$e.length=0;break;default:if("function"==typeof a)$e[ye++]=a;else if("object"==typeof a)for(var r=0,c=a.length;r<c;++r)e(a[r]);else qe=0|!!a}return e},Te.set=Re,void 0!==a)Re(a);return Te});
@@ -38197,855 +38001,140 @@ var global = arguments[3];
 })));
 
 
-},{"react-dom":"node_modules/react-dom/index.js","react":"node_modules/react/index.js"}],"src/GUI/common.js":[function(require,module,exports) {
+},{"react-dom":"node_modules/react-dom/index.js","react":"node_modules/react/index.js"}],"src/models/game/events.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Checkbox = exports.Radio = exports.Name = exports.Title = void 0;
+exports.changeFps = exports.updateStates = exports.setLoggerState = exports.setIndexesVisible = exports.setCollisionState = exports.removeUserFromGame = exports.addUserToGame = exports.restart = exports.stop = exports.play = void 0;
 
-var _styledComponents = _interopRequireDefault(require("styled-components"));
+var _effector = require("effector");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var play = (0, _effector.createEvent)('play game');
+exports.play = play;
+var stop = (0, _effector.createEvent)('stop game');
+exports.stop = stop;
+var restart = (0, _effector.createEvent)('restart game');
+exports.restart = restart;
+var addUserToGame = (0, _effector.createEvent)('add user to game');
+exports.addUserToGame = addUserToGame;
+var removeUserFromGame = (0, _effector.createEvent)('remove user from game');
+exports.removeUserFromGame = removeUserFromGame;
+var setCollisionState = (0, _effector.createEvent)('set collision state');
+exports.setCollisionState = setCollisionState;
+var setIndexesVisible = (0, _effector.createEvent)('set visible indexes');
+exports.setIndexesVisible = setIndexesVisible;
+var setLoggerState = (0, _effector.createEvent)('on toggle logger'); // update all states per one update
 
-function _templateObject4() {
-  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  margin-right: 15px;\n"]);
-
-  _templateObject4 = function _templateObject4() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject3() {
-  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  margin-right: 15px;\n"]);
-
-  _templateObject3 = function _templateObject3() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject2() {
-  var data = _taggedTemplateLiteral(["\n  font-size: 16px;\n  text-align: left;\n  flex: 1 1 auto;\n"]);
-
-  _templateObject2 = function _templateObject2() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  color: #fff;\n  margin: 15px 0;\n  padding: 0;\n  font-weight: bold;\n  color: ", ";\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var Title = _styledComponents.default.h2(_templateObject(), function (props) {
-  return props.color;
-});
-
-exports.Title = Title;
-
-var Name = _styledComponents.default.p(_templateObject2());
-
-exports.Name = Name;
-
-var Radio = _styledComponents.default.input.attrs({
-  type: 'radio'
-})(_templateObject3());
-
-exports.Radio = Radio;
-
-var Checkbox = _styledComponents.default.input.attrs({
-  type: 'checkbox'
-})(_templateObject4());
-
-exports.Checkbox = Checkbox;
-},{"styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js"}],"src/GUI/use-snake.js":[function(require,module,exports) {
+exports.setLoggerState = setLoggerState;
+var updateStates = (0, _effector.createEvent)('update states');
+exports.updateStates = updateStates;
+var changeFps = (0, _effector.createEvent)('change fps');
+exports.changeFps = changeFps;
+},{"effector":"node_modules/effector/effector.es.js"}],"src/models/game/store.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.useSnakeIsCrahedState = useSnakeIsCrahedState;
-exports.useSnakeScoreState = useSnakeScoreState;
-exports.useSnakeColorState = useSnakeColorState;
-exports.useSnakeSetings = useSnakeSetings;
+exports.$fps = exports.$isLoggerEnabled = exports.$indexesVisible = exports.$collisionState = exports.$gameState = void 0;
 
-var _effectorReact = require("effector-react");
+var _effector = require("effector");
 
-var _model = require("../model");
+var _config = require("../../config");
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+var _events = require("./events");
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+var $gameState = (0, _effector.createStore)(_config.GAME_STATE.IS_PLAY);
+exports.$gameState = $gameState;
+var $collisionState = (0, _effector.restore)(_events.setCollisionState, true);
+exports.$collisionState = $collisionState;
+var $indexesVisible = (0, _effector.restore)(_events.setIndexesVisible, false);
+exports.$indexesVisible = $indexesVisible;
+var $isLoggerEnabled = (0, _effector.restore)(_events.setLoggerState, false);
+exports.$isLoggerEnabled = $isLoggerEnabled;
+var $fps = (0, _effector.restore)(_events.changeFps, _config.fps);
+exports.$fps = $fps;
+},{"effector":"node_modules/effector/effector.es.js","../../config":"src/config.js","./events":"src/models/game/events.js"}],"src/models/game/model.js":[function(require,module,exports) {
+"use strict";
 
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+var _config = require("../../config");
 
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+var _events = require("./events");
 
-function useSnakeIsCrahedState(snakeId) {
-  var isCrash = (0, _effectorReact.useStoreMap)({
-    store: _model.$snakesStore,
-    keys: [snakeId],
-    fn: function fn(snakes, _ref) {
-      var _ref2 = _slicedToArray(_ref, 1),
-          id = _ref2[0];
+var _store = require("./store");
 
-      var snake = snakes.find(function (s) {
-        return s.id === id;
-      });
-      return snake ? snake.isCrash : undefined;
+_store.$gameState.on(_events.play, function () {
+  return _config.GAME_STATE.IS_PLAY;
+}).on(_events.stop, function () {
+  return _config.GAME_STATE.IS_PAUSE;
+}).reset(_events.restart);
+
+_store.$indexesVisible.reset(_events.restart);
+
+_store.$collisionState.reset(_events.restart);
+
+_store.$isLoggerEnabled.reset(_events.restart);
+},{"../../config":"src/config.js","./events":"src/models/game/events.js","./store":"src/models/game/store.js"}],"src/models/game/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _events = require("./events");
+
+Object.keys(_events).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _events[key];
     }
   });
-  return isCrash;
-}
+});
 
-function useSnakeScoreState(snakeId) {
-  var score = (0, _effectorReact.useStoreMap)({
-    store: _model.$snakesStore,
-    keys: [snakeId],
-    fn: function fn(snakes, _ref3) {
-      var _ref4 = _slicedToArray(_ref3, 1),
-          id = _ref4[0];
+var _store = require("./store");
 
-      var snake = snakes.find(function (s) {
-        return s.id === id;
-      });
-      return snake ? snake.score : undefined;
+Object.keys(_store).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _store[key];
     }
   });
-  return score;
-}
-
-function useSnakeColorState(snakeId) {
-  var colors = (0, _effectorReact.useStoreMap)({
-    store: _model.$snakesStore,
-    keys: [snakeId],
-    fn: function fn(snakes, _ref5) {
-      var _ref6 = _slicedToArray(_ref5, 1),
-          id = _ref6[0];
-
-      var snake = snakes.find(function (s) {
-        return s.id === id;
-      });
-      return snake ? snake.colors : {
-        head: 'black',
-        tail: 'black'
-      };
-    }
-  });
-  return colors;
-}
-
-function useSnakeSetings(snakeId) {
-  var colors = (0, _effectorReact.useStoreMap)({
-    store: _model.$settingsForSnakesStore,
-    keys: [snakeId],
-    fn: function fn(settings, _ref7) {
-      var _ref8 = _slicedToArray(_ref7, 1),
-          id = _ref8[0];
-
-      return settings[id];
-    }
-  });
-  return colors;
-}
-},{"effector-react":"node_modules/effector-react/effector-react.es.js","../model":"src/model/index.js"}],"src/GUI/score-board.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
 });
-exports.ScoreItem = ScoreItem;
-exports.ScoreBoard = ScoreBoard;
-exports.Counter = exports.DroppedOutBlock = exports.Score = exports.Wrapper = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _effectorReact = require("effector-react");
-
-var _styledComponents = _interopRequireDefault(require("styled-components"));
-
-var _model = require("../model");
-
-var _common = require("./common");
-
-var _useSnake = require("./use-snake");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _templateObject4() {
-  var data = _taggedTemplateLiteral(["\n  font-sixe: 12px;\n"]);
-
-  _templateObject4 = function _templateObject4() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject3() {
-  var data = _taggedTemplateLiteral(["\n  position: absolute;\n  background-color: #f7f7f787;\n  color: #000;\n  font-weight: bold;\n  width: 100%;\n  text-align: center;\n  font-size: 13px;\n"]);
-
-  _templateObject3 = function _templateObject3() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject2() {
-  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  padding: 0;\n  display: flex;\n  justify-content: space-around;\n  flex: 1 1 auto;\n  text-decoration: ", ";\n  color: ", ";\n  position: relative;\n  align-items: center;\n"]);
-
-  _templateObject2 = function _templateObject2() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  padding: 0;\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var Wrapper = _styledComponents.default.ul(_templateObject());
-
-exports.Wrapper = Wrapper;
-
-var Score = _styledComponents.default.li(_templateObject2(), function (props) {
-  return props.isCrash ? 'line-through' : 'none';
-}, function (props) {
-  return props.color;
-});
-
-exports.Score = Score;
-
-var DroppedOutBlock = _styledComponents.default.div(_templateObject3());
-
-exports.DroppedOutBlock = DroppedOutBlock;
-
-var Counter = _styledComponents.default.p(_templateObject4());
-
-exports.Counter = Counter;
-
-function ScoreItem(_ref) {
-  var snakeId = _ref.snakeId;
-  var score = (0, _useSnake.useSnakeScoreState)(snakeId);
-  var isCrash = (0, _useSnake.useSnakeIsCrahedState)(snakeId);
-  var colors = (0, _useSnake.useSnakeColorState)(snakeId);
-  return _react.default.createElement(Score, {
-    isCrash: isCrash,
-    color: colors.head
-  }, _react.default.createElement(DroppedOutBlock, {
-    hidden: !isCrash
-  }, "Dropped out !"), _react.default.createElement(_common.Name, null, snakeId), _react.default.createElement(Counter, null, score));
-}
-
-function ScoreBoard() {
-  var snakesIds = (0, _effectorReact.useStore)(_model.$snakeIterator);
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Score board"), _react.default.createElement(Wrapper, null, snakesIds.map(function (snakeId) {
-    return _react.default.createElement(ScoreItem, {
-      snakeId: snakeId,
-      key: snakeId
-    });
-  })));
-}
-},{"react":"node_modules/react/index.js","effector-react":"node_modules/effector-react/effector-react.es.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","../model":"src/model/index.js","./common":"src/GUI/common.js","./use-snake":"src/GUI/use-snake.js"}],"src/GUI/settings.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SettingsForSnake = SettingsForSnake;
-exports.Settings = Settings;
-exports.TitlesWrapper = exports.Select = exports.Name = exports.SettingWrapper = exports.Wrapper = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _styledComponents = _interopRequireDefault(require("styled-components"));
-
-var _effectorReact = require("effector-react");
-
-var _model = require("../model");
-
-var _common = require("./common");
-
-var _useSnake = require("./use-snake");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _templateObject5() {
-  var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n\n  & p {\n    cursor: pointer;\n    user-select: none;\n  }\n"]);
-
-  _templateObject5 = function _templateObject5() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject4() {
-  var data = _taggedTemplateLiteral(["\n  margin-top: 5px;\n"]);
-
-  _templateObject4 = function _templateObject4() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject3() {
-  var data = _taggedTemplateLiteral(["\n  font-size: 16px;\n  text-align: left;\n  flex: 1 1 auto;\n  cursor: pointer;\n  color: ", ";\n"]);
-
-  _templateObject3 = function _templateObject3() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject2() {
-  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  padding: 0;\n  display: flex;\n  justify-content: space-around;\n  flex: 1 1 auto;\n  margin-bottom: 5px;\n  user-select: none;\n  flex-direction: ", ";\n"]);
-
-  _templateObject2 = function _templateObject2() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  padding: 0;\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var Wrapper = _styledComponents.default.ul(_templateObject());
-
-exports.Wrapper = Wrapper;
-
-var SettingWrapper = _styledComponents.default.li(_templateObject2(), function (props) {
-  return props.dir || 'row';
-});
-
-exports.SettingWrapper = SettingWrapper;
-
-var Name = _styledComponents.default.label(_templateObject3(), function (props) {
-  return props.color;
-});
-
-exports.Name = Name;
-
-var Select = _styledComponents.default.select(_templateObject4());
-
-exports.Select = Select;
-
-var TitlesWrapper = _styledComponents.default.div(_templateObject5());
-
-exports.TitlesWrapper = TitlesWrapper;
-
-function SettingsForSnake(_ref) {
-  var snakeId = _ref.snakeId;
-  var isCrash = (0, _useSnake.useSnakeIsCrahedState)(snakeId);
-  var colors = (0, _useSnake.useSnakeColorState)(snakeId);
-  var algorithms = (0, _effectorReact.useStore)(_model.$algorithmsStore);
-  var heuristics = (0, _effectorReact.useStore)(_model.$heuristicsStore);
-
-  var _useSnakeSetings = (0, _useSnake.useSnakeSetings)(snakeId),
-      showProcessedCells = _useSnakeSetings.showProcessedCells,
-      activeAlgorithm = _useSnakeSetings.activeAlgorithm,
-      activeHeuristic = _useSnakeSetings.activeHeuristic,
-      showAIPathToTarget = _useSnakeSetings.showAIPathToTarget;
-
-  var currentAlgorithm = algorithms.find(function (alg) {
-    return alg.id === activeAlgorithm;
-  });
-
-  function removeSnake() {
-    (0, _model.onRemoveSnake)(snakeId);
-  }
-
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(TitlesWrapper, null, _react.default.createElement(_common.Title, {
-    color: colors.head
-  }, "Settings for ", snakeId), _react.default.createElement("p", {
-    onClick: removeSnake
-  }, "remove")), _react.default.createElement(Wrapper, null, _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
-    disabled: isCrash,
-    id: "path-".concat(snakeId),
-    checked: showAIPathToTarget,
-    onChange: function onChange() {
-      (0, _model.onUpdateSettingForSnake)({
-        snakeId: snakeId,
-        value: !showAIPathToTarget,
-        settingName: 'showAIPathToTarget'
-      });
-    }
-  }), _react.default.createElement(Name, {
-    htmlFor: "path-".concat(snakeId),
-    color: colors.tail
-  }, "show ai path to target")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
-    disabled: isCrash,
-    id: "processed-".concat(snakeId),
-    checked: showProcessedCells,
-    onChange: function onChange() {
-      (0, _model.onUpdateSettingForSnake)({
-        snakeId: snakeId,
-        value: !showProcessedCells,
-        settingName: 'showProcessedCells'
-      });
-    }
-  }), _react.default.createElement(Name, {
-    htmlFor: "processed-".concat(snakeId),
-    color: colors.tail
-  }, "show processed cells")), _react.default.createElement(SettingWrapper, {
-    dir: "column"
-  }, _react.default.createElement(Select, {
-    disabled: isCrash,
-    onChange: function onChange(_ref2) {
-      var target = _ref2.target;
-      (0, _model.onUpdateSettingForSnake)({
-        snakeId: snakeId,
-        settingName: 'activeAlgorithm',
-        value: target.value
-      });
-    }
-  }, algorithms.map(function (alg) {
-    return _react.default.createElement("option", {
-      key: alg.id,
-      selected: activeAlgorithm === alg.id,
-      value: alg.id
-    }, alg.name);
-  })), currentAlgorithm.hasHeuristic && _react.default.createElement(Select, {
-    disabled: isCrash,
-    onChange: function onChange(_ref3) {
-      var target = _ref3.target;
-      (0, _model.onUpdateSettingForSnake)({
-        snakeId: snakeId,
-        settingName: 'activeHeuristic',
-        value: target.value
-      });
-    }
-  }, heuristics.map(function (heuristic) {
-    return _react.default.createElement("option", {
-      key: heuristic.id,
-      selected: activeHeuristic === heuristic.id,
-      value: heuristic.id
-    }, heuristic.name);
-  })))));
-}
-
-function Settings() {
-  var collisionState = (0, _effectorReact.useStore)(_model.$gameCollisionStateStore);
-  var userInGameStore = (0, _effectorReact.useStore)(_model.$userInGameStore);
-  var indexesVisibleStore = (0, _effectorReact.useStore)(_model.$indexesVisibleStore);
-  var withLogger = (0, _effectorReact.useStore)(_model.$enableLoggerStore);
-  var snakeIterator = (0, _effectorReact.useStore)(_model.$snakeIterator);
-
-  function onSetCollision() {
-    (0, _model.onSetCollisionState)(!collisionState);
-  }
-
-  function onSetIndexesVisibleState() {
-    (0, _model.onSetIndexesVisible)(!indexesVisibleStore);
-  }
-
-  function handleChangeUserInGameState() {
-    if (userInGameStore) {
-      (0, _model.onRemoveUserFromGame)();
-    } else {
-      (0, _model.onAddUserToGame)();
-    }
-  }
-
-  function toggleLoggerState() {
-    (0, _model.onToggleLoggerState)(!withLogger);
-  }
-
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Common Settings"), _react.default.createElement(Wrapper, null, _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
-    id: "collision",
-    checked: collisionState,
-    onChange: onSetCollision
-  }), _react.default.createElement(Name, {
-    htmlFor: "collision"
-  }, "handle collision state")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
-    id: "withUser",
-    checked: userInGameStore,
-    onChange: handleChangeUserInGameState
-  }), _react.default.createElement(Name, {
-    htmlFor: "withUser"
-  }, "add user (you) to game")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
-    id: "indexesvisible",
-    checked: indexesVisibleStore,
-    onChange: onSetIndexesVisibleState
-  }), _react.default.createElement(Name, {
-    htmlFor: "indexesvisible"
-  }, "visible indexes")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
-    id: "logger",
-    checked: withLogger,
-    onChange: toggleLoggerState
-  }), _react.default.createElement(Name, {
-    htmlFor: "logger"
-  }, "show operations count in console"))), snakeIterator.filter(function (id) {
-    return id !== 'user';
-  }).map(function (id) {
-    return _react.default.createElement(SettingsForSnake, {
-      snakeId: id,
-      key: id
-    });
-  }));
-}
-},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","effector-react":"node_modules/effector-react/effector-react.es.js","../model":"src/model/index.js","./common":"src/GUI/common.js","./use-snake":"src/GUI/use-snake.js"}],"src/GUI/right-panel.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.RightPanel = RightPanel;
-exports.Wrapper = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _styledComponents = _interopRequireDefault(require("styled-components"));
-
-var _scoreBoard = require("./score-board");
-
-var _settings = require("./settings");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  padding: 20px;\n  background-color: rgba(0, 0, 0, 0.6);\n  color: #fff;\n  border-radius: 8px;\n  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);\n  width: 100%;\n  min-height: 100px;\n  max-height: 80vh;\n  overflow: auto;\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var Wrapper = _styledComponents.default.div(_templateObject());
-
-exports.Wrapper = Wrapper;
-
-function RightPanel() {
-  return _react.default.createElement(Wrapper, null, _react.default.createElement(_scoreBoard.ScoreBoard, null), _react.default.createElement(_settings.Settings, null));
-}
-},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./score-board":"src/GUI/score-board.js","./settings":"src/GUI/settings.js"}],"src/GUI/control-pannel.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ControllPanel = void 0;
-
-var _styledComponents = _interopRequireDefault(require("styled-components"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: flex-start;\n  align-items: center;\n  padding: 20px;\n  background-color: rgba(0, 0, 0, 0.6);\n  color: #fff;\n  border-radius: 8px;\n  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);\n  width: 100%;\n  min-height: 50px;\n  margin-top: 15px;\n\n  > button {\n    margin: auto;\n  }\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var ControllPanel = _styledComponents.default.div(_templateObject());
-
-exports.ControllPanel = ControllPanel;
-},{"styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js"}],"src/GUI/side-bar.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SideBar = SideBar;
-exports.SideBarInner = exports.SideBarWrapper = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _effectorReact = require("effector-react");
-
-var _styledComponents = _interopRequireDefault(require("styled-components"));
-
-var _reactDraggable = _interopRequireDefault(require("react-draggable"));
-
-var _model = require("../model");
-
-var _rightPanel = require("./right-panel");
-
-var _controlPannel = require("./control-pannel");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
-
-function _templateObject3() {
-  var data = _taggedTemplateLiteral(["\n  border: none;\n  background: rgba(255, 255, 255, 0.7);\n  border-radius: 5px;\n  font-size: 90%;\n  cursor: pointer;\n  padding: 8px 15px;\n  transition: 0.5s;\n  outline: none;\n\n  &:hover {\n    background: #fff;\n  }\n\n  &:disabled {\n    background: #fff;\n    cursor: not-allowed;\n  }\n"]);
-
-  _templateObject3 = function _templateObject3() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject2() {
-  var data = _taggedTemplateLiteral(["\n  display: flex;\n  position: relative;\n  flex: 1 1 auto;\n  flex-direction: column;\n"]);
-
-  _templateObject2 = function _templateObject2() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  width: 300px;\n  cursor: move;\n\n  & div {\n    box-sizing: border-box;\n  }\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var SideBarWrapper = _styledComponents.default.div(_templateObject());
-
-exports.SideBarWrapper = SideBarWrapper;
-
-var SideBarInner = _styledComponents.default.div(_templateObject2());
-
-exports.SideBarInner = SideBarInner;
-
-var Button = _styledComponents.default.button(_templateObject3());
-
-function SideBar() {
-  var lastId = (0, _react.useRef)(2);
-  var gameState = (0, _effectorReact.useStore)(_model.$gameStateStore);
-  var isPlay = gameState === _model.GAME_STATE.IS_PLAY;
-  var playOrPause = isPlay ? _model.onStop : _model.onPlay;
-  var text = isPlay ? 'pause' : 'play';
-
-  function addSnakeToGame() {
-    (0, _model.onAddSnake)("ai-".concat(lastId.current++));
-  }
-
-  return _react.default.createElement(_reactDraggable.default, null, _react.default.createElement(SideBarWrapper, null, _react.default.createElement(SideBarInner, null, _react.default.createElement(_rightPanel.RightPanel, null), _react.default.createElement(_controlPannel.ControllPanel, null, _react.default.createElement(Button, {
-    onClick: playOrPause
-  }, text), _react.default.createElement(Button, {
-    onClick: _model.onRestart
-  }, "restart"), _react.default.createElement(Button, {
-    onClick: addSnakeToGame
-  }, "add snake")))));
-}
-},{"react":"node_modules/react/index.js","effector-react":"node_modules/effector-react/effector-react.es.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","react-draggable":"node_modules/react-draggable/dist/react-draggable.js","../model":"src/model/index.js","./right-panel":"src/GUI/right-panel.js","./control-pannel":"src/GUI/control-pannel.js"}],"src/GUI/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.renderGUI = renderGUI;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _reactDom = _interopRequireDefault(require("react-dom"));
-
-var _sideBar = require("./side-bar");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function App() {
-  return _react.default.createElement(_sideBar.SideBar, null);
-}
-
-var root = document.querySelector('#root');
-
-function renderGUI() {
-  _reactDom.default.render(_react.default.createElement(App, null), root);
-}
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./side-bar":"src/GUI/side-bar.js"}],"src/snake.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.renderSnake = renderSnake;
-exports.renderSnakes = renderSnakes;
-exports.batchUpdateSnakeStateForGameMap = batchUpdateSnakeStateForGameMap;
-
-var _utils = require("./utils");
-
-var _renderer = require("./renderer");
 
 var _model = require("./model");
 
-function renderSnake(context, snake) {
-  for (var i = 0; i < snake.body.length; i++) {
-    var isHead = i === snake.body.length - 1;
-    var color = isHead ? snake.colors.head : snake.colors.tail;
-    var crashedColor = isHead ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.6)';
-    var index = (0, _utils.getIndexByPosition)(snake.body[i]);
-    (0, _renderer.drawSquare)(context, snake.body[i], {
-      color: snake.isCrash ? crashedColor : color
-    });
-
-    if (isHead && (0, _model.getIndexesVisibleStore)()) {
-      (0, _renderer.renderText)(context, index, snake.body[i]);
+Object.keys(_model).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _model[key];
     }
-  }
-}
-
-function renderSnakes(context) {
-  var snakes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-  snakes.forEach(function (snake) {
-    renderSnake(context, snake);
   });
-}
-
-function batchUpdateSnakeStateForGameMap(currentSnakes) {
-  var map = {}; // eslint-disable-next-line unicorn/no-for-loop
-
-  for (var i = 0; i < currentSnakes.length; i++) {
-    for (var j = 0; j < currentSnakes[i].body.length; j++) {
-      map[(0, _utils.getIndexByPosition)(currentSnakes[i].body[j])] = _model.PLACE_TYPE.GAME_OBJECT;
-    }
-  }
-
-  return map;
-}
-},{"./utils":"src/utils.js","./renderer":"src/renderer.js","./model":"src/model/index.js"}],"src/brick.js":[function(require,module,exports) {
+});
+},{"./events":"src/models/game/events.js","./store":"src/models/game/store.js","./model":"src/models/game/model.js"}],"src/models/snakes/events.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.renderBrick = renderBrick;
-exports.renderBricks = renderBricks;
-exports.brickEventRegistar = brickEventRegistar;
+exports.updateSettingForSnake = exports.removeSnake = exports.addSnake = void 0;
 
-var _renderer = require("./renderer");
+var _effector = require("effector");
 
-var _utils = require("./utils");
-
-var _model = require("./model");
-
-var _controll = require("./controll");
-
-function renderBrick(context, brick, callback) {
-  var index = (0, _utils.getIndexByPosition)(brick);
-  callback(index);
-  (0, _renderer.drawSquare)(context, brick, {
-    color: '#d2b3b3'
-  });
-
-  if ((0, _model.getIndexesVisibleStore)()) {
-    (0, _renderer.renderText)(context, index, brick);
-  }
-}
-
-function renderBricks(context, briks, callback) {
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = briks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var brick = _step.value;
-      renderBrick(context, brick, callback);
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return != null) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-}
-
-function brickEventRegistar() {
-  var isRemove = false;
-
-  function addBrick(index) {
-    var gameMapState = (0, _model.getGameMapState)();
-
-    if (gameMapState[index] !== _model.PLACE_TYPE.GAME_OBJECT) {
-      (0, _model.onAddBrick)(index);
-    }
-  }
-
-  function removeBrick(index) {
-    var gameMapState = (0, _model.getGameMapState)();
-
-    if (gameMapState[index] === _model.PLACE_TYPE.BRICK) {
-      (0, _model.onRemoveBrick)(index);
-    }
-  }
-
-  _controll.canvasInput.addMouseDownEvent(function (index) {
-    var gameMapState = (0, _model.getGameMapState)();
-
-    if (gameMapState[index] === _model.PLACE_TYPE.BRICK) {
-      isRemove = true;
-      removeBrick(index);
-    } else {
-      isRemove = false;
-      addBrick(index);
-    }
-  });
-
-  _controll.canvasInput.addMouseMoveEvent(function (index) {
-    if (isRemove) {
-      removeBrick(index);
-    } else {
-      addBrick(index);
-    }
-  });
-}
-
-_controll.canvasInput.registerEventRegistar(brickEventRegistar);
-},{"./renderer":"src/renderer.js","./utils":"src/utils.js","./model":"src/model/index.js","./controll":"src/controll.js"}],"src/collision.js":[function(require,module,exports) {
+var addSnake = (0, _effector.createEvent)('add snake to game');
+exports.addSnake = addSnake;
+var removeSnake = (0, _effector.createEvent)('remove snake from game');
+exports.removeSnake = removeSnake;
+var updateSettingForSnake = (0, _effector.createEvent)('upadte setting for snake');
+exports.updateSettingForSnake = updateSettingForSnake;
+},{"effector":"node_modules/effector/effector.es.js"}],"src/collision.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39150,7 +38239,136 @@ function oneToOneCollision(object1, object2, callback) {
     callback(object1);
   }
 }
-},{"./utils":"src/utils.js","./config":"src/config.js"}],"src/updaters.js":[function(require,module,exports) {
+},{"./utils":"src/utils.js","./config":"src/config.js"}],"src/updaters/ai.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ai = ai;
+
+var _algorithms = require("../algorithms");
+
+var _heuristic = require("../algorithms/heuristic");
+
+var _utils = require("../utils");
+
+var _snake = require("../models/snake");
+
+var _collision = require("../collision");
+
+var _controll = require("../controll");
+
+var _config = require("../config");
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function canTraverse(vertex) {
+  return vertex.value === _config.PLACE_TYPE.EMPTY || vertex.value === _config.PLACE_TYPE.FOOD;
+}
+
+function getCostByIndex() {
+  return 1;
+}
+
+function getNearestFood(_ref) {
+  var foods = _ref.foods,
+      graph = _ref.graph,
+      currentPosition = _ref.currentPosition;
+  return foods.filter(function (_ref2) {
+    var _ref3 = _slicedToArray(_ref2, 1),
+        position = _ref3[0];
+
+    return graph.getVertex((0, _utils.getIndexByPosition)(position)).value === _config.PLACE_TYPE.FOOD;
+  }).sort(function (a, b) {
+    return (0, _heuristic.manhattanDistance)(a[0], currentPosition) - (0, _heuristic.manhattanDistance)(b[0], currentPosition);
+  })[0] || foods[0];
+}
+
+function ai(snake, state) {
+  var graph = state.graph,
+      foods = state.foods;
+  var currentPosition = (0, _snake.headSnake)(snake);
+  var nearestFood = getNearestFood({
+    foods: foods,
+    currentPosition: currentPosition,
+    graph: graph
+  });
+  var result = (0, _algorithms.aStar)((0, _utils.getIndexByPosition)(currentPosition), (0, _utils.getIndexByPosition)(nearestFood[0]), graph, {
+    canTraverse: canTraverse,
+    getCostByIndex: getCostByIndex
+  });
+  var pathPositions = result.path.map(_utils.getPositionByIndex);
+  var processedPositions = result.processed.map(_utils.getPositionByIndex);
+  var nextPosition = pathPositions[0] || (0, _collision.checkBounds)((0, _controll.getNextPositionByDirection)((0, _snake.headSnake)(snake), snake.direction));
+  var nextDirection = (0, _controll.getDirectionByPosition)((0, _snake.headSnake)(snake), nextPosition);
+  var diff = (0, _utils.getDifferenceBetweenPositions)((0, _snake.headSnake)(snake), nextPosition);
+  return {
+    nextPosition: nextPosition,
+    nextDirection: diff !== 1 ? snake.direction : nextDirection
+  };
+}
+},{"../algorithms":"src/algorithms/index.js","../algorithms/heuristic":"src/algorithms/heuristic.js","../utils":"src/utils.js","../models/snake":"src/models/snake.js","../collision":"src/collision.js","../controll":"src/controll.js","../config":"src/config.js"}],"src/updaters/user.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.user = user;
+
+var _config = require("../config");
+
+var _controll = require("../controll");
+
+var _collision = require("../collision");
+
+var _keyboard = require("../keyboard");
+
+var _snake = require("../models/snake");
+
+var gameInput = (0, _keyboard.keyboradFactory)();
+
+function user(self) {
+  var headPosition = (0, _controll.getNextPositionByDirection)((0, _snake.headSnake)(self), self.direction);
+  var nextPosition = (0, _collision.checkBounds)(headPosition); // moveSnake({ id: self.id, nextPosition })
+  // if (
+  //   gameInput.isDown(KEYS.RIGHT_ARROW) &&
+  //   self.direction !== DIRECTIONS.LEFT
+  // ) {
+  //   setDirectionForSnake({
+  //     id: self.id,
+  //     direction: DIRECTIONS.RIGHT,
+  //   })
+  // }
+  // if (gameInput.isDown(KEYS.DOWN_ARROW) && self.direction !== DIRECTIONS.TOP) {
+  //   setDirectionForSnake({
+  //     id: self.id,
+  //     direction: DIRECTIONS.DOWN,
+  //   })
+  // }
+  // if (
+  //   gameInput.isDown(KEYS.LEFT_ARROW) &&
+  //   self.direction !== DIRECTIONS.RIGHT
+  // ) {
+  //   setDirectionForSnake({
+  //     id: self.id,
+  //     direction: DIRECTIONS.LEFT,
+  //   })
+  // }
+  // if (gameInput.isDown(KEYS.TOP_ARROW) && self.direction !== DIRECTIONS.DOWN) {
+  //   setDirectionForSnake({
+  //     id: self.id,
+  //     direction: DIRECTIONS.TOP,
+  //   })
+  // }
+}
+},{"../config":"src/config.js","../controll":"src/controll.js","../collision":"src/collision.js","../keyboard":"src/keyboard.js","../models/snake":"src/models/snake.js"}],"src/updaters/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39158,19 +38376,4959 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.updaters = void 0;
 
-var _utils = require("./utils");
+var _ai = require("./ai");
 
-var _config = require("./config");
+var _user = require("./user");
 
-var _controll = require("./controll");
+var updaters = {
+  user: _user.user,
+  ai: _ai.ai
+};
+exports.updaters = updaters;
+},{"./ai":"src/updaters/ai.js","./user":"src/updaters/user.js"}],"src/models/snakes/store.js":[function(require,module,exports) {
+"use strict";
 
-var _collision = require("./collision");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.$isUserInGame = exports.$userSnake = exports.$settingsForSnakes = exports.$snakesIterator = exports.$snakeIdsAsString = exports.$snakes = void 0;
 
-var _snake = require("./model/snake");
+var _effector = require("effector");
+
+var _updaters = require("../../updaters");
+
+var _snake = require("../snake");
+
+var _utils = require("../../utils");
+
+function buildSnakesByCount(count) {
+  var snakes = [];
+
+  for (var i = 1; i <= count; i++) {
+    snakes.push(_snake.Snake.build((0, _utils.randomPosition)(), {
+      colors: (0, _snake.getColorsForSnake)(),
+      id: "ai-".concat(i),
+      isAi: true,
+      updater: _updaters.updaters.ai
+    }));
+  }
+
+  return snakes;
+}
+
+var $snakes = (0, _effector.createStore)(buildSnakesByCount(2));
+exports.$snakes = $snakes;
+var $snakeIdsAsString = $snakes.map(function (snakes) {
+  return snakes.map(function (snake) {
+    return snake.id;
+  }).join(',');
+}, '');
+exports.$snakeIdsAsString = $snakeIdsAsString;
+var $snakesIterator = $snakeIdsAsString.map(function (idsAsString) {
+  return idsAsString.split(',');
+}, []);
+exports.$snakesIterator = $snakesIterator;
+var $settingsForSnakes = $snakesIterator.map(function (ids, settings) {
+  return ids.reduce(function (nextSettiings, id) {
+    if (!settings[id]) {
+      nextSettiings[id] = (0, _snake.buildSettingsForSnake)();
+    }
+
+    return nextSettiings;
+  }, settings);
+}, {});
+exports.$settingsForSnakes = $settingsForSnakes;
+var $userSnake = $snakes.map(function (snakes) {
+  return snakes.find(function (snake) {
+    return snake.id === 'user';
+  });
+});
+exports.$userSnake = $userSnake;
+var $isUserInGame = $userSnake.map(Boolean);
+exports.$isUserInGame = $isUserInGame;
+},{"effector":"node_modules/effector/effector.es.js","../../updaters":"src/updaters/index.js","../snake":"src/models/snake.js","../../utils":"src/utils.js"}],"node_modules/lodash-es/_listCacheClear.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Removes all key-value entries from the list cache.
+ *
+ * @private
+ * @name clear
+ * @memberOf ListCache
+ */
+function listCacheClear() {
+  this.__data__ = [];
+  this.size = 0;
+}
+
+var _default = listCacheClear;
+exports.default = _default;
+},{}],"node_modules/lodash-es/eq.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Performs a
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * comparison between two values to determine if they are equivalent.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ * var other = { 'a': 1 };
+ *
+ * _.eq(object, object);
+ * // => true
+ *
+ * _.eq(object, other);
+ * // => false
+ *
+ * _.eq('a', 'a');
+ * // => true
+ *
+ * _.eq('a', Object('a'));
+ * // => false
+ *
+ * _.eq(NaN, NaN);
+ * // => true
+ */
+function eq(value, other) {
+  return value === other || value !== value && other !== other;
+}
+
+var _default = eq;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_assocIndexOf.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _eq = _interopRequireDefault(require("./eq.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Gets the index at which the `key` is found in `array` of key-value pairs.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} key The key to search for.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function assocIndexOf(array, key) {
+  var length = array.length;
+
+  while (length--) {
+    if ((0, _eq.default)(array[length][0], key)) {
+      return length;
+    }
+  }
+
+  return -1;
+}
+
+var _default = assocIndexOf;
+exports.default = _default;
+},{"./eq.js":"node_modules/lodash-es/eq.js"}],"node_modules/lodash-es/_listCacheDelete.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _assocIndexOf = _interopRequireDefault(require("./_assocIndexOf.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used for built-in method references. */
+var arrayProto = Array.prototype;
+/** Built-in value references. */
+
+var splice = arrayProto.splice;
+/**
+ * Removes `key` and its value from the list cache.
+ *
+ * @private
+ * @name delete
+ * @memberOf ListCache
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+
+function listCacheDelete(key) {
+  var data = this.__data__,
+      index = (0, _assocIndexOf.default)(data, key);
+
+  if (index < 0) {
+    return false;
+  }
+
+  var lastIndex = data.length - 1;
+
+  if (index == lastIndex) {
+    data.pop();
+  } else {
+    splice.call(data, index, 1);
+  }
+
+  --this.size;
+  return true;
+}
+
+var _default = listCacheDelete;
+exports.default = _default;
+},{"./_assocIndexOf.js":"node_modules/lodash-es/_assocIndexOf.js"}],"node_modules/lodash-es/_listCacheGet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _assocIndexOf = _interopRequireDefault(require("./_assocIndexOf.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Gets the list cache value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf ListCache
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function listCacheGet(key) {
+  var data = this.__data__,
+      index = (0, _assocIndexOf.default)(data, key);
+  return index < 0 ? undefined : data[index][1];
+}
+
+var _default = listCacheGet;
+exports.default = _default;
+},{"./_assocIndexOf.js":"node_modules/lodash-es/_assocIndexOf.js"}],"node_modules/lodash-es/_listCacheHas.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _assocIndexOf = _interopRequireDefault(require("./_assocIndexOf.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks if a list cache value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf ListCache
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function listCacheHas(key) {
+  return (0, _assocIndexOf.default)(this.__data__, key) > -1;
+}
+
+var _default = listCacheHas;
+exports.default = _default;
+},{"./_assocIndexOf.js":"node_modules/lodash-es/_assocIndexOf.js"}],"node_modules/lodash-es/_listCacheSet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _assocIndexOf = _interopRequireDefault(require("./_assocIndexOf.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Sets the list cache `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf ListCache
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the list cache instance.
+ */
+function listCacheSet(key, value) {
+  var data = this.__data__,
+      index = (0, _assocIndexOf.default)(data, key);
+
+  if (index < 0) {
+    ++this.size;
+    data.push([key, value]);
+  } else {
+    data[index][1] = value;
+  }
+
+  return this;
+}
+
+var _default = listCacheSet;
+exports.default = _default;
+},{"./_assocIndexOf.js":"node_modules/lodash-es/_assocIndexOf.js"}],"node_modules/lodash-es/_ListCache.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _listCacheClear = _interopRequireDefault(require("./_listCacheClear.js"));
+
+var _listCacheDelete = _interopRequireDefault(require("./_listCacheDelete.js"));
+
+var _listCacheGet = _interopRequireDefault(require("./_listCacheGet.js"));
+
+var _listCacheHas = _interopRequireDefault(require("./_listCacheHas.js"));
+
+var _listCacheSet = _interopRequireDefault(require("./_listCacheSet.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates an list cache object.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function ListCache(entries) {
+  var index = -1,
+      length = entries == null ? 0 : entries.length;
+  this.clear();
+
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+} // Add methods to `ListCache`.
+
+
+ListCache.prototype.clear = _listCacheClear.default;
+ListCache.prototype['delete'] = _listCacheDelete.default;
+ListCache.prototype.get = _listCacheGet.default;
+ListCache.prototype.has = _listCacheHas.default;
+ListCache.prototype.set = _listCacheSet.default;
+var _default = ListCache;
+exports.default = _default;
+},{"./_listCacheClear.js":"node_modules/lodash-es/_listCacheClear.js","./_listCacheDelete.js":"node_modules/lodash-es/_listCacheDelete.js","./_listCacheGet.js":"node_modules/lodash-es/_listCacheGet.js","./_listCacheHas.js":"node_modules/lodash-es/_listCacheHas.js","./_listCacheSet.js":"node_modules/lodash-es/_listCacheSet.js"}],"node_modules/lodash-es/_stackClear.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _ListCache = _interopRequireDefault(require("./_ListCache.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Removes all key-value entries from the stack.
+ *
+ * @private
+ * @name clear
+ * @memberOf Stack
+ */
+function stackClear() {
+  this.__data__ = new _ListCache.default();
+  this.size = 0;
+}
+
+var _default = stackClear;
+exports.default = _default;
+},{"./_ListCache.js":"node_modules/lodash-es/_ListCache.js"}],"node_modules/lodash-es/_stackDelete.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Removes `key` and its value from the stack.
+ *
+ * @private
+ * @name delete
+ * @memberOf Stack
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function stackDelete(key) {
+  var data = this.__data__,
+      result = data['delete'](key);
+  this.size = data.size;
+  return result;
+}
+
+var _default = stackDelete;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_stackGet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Gets the stack value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf Stack
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function stackGet(key) {
+  return this.__data__.get(key);
+}
+
+var _default = stackGet;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_stackHas.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if a stack value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf Stack
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function stackHas(key) {
+  return this.__data__.has(key);
+}
+
+var _default = stackHas;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_freeGlobal.js":[function(require,module,exports) {
+var global = arguments[3];
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+var _default = freeGlobal;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_root.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _freeGlobal = _interopRequireDefault(require("./_freeGlobal.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+/** Used as a reference to the global object. */
+
+var root = _freeGlobal.default || freeSelf || Function('return this')();
+var _default = root;
+exports.default = _default;
+},{"./_freeGlobal.js":"node_modules/lodash-es/_freeGlobal.js"}],"node_modules/lodash-es/_Symbol.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Built-in value references. */
+var Symbol = _root.default.Symbol;
+var _default = Symbol;
+exports.default = _default;
+},{"./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_getRawTag.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Symbol = _interopRequireDefault(require("./_Symbol.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+
+var nativeObjectToString = objectProto.toString;
+/** Built-in value references. */
+
+var symToStringTag = _Symbol.default ? _Symbol.default.toStringTag : undefined;
+/**
+ * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the raw `toStringTag`.
+ */
+
+function getRawTag(value) {
+  var isOwn = hasOwnProperty.call(value, symToStringTag),
+      tag = value[symToStringTag];
+
+  try {
+    value[symToStringTag] = undefined;
+    var unmasked = true;
+  } catch (e) {}
+
+  var result = nativeObjectToString.call(value);
+
+  if (unmasked) {
+    if (isOwn) {
+      value[symToStringTag] = tag;
+    } else {
+      delete value[symToStringTag];
+    }
+  }
+
+  return result;
+}
+
+var _default = getRawTag;
+exports.default = _default;
+},{"./_Symbol.js":"node_modules/lodash-es/_Symbol.js"}],"node_modules/lodash-es/_objectToString.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+
+var nativeObjectToString = objectProto.toString;
+/**
+ * Converts `value` to a string using `Object.prototype.toString`.
+ *
+ * @private
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ */
+
+function objectToString(value) {
+  return nativeObjectToString.call(value);
+}
+
+var _default = objectToString;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseGetTag.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Symbol = _interopRequireDefault(require("./_Symbol.js"));
+
+var _getRawTag = _interopRequireDefault(require("./_getRawTag.js"));
+
+var _objectToString = _interopRequireDefault(require("./_objectToString.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var nullTag = '[object Null]',
+    undefinedTag = '[object Undefined]';
+/** Built-in value references. */
+
+var symToStringTag = _Symbol.default ? _Symbol.default.toStringTag : undefined;
+/**
+ * The base implementation of `getTag` without fallbacks for buggy environments.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+
+function baseGetTag(value) {
+  if (value == null) {
+    return value === undefined ? undefinedTag : nullTag;
+  }
+
+  return symToStringTag && symToStringTag in Object(value) ? (0, _getRawTag.default)(value) : (0, _objectToString.default)(value);
+}
+
+var _default = baseGetTag;
+exports.default = _default;
+},{"./_Symbol.js":"node_modules/lodash-es/_Symbol.js","./_getRawTag.js":"node_modules/lodash-es/_getRawTag.js","./_objectToString.js":"node_modules/lodash-es/_objectToString.js"}],"node_modules/lodash-es/isObject.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return value != null && (type == 'object' || type == 'function');
+}
+
+var _default = isObject;
+exports.default = _default;
+},{}],"node_modules/lodash-es/isFunction.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
+
+var _isObject = _interopRequireDefault(require("./isObject.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var asyncTag = '[object AsyncFunction]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    proxyTag = '[object Proxy]';
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+
+function isFunction(value) {
+  if (!(0, _isObject.default)(value)) {
+    return false;
+  } // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 9 which returns 'object' for typed arrays and other constructors.
+
+
+  var tag = (0, _baseGetTag.default)(value);
+  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+}
+
+var _default = isFunction;
+exports.default = _default;
+},{"./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./isObject.js":"node_modules/lodash-es/isObject.js"}],"node_modules/lodash-es/_coreJsData.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to detect overreaching core-js shims. */
+var coreJsData = _root.default['__core-js_shared__'];
+var _default = coreJsData;
+exports.default = _default;
+},{"./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_isMasked.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _coreJsData = _interopRequireDefault(require("./_coreJsData.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to detect methods masquerading as native. */
+var maskSrcKey = function () {
+  var uid = /[^.]+$/.exec(_coreJsData.default && _coreJsData.default.keys && _coreJsData.default.keys.IE_PROTO || '');
+  return uid ? 'Symbol(src)_1.' + uid : '';
+}();
+/**
+ * Checks if `func` has its source masked.
+ *
+ * @private
+ * @param {Function} func The function to check.
+ * @returns {boolean} Returns `true` if `func` is masked, else `false`.
+ */
+
+
+function isMasked(func) {
+  return !!maskSrcKey && maskSrcKey in func;
+}
+
+var _default = isMasked;
+exports.default = _default;
+},{"./_coreJsData.js":"node_modules/lodash-es/_coreJsData.js"}],"node_modules/lodash-es/_toSource.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used for built-in method references. */
+var funcProto = Function.prototype;
+/** Used to resolve the decompiled source of functions. */
+
+var funcToString = funcProto.toString;
+/**
+ * Converts `func` to its source code.
+ *
+ * @private
+ * @param {Function} func The function to convert.
+ * @returns {string} Returns the source code.
+ */
+
+function toSource(func) {
+  if (func != null) {
+    try {
+      return funcToString.call(func);
+    } catch (e) {}
+
+    try {
+      return func + '';
+    } catch (e) {}
+  }
+
+  return '';
+}
+
+var _default = toSource;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseIsNative.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isFunction = _interopRequireDefault(require("./isFunction.js"));
+
+var _isMasked = _interopRequireDefault(require("./_isMasked.js"));
+
+var _isObject = _interopRequireDefault(require("./isObject.js"));
+
+var _toSource = _interopRequireDefault(require("./_toSource.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Used to match `RegExp`
+ * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
+ */
+var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+/** Used to detect host constructors (Safari). */
+
+var reIsHostCtor = /^\[object .+?Constructor\]$/;
+/** Used for built-in method references. */
+
+var funcProto = Function.prototype,
+    objectProto = Object.prototype;
+/** Used to resolve the decompiled source of functions. */
+
+var funcToString = funcProto.toString;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/** Used to detect if a method is native. */
+
+var reIsNative = RegExp('^' + funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&').replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$');
+/**
+ * The base implementation of `_.isNative` without bad shim checks.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a native function,
+ *  else `false`.
+ */
+
+function baseIsNative(value) {
+  if (!(0, _isObject.default)(value) || (0, _isMasked.default)(value)) {
+    return false;
+  }
+
+  var pattern = (0, _isFunction.default)(value) ? reIsNative : reIsHostCtor;
+  return pattern.test((0, _toSource.default)(value));
+}
+
+var _default = baseIsNative;
+exports.default = _default;
+},{"./isFunction.js":"node_modules/lodash-es/isFunction.js","./_isMasked.js":"node_modules/lodash-es/_isMasked.js","./isObject.js":"node_modules/lodash-es/isObject.js","./_toSource.js":"node_modules/lodash-es/_toSource.js"}],"node_modules/lodash-es/_getValue.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Gets the value at `key` of `object`.
+ *
+ * @private
+ * @param {Object} [object] The object to query.
+ * @param {string} key The key of the property to get.
+ * @returns {*} Returns the property value.
+ */
+function getValue(object, key) {
+  return object == null ? undefined : object[key];
+}
+
+var _default = getValue;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_getNative.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseIsNative = _interopRequireDefault(require("./_baseIsNative.js"));
+
+var _getValue = _interopRequireDefault(require("./_getValue.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Gets the native function at `key` of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {string} key The key of the method to get.
+ * @returns {*} Returns the function if it's native, else `undefined`.
+ */
+function getNative(object, key) {
+  var value = (0, _getValue.default)(object, key);
+  return (0, _baseIsNative.default)(value) ? value : undefined;
+}
+
+var _default = getNative;
+exports.default = _default;
+},{"./_baseIsNative.js":"node_modules/lodash-es/_baseIsNative.js","./_getValue.js":"node_modules/lodash-es/_getValue.js"}],"node_modules/lodash-es/_Map.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getNative = _interopRequireDefault(require("./_getNative.js"));
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* Built-in method references that are verified to be native. */
+var Map = (0, _getNative.default)(_root.default, 'Map');
+var _default = Map;
+exports.default = _default;
+},{"./_getNative.js":"node_modules/lodash-es/_getNative.js","./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_nativeCreate.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getNative = _interopRequireDefault(require("./_getNative.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* Built-in method references that are verified to be native. */
+var nativeCreate = (0, _getNative.default)(Object, 'create');
+var _default = nativeCreate;
+exports.default = _default;
+},{"./_getNative.js":"node_modules/lodash-es/_getNative.js"}],"node_modules/lodash-es/_hashClear.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _nativeCreate = _interopRequireDefault(require("./_nativeCreate.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Removes all key-value entries from the hash.
+ *
+ * @private
+ * @name clear
+ * @memberOf Hash
+ */
+function hashClear() {
+  this.__data__ = _nativeCreate.default ? (0, _nativeCreate.default)(null) : {};
+  this.size = 0;
+}
+
+var _default = hashClear;
+exports.default = _default;
+},{"./_nativeCreate.js":"node_modules/lodash-es/_nativeCreate.js"}],"node_modules/lodash-es/_hashDelete.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Removes `key` and its value from the hash.
+ *
+ * @private
+ * @name delete
+ * @memberOf Hash
+ * @param {Object} hash The hash to modify.
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function hashDelete(key) {
+  var result = this.has(key) && delete this.__data__[key];
+  this.size -= result ? 1 : 0;
+  return result;
+}
+
+var _default = hashDelete;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_hashGet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _nativeCreate = _interopRequireDefault(require("./_nativeCreate.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to stand-in for `undefined` hash values. */
+var HASH_UNDEFINED = '__lodash_hash_undefined__';
+/** Used for built-in method references. */
+
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/**
+ * Gets the hash value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf Hash
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+
+function hashGet(key) {
+  var data = this.__data__;
+
+  if (_nativeCreate.default) {
+    var result = data[key];
+    return result === HASH_UNDEFINED ? undefined : result;
+  }
+
+  return hasOwnProperty.call(data, key) ? data[key] : undefined;
+}
+
+var _default = hashGet;
+exports.default = _default;
+},{"./_nativeCreate.js":"node_modules/lodash-es/_nativeCreate.js"}],"node_modules/lodash-es/_hashHas.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _nativeCreate = _interopRequireDefault(require("./_nativeCreate.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/**
+ * Checks if a hash value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf Hash
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+
+function hashHas(key) {
+  var data = this.__data__;
+  return _nativeCreate.default ? data[key] !== undefined : hasOwnProperty.call(data, key);
+}
+
+var _default = hashHas;
+exports.default = _default;
+},{"./_nativeCreate.js":"node_modules/lodash-es/_nativeCreate.js"}],"node_modules/lodash-es/_hashSet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _nativeCreate = _interopRequireDefault(require("./_nativeCreate.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to stand-in for `undefined` hash values. */
+var HASH_UNDEFINED = '__lodash_hash_undefined__';
+/**
+ * Sets the hash `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf Hash
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the hash instance.
+ */
+
+function hashSet(key, value) {
+  var data = this.__data__;
+  this.size += this.has(key) ? 0 : 1;
+  data[key] = _nativeCreate.default && value === undefined ? HASH_UNDEFINED : value;
+  return this;
+}
+
+var _default = hashSet;
+exports.default = _default;
+},{"./_nativeCreate.js":"node_modules/lodash-es/_nativeCreate.js"}],"node_modules/lodash-es/_Hash.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _hashClear = _interopRequireDefault(require("./_hashClear.js"));
+
+var _hashDelete = _interopRequireDefault(require("./_hashDelete.js"));
+
+var _hashGet = _interopRequireDefault(require("./_hashGet.js"));
+
+var _hashHas = _interopRequireDefault(require("./_hashHas.js"));
+
+var _hashSet = _interopRequireDefault(require("./_hashSet.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates a hash object.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function Hash(entries) {
+  var index = -1,
+      length = entries == null ? 0 : entries.length;
+  this.clear();
+
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+} // Add methods to `Hash`.
+
+
+Hash.prototype.clear = _hashClear.default;
+Hash.prototype['delete'] = _hashDelete.default;
+Hash.prototype.get = _hashGet.default;
+Hash.prototype.has = _hashHas.default;
+Hash.prototype.set = _hashSet.default;
+var _default = Hash;
+exports.default = _default;
+},{"./_hashClear.js":"node_modules/lodash-es/_hashClear.js","./_hashDelete.js":"node_modules/lodash-es/_hashDelete.js","./_hashGet.js":"node_modules/lodash-es/_hashGet.js","./_hashHas.js":"node_modules/lodash-es/_hashHas.js","./_hashSet.js":"node_modules/lodash-es/_hashSet.js"}],"node_modules/lodash-es/_mapCacheClear.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Hash = _interopRequireDefault(require("./_Hash.js"));
+
+var _ListCache = _interopRequireDefault(require("./_ListCache.js"));
+
+var _Map = _interopRequireDefault(require("./_Map.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Removes all key-value entries from the map.
+ *
+ * @private
+ * @name clear
+ * @memberOf MapCache
+ */
+function mapCacheClear() {
+  this.size = 0;
+  this.__data__ = {
+    'hash': new _Hash.default(),
+    'map': new (_Map.default || _ListCache.default)(),
+    'string': new _Hash.default()
+  };
+}
+
+var _default = mapCacheClear;
+exports.default = _default;
+},{"./_Hash.js":"node_modules/lodash-es/_Hash.js","./_ListCache.js":"node_modules/lodash-es/_ListCache.js","./_Map.js":"node_modules/lodash-es/_Map.js"}],"node_modules/lodash-es/_isKeyable.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if `value` is suitable for use as unique object key.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
+ */
+function isKeyable(value) {
+  var type = typeof value;
+  return type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean' ? value !== '__proto__' : value === null;
+}
+
+var _default = isKeyable;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_getMapData.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isKeyable = _interopRequireDefault(require("./_isKeyable.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Gets the data for `map`.
+ *
+ * @private
+ * @param {Object} map The map to query.
+ * @param {string} key The reference key.
+ * @returns {*} Returns the map data.
+ */
+function getMapData(map, key) {
+  var data = map.__data__;
+  return (0, _isKeyable.default)(key) ? data[typeof key == 'string' ? 'string' : 'hash'] : data.map;
+}
+
+var _default = getMapData;
+exports.default = _default;
+},{"./_isKeyable.js":"node_modules/lodash-es/_isKeyable.js"}],"node_modules/lodash-es/_mapCacheDelete.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getMapData = _interopRequireDefault(require("./_getMapData.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Removes `key` and its value from the map.
+ *
+ * @private
+ * @name delete
+ * @memberOf MapCache
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function mapCacheDelete(key) {
+  var result = (0, _getMapData.default)(this, key)['delete'](key);
+  this.size -= result ? 1 : 0;
+  return result;
+}
+
+var _default = mapCacheDelete;
+exports.default = _default;
+},{"./_getMapData.js":"node_modules/lodash-es/_getMapData.js"}],"node_modules/lodash-es/_mapCacheGet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getMapData = _interopRequireDefault(require("./_getMapData.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Gets the map value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf MapCache
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function mapCacheGet(key) {
+  return (0, _getMapData.default)(this, key).get(key);
+}
+
+var _default = mapCacheGet;
+exports.default = _default;
+},{"./_getMapData.js":"node_modules/lodash-es/_getMapData.js"}],"node_modules/lodash-es/_mapCacheHas.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getMapData = _interopRequireDefault(require("./_getMapData.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks if a map value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf MapCache
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function mapCacheHas(key) {
+  return (0, _getMapData.default)(this, key).has(key);
+}
+
+var _default = mapCacheHas;
+exports.default = _default;
+},{"./_getMapData.js":"node_modules/lodash-es/_getMapData.js"}],"node_modules/lodash-es/_mapCacheSet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getMapData = _interopRequireDefault(require("./_getMapData.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Sets the map `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf MapCache
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the map cache instance.
+ */
+function mapCacheSet(key, value) {
+  var data = (0, _getMapData.default)(this, key),
+      size = data.size;
+  data.set(key, value);
+  this.size += data.size == size ? 0 : 1;
+  return this;
+}
+
+var _default = mapCacheSet;
+exports.default = _default;
+},{"./_getMapData.js":"node_modules/lodash-es/_getMapData.js"}],"node_modules/lodash-es/_MapCache.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mapCacheClear = _interopRequireDefault(require("./_mapCacheClear.js"));
+
+var _mapCacheDelete = _interopRequireDefault(require("./_mapCacheDelete.js"));
+
+var _mapCacheGet = _interopRequireDefault(require("./_mapCacheGet.js"));
+
+var _mapCacheHas = _interopRequireDefault(require("./_mapCacheHas.js"));
+
+var _mapCacheSet = _interopRequireDefault(require("./_mapCacheSet.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates a map cache object to store key-value pairs.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function MapCache(entries) {
+  var index = -1,
+      length = entries == null ? 0 : entries.length;
+  this.clear();
+
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+} // Add methods to `MapCache`.
+
+
+MapCache.prototype.clear = _mapCacheClear.default;
+MapCache.prototype['delete'] = _mapCacheDelete.default;
+MapCache.prototype.get = _mapCacheGet.default;
+MapCache.prototype.has = _mapCacheHas.default;
+MapCache.prototype.set = _mapCacheSet.default;
+var _default = MapCache;
+exports.default = _default;
+},{"./_mapCacheClear.js":"node_modules/lodash-es/_mapCacheClear.js","./_mapCacheDelete.js":"node_modules/lodash-es/_mapCacheDelete.js","./_mapCacheGet.js":"node_modules/lodash-es/_mapCacheGet.js","./_mapCacheHas.js":"node_modules/lodash-es/_mapCacheHas.js","./_mapCacheSet.js":"node_modules/lodash-es/_mapCacheSet.js"}],"node_modules/lodash-es/_stackSet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _ListCache = _interopRequireDefault(require("./_ListCache.js"));
+
+var _Map = _interopRequireDefault(require("./_Map.js"));
+
+var _MapCache = _interopRequireDefault(require("./_MapCache.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used as the size to enable large array optimizations. */
+var LARGE_ARRAY_SIZE = 200;
+/**
+ * Sets the stack `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf Stack
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the stack cache instance.
+ */
+
+function stackSet(key, value) {
+  var data = this.__data__;
+
+  if (data instanceof _ListCache.default) {
+    var pairs = data.__data__;
+
+    if (!_Map.default || pairs.length < LARGE_ARRAY_SIZE - 1) {
+      pairs.push([key, value]);
+      this.size = ++data.size;
+      return this;
+    }
+
+    data = this.__data__ = new _MapCache.default(pairs);
+  }
+
+  data.set(key, value);
+  this.size = data.size;
+  return this;
+}
+
+var _default = stackSet;
+exports.default = _default;
+},{"./_ListCache.js":"node_modules/lodash-es/_ListCache.js","./_Map.js":"node_modules/lodash-es/_Map.js","./_MapCache.js":"node_modules/lodash-es/_MapCache.js"}],"node_modules/lodash-es/_Stack.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _ListCache = _interopRequireDefault(require("./_ListCache.js"));
+
+var _stackClear = _interopRequireDefault(require("./_stackClear.js"));
+
+var _stackDelete = _interopRequireDefault(require("./_stackDelete.js"));
+
+var _stackGet = _interopRequireDefault(require("./_stackGet.js"));
+
+var _stackHas = _interopRequireDefault(require("./_stackHas.js"));
+
+var _stackSet = _interopRequireDefault(require("./_stackSet.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates a stack cache object to store key-value pairs.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function Stack(entries) {
+  var data = this.__data__ = new _ListCache.default(entries);
+  this.size = data.size;
+} // Add methods to `Stack`.
+
+
+Stack.prototype.clear = _stackClear.default;
+Stack.prototype['delete'] = _stackDelete.default;
+Stack.prototype.get = _stackGet.default;
+Stack.prototype.has = _stackHas.default;
+Stack.prototype.set = _stackSet.default;
+var _default = Stack;
+exports.default = _default;
+},{"./_ListCache.js":"node_modules/lodash-es/_ListCache.js","./_stackClear.js":"node_modules/lodash-es/_stackClear.js","./_stackDelete.js":"node_modules/lodash-es/_stackDelete.js","./_stackGet.js":"node_modules/lodash-es/_stackGet.js","./_stackHas.js":"node_modules/lodash-es/_stackHas.js","./_stackSet.js":"node_modules/lodash-es/_stackSet.js"}],"node_modules/lodash-es/_setCacheAdd.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used to stand-in for `undefined` hash values. */
+var HASH_UNDEFINED = '__lodash_hash_undefined__';
+/**
+ * Adds `value` to the array cache.
+ *
+ * @private
+ * @name add
+ * @memberOf SetCache
+ * @alias push
+ * @param {*} value The value to cache.
+ * @returns {Object} Returns the cache instance.
+ */
+
+function setCacheAdd(value) {
+  this.__data__.set(value, HASH_UNDEFINED);
+
+  return this;
+}
+
+var _default = setCacheAdd;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_setCacheHas.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if `value` is in the array cache.
+ *
+ * @private
+ * @name has
+ * @memberOf SetCache
+ * @param {*} value The value to search for.
+ * @returns {number} Returns `true` if `value` is found, else `false`.
+ */
+function setCacheHas(value) {
+  return this.__data__.has(value);
+}
+
+var _default = setCacheHas;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_SetCache.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _MapCache = _interopRequireDefault(require("./_MapCache.js"));
+
+var _setCacheAdd = _interopRequireDefault(require("./_setCacheAdd.js"));
+
+var _setCacheHas = _interopRequireDefault(require("./_setCacheHas.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ *
+ * Creates an array cache object to store unique values.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [values] The values to cache.
+ */
+function SetCache(values) {
+  var index = -1,
+      length = values == null ? 0 : values.length;
+  this.__data__ = new _MapCache.default();
+
+  while (++index < length) {
+    this.add(values[index]);
+  }
+} // Add methods to `SetCache`.
+
+
+SetCache.prototype.add = SetCache.prototype.push = _setCacheAdd.default;
+SetCache.prototype.has = _setCacheHas.default;
+var _default = SetCache;
+exports.default = _default;
+},{"./_MapCache.js":"node_modules/lodash-es/_MapCache.js","./_setCacheAdd.js":"node_modules/lodash-es/_setCacheAdd.js","./_setCacheHas.js":"node_modules/lodash-es/_setCacheHas.js"}],"node_modules/lodash-es/_arraySome.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * A specialized version of `_.some` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {boolean} Returns `true` if any element passes the predicate check,
+ *  else `false`.
+ */
+function arraySome(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  while (++index < length) {
+    if (predicate(array[index], index, array)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+var _default = arraySome;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_cacheHas.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if a `cache` value for `key` exists.
+ *
+ * @private
+ * @param {Object} cache The cache to query.
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function cacheHas(cache, key) {
+  return cache.has(key);
+}
+
+var _default = cacheHas;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_equalArrays.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _SetCache = _interopRequireDefault(require("./_SetCache.js"));
+
+var _arraySome = _interopRequireDefault(require("./_arraySome.js"));
+
+var _cacheHas = _interopRequireDefault(require("./_cacheHas.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG = 1,
+    COMPARE_UNORDERED_FLAG = 2;
+/**
+ * A specialized version of `baseIsEqualDeep` for arrays with support for
+ * partial deep comparisons.
+ *
+ * @private
+ * @param {Array} array The array to compare.
+ * @param {Array} other The other array to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `array` and `other` objects.
+ * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
+ */
+
+function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
+  var isPartial = bitmask & COMPARE_PARTIAL_FLAG,
+      arrLength = array.length,
+      othLength = other.length;
+
+  if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
+    return false;
+  } // Assume cyclic values are equal.
+
+
+  var stacked = stack.get(array);
+
+  if (stacked && stack.get(other)) {
+    return stacked == other;
+  }
+
+  var index = -1,
+      result = true,
+      seen = bitmask & COMPARE_UNORDERED_FLAG ? new _SetCache.default() : undefined;
+  stack.set(array, other);
+  stack.set(other, array); // Ignore non-index properties.
+
+  while (++index < arrLength) {
+    var arrValue = array[index],
+        othValue = other[index];
+
+    if (customizer) {
+      var compared = isPartial ? customizer(othValue, arrValue, index, other, array, stack) : customizer(arrValue, othValue, index, array, other, stack);
+    }
+
+    if (compared !== undefined) {
+      if (compared) {
+        continue;
+      }
+
+      result = false;
+      break;
+    } // Recursively compare arrays (susceptible to call stack limits).
+
+
+    if (seen) {
+      if (!(0, _arraySome.default)(other, function (othValue, othIndex) {
+        if (!(0, _cacheHas.default)(seen, othIndex) && (arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
+          return seen.push(othIndex);
+        }
+      })) {
+        result = false;
+        break;
+      }
+    } else if (!(arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
+      result = false;
+      break;
+    }
+  }
+
+  stack['delete'](array);
+  stack['delete'](other);
+  return result;
+}
+
+var _default = equalArrays;
+exports.default = _default;
+},{"./_SetCache.js":"node_modules/lodash-es/_SetCache.js","./_arraySome.js":"node_modules/lodash-es/_arraySome.js","./_cacheHas.js":"node_modules/lodash-es/_cacheHas.js"}],"node_modules/lodash-es/_Uint8Array.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Built-in value references. */
+var Uint8Array = _root.default.Uint8Array;
+var _default = Uint8Array;
+exports.default = _default;
+},{"./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_mapToArray.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Converts `map` to its key-value pairs.
+ *
+ * @private
+ * @param {Object} map The map to convert.
+ * @returns {Array} Returns the key-value pairs.
+ */
+function mapToArray(map) {
+  var index = -1,
+      result = Array(map.size);
+  map.forEach(function (value, key) {
+    result[++index] = [key, value];
+  });
+  return result;
+}
+
+var _default = mapToArray;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_setToArray.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Converts `set` to an array of its values.
+ *
+ * @private
+ * @param {Object} set The set to convert.
+ * @returns {Array} Returns the values.
+ */
+function setToArray(set) {
+  var index = -1,
+      result = Array(set.size);
+  set.forEach(function (value) {
+    result[++index] = value;
+  });
+  return result;
+}
+
+var _default = setToArray;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_equalByTag.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Symbol = _interopRequireDefault(require("./_Symbol.js"));
+
+var _Uint8Array = _interopRequireDefault(require("./_Uint8Array.js"));
+
+var _eq = _interopRequireDefault(require("./eq.js"));
+
+var _equalArrays = _interopRequireDefault(require("./_equalArrays.js"));
+
+var _mapToArray = _interopRequireDefault(require("./_mapToArray.js"));
+
+var _setToArray = _interopRequireDefault(require("./_setToArray.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG = 1,
+    COMPARE_UNORDERED_FLAG = 2;
+/** `Object#toString` result references. */
+
+var boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    mapTag = '[object Map]',
+    numberTag = '[object Number]',
+    regexpTag = '[object RegExp]',
+    setTag = '[object Set]',
+    stringTag = '[object String]',
+    symbolTag = '[object Symbol]';
+var arrayBufferTag = '[object ArrayBuffer]',
+    dataViewTag = '[object DataView]';
+/** Used to convert symbols to primitives and strings. */
+
+var symbolProto = _Symbol.default ? _Symbol.default.prototype : undefined,
+    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
+/**
+ * A specialized version of `baseIsEqualDeep` for comparing objects of
+ * the same `toStringTag`.
+ *
+ * **Note:** This function only supports comparing values with tags of
+ * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {string} tag The `toStringTag` of the objects to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+
+function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
+  switch (tag) {
+    case dataViewTag:
+      if (object.byteLength != other.byteLength || object.byteOffset != other.byteOffset) {
+        return false;
+      }
+
+      object = object.buffer;
+      other = other.buffer;
+
+    case arrayBufferTag:
+      if (object.byteLength != other.byteLength || !equalFunc(new _Uint8Array.default(object), new _Uint8Array.default(other))) {
+        return false;
+      }
+
+      return true;
+
+    case boolTag:
+    case dateTag:
+    case numberTag:
+      // Coerce booleans to `1` or `0` and dates to milliseconds.
+      // Invalid dates are coerced to `NaN`.
+      return (0, _eq.default)(+object, +other);
+
+    case errorTag:
+      return object.name == other.name && object.message == other.message;
+
+    case regexpTag:
+    case stringTag:
+      // Coerce regexes to strings and treat strings, primitives and objects,
+      // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
+      // for more details.
+      return object == other + '';
+
+    case mapTag:
+      var convert = _mapToArray.default;
+
+    case setTag:
+      var isPartial = bitmask & COMPARE_PARTIAL_FLAG;
+      convert || (convert = _setToArray.default);
+
+      if (object.size != other.size && !isPartial) {
+        return false;
+      } // Assume cyclic values are equal.
+
+
+      var stacked = stack.get(object);
+
+      if (stacked) {
+        return stacked == other;
+      }
+
+      bitmask |= COMPARE_UNORDERED_FLAG; // Recursively compare objects (susceptible to call stack limits).
+
+      stack.set(object, other);
+      var result = (0, _equalArrays.default)(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
+      stack['delete'](object);
+      return result;
+
+    case symbolTag:
+      if (symbolValueOf) {
+        return symbolValueOf.call(object) == symbolValueOf.call(other);
+      }
+
+  }
+
+  return false;
+}
+
+var _default = equalByTag;
+exports.default = _default;
+},{"./_Symbol.js":"node_modules/lodash-es/_Symbol.js","./_Uint8Array.js":"node_modules/lodash-es/_Uint8Array.js","./eq.js":"node_modules/lodash-es/eq.js","./_equalArrays.js":"node_modules/lodash-es/_equalArrays.js","./_mapToArray.js":"node_modules/lodash-es/_mapToArray.js","./_setToArray.js":"node_modules/lodash-es/_setToArray.js"}],"node_modules/lodash-es/_arrayPush.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Appends the elements of `values` to `array`.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {Array} values The values to append.
+ * @returns {Array} Returns `array`.
+ */
+function arrayPush(array, values) {
+  var index = -1,
+      length = values.length,
+      offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index];
+  }
+
+  return array;
+}
+
+var _default = arrayPush;
+exports.default = _default;
+},{}],"node_modules/lodash-es/isArray.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+var _default = isArray;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseGetAllKeys.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _arrayPush = _interopRequireDefault(require("./_arrayPush.js"));
+
+var _isArray = _interopRequireDefault(require("./isArray.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
+ * `keysFunc` and `symbolsFunc` to get the enumerable property names and
+ * symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Function} keysFunc The function to get the keys of `object`.
+ * @param {Function} symbolsFunc The function to get the symbols of `object`.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function baseGetAllKeys(object, keysFunc, symbolsFunc) {
+  var result = keysFunc(object);
+  return (0, _isArray.default)(object) ? result : (0, _arrayPush.default)(result, symbolsFunc(object));
+}
+
+var _default = baseGetAllKeys;
+exports.default = _default;
+},{"./_arrayPush.js":"node_modules/lodash-es/_arrayPush.js","./isArray.js":"node_modules/lodash-es/isArray.js"}],"node_modules/lodash-es/_arrayFilter.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * A specialized version of `_.filter` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {Array} Returns the new filtered array.
+ */
+function arrayFilter(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      resIndex = 0,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+
+    if (predicate(value, index, array)) {
+      result[resIndex++] = value;
+    }
+  }
+
+  return result;
+}
+
+var _default = arrayFilter;
+exports.default = _default;
+},{}],"node_modules/lodash-es/stubArray.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * This method returns a new empty array.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {Array} Returns the new empty array.
+ * @example
+ *
+ * var arrays = _.times(2, _.stubArray);
+ *
+ * console.log(arrays);
+ * // => [[], []]
+ *
+ * console.log(arrays[0] === arrays[1]);
+ * // => false
+ */
+function stubArray() {
+  return [];
+}
+
+var _default = stubArray;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_getSymbols.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _arrayFilter = _interopRequireDefault(require("./_arrayFilter.js"));
+
+var _stubArray = _interopRequireDefault(require("./stubArray.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/** Built-in value references. */
+
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+/* Built-in method references for those with the same name as other `lodash` methods. */
+
+var nativeGetSymbols = Object.getOwnPropertySymbols;
+/**
+ * Creates an array of the own enumerable symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of symbols.
+ */
+
+var getSymbols = !nativeGetSymbols ? _stubArray.default : function (object) {
+  if (object == null) {
+    return [];
+  }
+
+  object = Object(object);
+  return (0, _arrayFilter.default)(nativeGetSymbols(object), function (symbol) {
+    return propertyIsEnumerable.call(object, symbol);
+  });
+};
+var _default = getSymbols;
+exports.default = _default;
+},{"./_arrayFilter.js":"node_modules/lodash-es/_arrayFilter.js","./stubArray.js":"node_modules/lodash-es/stubArray.js"}],"node_modules/lodash-es/_baseTimes.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * The base implementation of `_.times` without support for iteratee shorthands
+ * or max array length checks.
+ *
+ * @private
+ * @param {number} n The number of times to invoke `iteratee`.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the array of results.
+ */
+function baseTimes(n, iteratee) {
+  var index = -1,
+      result = Array(n);
+
+  while (++index < n) {
+    result[index] = iteratee(index);
+  }
+
+  return result;
+}
+
+var _default = baseTimes;
+exports.default = _default;
+},{}],"node_modules/lodash-es/isObjectLike.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return value != null && typeof value == 'object';
+}
+
+var _default = isObjectLike;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseIsArguments.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
+
+var _isObjectLike = _interopRequireDefault(require("./isObjectLike.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]';
+/**
+ * The base implementation of `_.isArguments`.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ */
+
+function baseIsArguments(value) {
+  return (0, _isObjectLike.default)(value) && (0, _baseGetTag.default)(value) == argsTag;
+}
+
+var _default = baseIsArguments;
+exports.default = _default;
+},{"./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./isObjectLike.js":"node_modules/lodash-es/isObjectLike.js"}],"node_modules/lodash-es/isArguments.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseIsArguments = _interopRequireDefault(require("./_baseIsArguments.js"));
+
+var _isObjectLike = _interopRequireDefault(require("./isObjectLike.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/** Built-in value references. */
+
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+
+var isArguments = (0, _baseIsArguments.default)(function () {
+  return arguments;
+}()) ? _baseIsArguments.default : function (value) {
+  return (0, _isObjectLike.default)(value) && hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
+};
+var _default = isArguments;
+exports.default = _default;
+},{"./_baseIsArguments.js":"node_modules/lodash-es/_baseIsArguments.js","./isObjectLike.js":"node_modules/lodash-es/isObjectLike.js"}],"node_modules/lodash-es/stubFalse.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * This method returns `false`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {boolean} Returns `false`.
+ * @example
+ *
+ * _.times(2, _.stubFalse);
+ * // => [false, false]
+ */
+function stubFalse() {
+  return false;
+}
+
+var _default = stubFalse;
+exports.default = _default;
+},{}],"node_modules/lodash-es/isBuffer.js":[function(require,module,exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+var _stubFalse = _interopRequireDefault(require("./stubFalse.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Detect free variable `exports`. */
+var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+/** Detect free variable `module`. */
+
+var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+/** Detect the popular CommonJS extension `module.exports`. */
+
+var moduleExports = freeModule && freeModule.exports === freeExports;
+/** Built-in value references. */
+
+var Buffer = moduleExports ? _root.default.Buffer : undefined;
+/* Built-in method references for those with the same name as other `lodash` methods. */
+
+var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
+/**
+ * Checks if `value` is a buffer.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.3.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
+ * @example
+ *
+ * _.isBuffer(new Buffer(2));
+ * // => true
+ *
+ * _.isBuffer(new Uint8Array(2));
+ * // => false
+ */
+
+var isBuffer = nativeIsBuffer || _stubFalse.default;
+var _default = isBuffer;
+exports.default = _default;
+},{"./_root.js":"node_modules/lodash-es/_root.js","./stubFalse.js":"node_modules/lodash-es/stubFalse.js"}],"node_modules/lodash-es/_isIndex.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+/** Used to detect unsigned integer values. */
+
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+
+function isIndex(value, length) {
+  var type = typeof value;
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return !!length && (type == 'number' || type != 'symbol' && reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
+}
+
+var _default = isIndex;
+exports.default = _default;
+},{}],"node_modules/lodash-es/isLength.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+var _default = isLength;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseIsTypedArray.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
+
+var _isLength = _interopRequireDefault(require("./isLength.js"));
+
+var _isObjectLike = _interopRequireDefault(require("./isObjectLike.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    arrayTag = '[object Array]',
+    boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    funcTag = '[object Function]',
+    mapTag = '[object Map]',
+    numberTag = '[object Number]',
+    objectTag = '[object Object]',
+    regexpTag = '[object RegExp]',
+    setTag = '[object Set]',
+    stringTag = '[object String]',
+    weakMapTag = '[object WeakMap]';
+var arrayBufferTag = '[object ArrayBuffer]',
+    dataViewTag = '[object DataView]',
+    float32Tag = '[object Float32Array]',
+    float64Tag = '[object Float64Array]',
+    int8Tag = '[object Int8Array]',
+    int16Tag = '[object Int16Array]',
+    int32Tag = '[object Int32Array]',
+    uint8Tag = '[object Uint8Array]',
+    uint8ClampedTag = '[object Uint8ClampedArray]',
+    uint16Tag = '[object Uint16Array]',
+    uint32Tag = '[object Uint32Array]';
+/** Used to identify `toStringTag` values of typed arrays. */
+
+var typedArrayTags = {};
+typedArrayTags[float32Tag] = typedArrayTags[float64Tag] = typedArrayTags[int8Tag] = typedArrayTags[int16Tag] = typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] = typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] = typedArrayTags[uint32Tag] = true;
+typedArrayTags[argsTag] = typedArrayTags[arrayTag] = typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] = typedArrayTags[dataViewTag] = typedArrayTags[dateTag] = typedArrayTags[errorTag] = typedArrayTags[funcTag] = typedArrayTags[mapTag] = typedArrayTags[numberTag] = typedArrayTags[objectTag] = typedArrayTags[regexpTag] = typedArrayTags[setTag] = typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+/**
+ * The base implementation of `_.isTypedArray` without Node.js optimizations.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+ */
+
+function baseIsTypedArray(value) {
+  return (0, _isObjectLike.default)(value) && (0, _isLength.default)(value.length) && !!typedArrayTags[(0, _baseGetTag.default)(value)];
+}
+
+var _default = baseIsTypedArray;
+exports.default = _default;
+},{"./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./isLength.js":"node_modules/lodash-es/isLength.js","./isObjectLike.js":"node_modules/lodash-es/isObjectLike.js"}],"node_modules/lodash-es/_baseUnary.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * The base implementation of `_.unary` without support for storing metadata.
+ *
+ * @private
+ * @param {Function} func The function to cap arguments for.
+ * @returns {Function} Returns the new capped function.
+ */
+function baseUnary(func) {
+  return function (value) {
+    return func(value);
+  };
+}
+
+var _default = baseUnary;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_nodeUtil.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _freeGlobal = _interopRequireDefault(require("./_freeGlobal.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Detect free variable `exports`. */
+var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+/** Detect free variable `module`. */
+
+var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+/** Detect the popular CommonJS extension `module.exports`. */
+
+var moduleExports = freeModule && freeModule.exports === freeExports;
+/** Detect free variable `process` from Node.js. */
+
+var freeProcess = moduleExports && _freeGlobal.default.process;
+/** Used to access faster Node.js helpers. */
+
+var nodeUtil = function () {
+  try {
+    // Use `util.types` for Node.js 10+.
+    var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+    if (types) {
+      return types;
+    } // Legacy `process.binding('util')` for Node.js < 10.
+
+
+    return freeProcess && freeProcess.binding && freeProcess.binding('util');
+  } catch (e) {}
+}();
+
+var _default = nodeUtil;
+exports.default = _default;
+},{"./_freeGlobal.js":"node_modules/lodash-es/_freeGlobal.js"}],"node_modules/lodash-es/isTypedArray.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseIsTypedArray = _interopRequireDefault(require("./_baseIsTypedArray.js"));
+
+var _baseUnary = _interopRequireDefault(require("./_baseUnary.js"));
+
+var _nodeUtil = _interopRequireDefault(require("./_nodeUtil.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* Node.js helper references. */
+var nodeIsTypedArray = _nodeUtil.default && _nodeUtil.default.isTypedArray;
+/**
+ * Checks if `value` is classified as a typed array.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+ * @example
+ *
+ * _.isTypedArray(new Uint8Array);
+ * // => true
+ *
+ * _.isTypedArray([]);
+ * // => false
+ */
+
+var isTypedArray = nodeIsTypedArray ? (0, _baseUnary.default)(nodeIsTypedArray) : _baseIsTypedArray.default;
+var _default = isTypedArray;
+exports.default = _default;
+},{"./_baseIsTypedArray.js":"node_modules/lodash-es/_baseIsTypedArray.js","./_baseUnary.js":"node_modules/lodash-es/_baseUnary.js","./_nodeUtil.js":"node_modules/lodash-es/_nodeUtil.js"}],"node_modules/lodash-es/_arrayLikeKeys.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseTimes = _interopRequireDefault(require("./_baseTimes.js"));
+
+var _isArguments = _interopRequireDefault(require("./isArguments.js"));
+
+var _isArray = _interopRequireDefault(require("./isArray.js"));
+
+var _isBuffer = _interopRequireDefault(require("./isBuffer.js"));
+
+var _isIndex = _interopRequireDefault(require("./_isIndex.js"));
+
+var _isTypedArray = _interopRequireDefault(require("./isTypedArray.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/**
+ * Creates an array of the enumerable property names of the array-like `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @param {boolean} inherited Specify returning inherited property names.
+ * @returns {Array} Returns the array of property names.
+ */
+
+function arrayLikeKeys(value, inherited) {
+  var isArr = (0, _isArray.default)(value),
+      isArg = !isArr && (0, _isArguments.default)(value),
+      isBuff = !isArr && !isArg && (0, _isBuffer.default)(value),
+      isType = !isArr && !isArg && !isBuff && (0, _isTypedArray.default)(value),
+      skipIndexes = isArr || isArg || isBuff || isType,
+      result = skipIndexes ? (0, _baseTimes.default)(value.length, String) : [],
+      length = result.length;
+
+  for (var key in value) {
+    if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && ( // Safari 9 has enumerable `arguments.length` in strict mode.
+    key == 'length' || // Node.js 0.10 has enumerable non-index properties on buffers.
+    isBuff && (key == 'offset' || key == 'parent') || // PhantomJS 2 has enumerable non-index properties on typed arrays.
+    isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset') || // Skip index properties.
+    (0, _isIndex.default)(key, length)))) {
+      result.push(key);
+    }
+  }
+
+  return result;
+}
+
+var _default = arrayLikeKeys;
+exports.default = _default;
+},{"./_baseTimes.js":"node_modules/lodash-es/_baseTimes.js","./isArguments.js":"node_modules/lodash-es/isArguments.js","./isArray.js":"node_modules/lodash-es/isArray.js","./isBuffer.js":"node_modules/lodash-es/isBuffer.js","./_isIndex.js":"node_modules/lodash-es/_isIndex.js","./isTypedArray.js":"node_modules/lodash-es/isTypedArray.js"}],"node_modules/lodash-es/_isPrototype.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/**
+ * Checks if `value` is likely a prototype object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+ */
+
+function isPrototype(value) {
+  var Ctor = value && value.constructor,
+      proto = typeof Ctor == 'function' && Ctor.prototype || objectProto;
+  return value === proto;
+}
+
+var _default = isPrototype;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_overArg.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function (arg) {
+    return func(transform(arg));
+  };
+}
+
+var _default = overArg;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_nativeKeys.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _overArg = _interopRequireDefault(require("./_overArg.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeKeys = (0, _overArg.default)(Object.keys, Object);
+var _default = nativeKeys;
+exports.default = _default;
+},{"./_overArg.js":"node_modules/lodash-es/_overArg.js"}],"node_modules/lodash-es/_baseKeys.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isPrototype = _interopRequireDefault(require("./_isPrototype.js"));
+
+var _nativeKeys = _interopRequireDefault(require("./_nativeKeys.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/**
+ * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+
+function baseKeys(object) {
+  if (!(0, _isPrototype.default)(object)) {
+    return (0, _nativeKeys.default)(object);
+  }
+
+  var result = [];
+
+  for (var key in Object(object)) {
+    if (hasOwnProperty.call(object, key) && key != 'constructor') {
+      result.push(key);
+    }
+  }
+
+  return result;
+}
+
+var _default = baseKeys;
+exports.default = _default;
+},{"./_isPrototype.js":"node_modules/lodash-es/_isPrototype.js","./_nativeKeys.js":"node_modules/lodash-es/_nativeKeys.js"}],"node_modules/lodash-es/isArrayLike.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isFunction = _interopRequireDefault(require("./isFunction.js"));
+
+var _isLength = _interopRequireDefault(require("./isLength.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && (0, _isLength.default)(value.length) && !(0, _isFunction.default)(value);
+}
+
+var _default = isArrayLike;
+exports.default = _default;
+},{"./isFunction.js":"node_modules/lodash-es/isFunction.js","./isLength.js":"node_modules/lodash-es/isLength.js"}],"node_modules/lodash-es/keys.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _arrayLikeKeys = _interopRequireDefault(require("./_arrayLikeKeys.js"));
+
+var _baseKeys = _interopRequireDefault(require("./_baseKeys.js"));
+
+var _isArrayLike = _interopRequireDefault(require("./isArrayLike.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+function keys(object) {
+  return (0, _isArrayLike.default)(object) ? (0, _arrayLikeKeys.default)(object) : (0, _baseKeys.default)(object);
+}
+
+var _default = keys;
+exports.default = _default;
+},{"./_arrayLikeKeys.js":"node_modules/lodash-es/_arrayLikeKeys.js","./_baseKeys.js":"node_modules/lodash-es/_baseKeys.js","./isArrayLike.js":"node_modules/lodash-es/isArrayLike.js"}],"node_modules/lodash-es/_getAllKeys.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGetAllKeys = _interopRequireDefault(require("./_baseGetAllKeys.js"));
+
+var _getSymbols = _interopRequireDefault(require("./_getSymbols.js"));
+
+var _keys = _interopRequireDefault(require("./keys.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates an array of own enumerable property names and symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function getAllKeys(object) {
+  return (0, _baseGetAllKeys.default)(object, _keys.default, _getSymbols.default);
+}
+
+var _default = getAllKeys;
+exports.default = _default;
+},{"./_baseGetAllKeys.js":"node_modules/lodash-es/_baseGetAllKeys.js","./_getSymbols.js":"node_modules/lodash-es/_getSymbols.js","./keys.js":"node_modules/lodash-es/keys.js"}],"node_modules/lodash-es/_equalObjects.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getAllKeys = _interopRequireDefault(require("./_getAllKeys.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG = 1;
+/** Used for built-in method references. */
+
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/**
+ * A specialized version of `baseIsEqualDeep` for objects with support for
+ * partial deep comparisons.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+
+function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
+  var isPartial = bitmask & COMPARE_PARTIAL_FLAG,
+      objProps = (0, _getAllKeys.default)(object),
+      objLength = objProps.length,
+      othProps = (0, _getAllKeys.default)(other),
+      othLength = othProps.length;
+
+  if (objLength != othLength && !isPartial) {
+    return false;
+  }
+
+  var index = objLength;
+
+  while (index--) {
+    var key = objProps[index];
+
+    if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) {
+      return false;
+    }
+  } // Assume cyclic values are equal.
+
+
+  var stacked = stack.get(object);
+
+  if (stacked && stack.get(other)) {
+    return stacked == other;
+  }
+
+  var result = true;
+  stack.set(object, other);
+  stack.set(other, object);
+  var skipCtor = isPartial;
+
+  while (++index < objLength) {
+    key = objProps[index];
+    var objValue = object[key],
+        othValue = other[key];
+
+    if (customizer) {
+      var compared = isPartial ? customizer(othValue, objValue, key, other, object, stack) : customizer(objValue, othValue, key, object, other, stack);
+    } // Recursively compare objects (susceptible to call stack limits).
+
+
+    if (!(compared === undefined ? objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack) : compared)) {
+      result = false;
+      break;
+    }
+
+    skipCtor || (skipCtor = key == 'constructor');
+  }
+
+  if (result && !skipCtor) {
+    var objCtor = object.constructor,
+        othCtor = other.constructor; // Non `Object` object instances with different constructors are not equal.
+
+    if (objCtor != othCtor && 'constructor' in object && 'constructor' in other && !(typeof objCtor == 'function' && objCtor instanceof objCtor && typeof othCtor == 'function' && othCtor instanceof othCtor)) {
+      result = false;
+    }
+  }
+
+  stack['delete'](object);
+  stack['delete'](other);
+  return result;
+}
+
+var _default = equalObjects;
+exports.default = _default;
+},{"./_getAllKeys.js":"node_modules/lodash-es/_getAllKeys.js"}],"node_modules/lodash-es/_DataView.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getNative = _interopRequireDefault(require("./_getNative.js"));
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* Built-in method references that are verified to be native. */
+var DataView = (0, _getNative.default)(_root.default, 'DataView');
+var _default = DataView;
+exports.default = _default;
+},{"./_getNative.js":"node_modules/lodash-es/_getNative.js","./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_Promise.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getNative = _interopRequireDefault(require("./_getNative.js"));
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* Built-in method references that are verified to be native. */
+var Promise = (0, _getNative.default)(_root.default, 'Promise');
+var _default = Promise;
+exports.default = _default;
+},{"./_getNative.js":"node_modules/lodash-es/_getNative.js","./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_Set.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getNative = _interopRequireDefault(require("./_getNative.js"));
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* Built-in method references that are verified to be native. */
+var Set = (0, _getNative.default)(_root.default, 'Set');
+var _default = Set;
+exports.default = _default;
+},{"./_getNative.js":"node_modules/lodash-es/_getNative.js","./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_WeakMap.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _getNative = _interopRequireDefault(require("./_getNative.js"));
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* Built-in method references that are verified to be native. */
+var WeakMap = (0, _getNative.default)(_root.default, 'WeakMap');
+var _default = WeakMap;
+exports.default = _default;
+},{"./_getNative.js":"node_modules/lodash-es/_getNative.js","./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_getTag.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _DataView = _interopRequireDefault(require("./_DataView.js"));
+
+var _Map = _interopRequireDefault(require("./_Map.js"));
+
+var _Promise = _interopRequireDefault(require("./_Promise.js"));
+
+var _Set = _interopRequireDefault(require("./_Set.js"));
+
+var _WeakMap = _interopRequireDefault(require("./_WeakMap.js"));
+
+var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
+
+var _toSource = _interopRequireDefault(require("./_toSource.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var mapTag = '[object Map]',
+    objectTag = '[object Object]',
+    promiseTag = '[object Promise]',
+    setTag = '[object Set]',
+    weakMapTag = '[object WeakMap]';
+var dataViewTag = '[object DataView]';
+/** Used to detect maps, sets, and weakmaps. */
+
+var dataViewCtorString = (0, _toSource.default)(_DataView.default),
+    mapCtorString = (0, _toSource.default)(_Map.default),
+    promiseCtorString = (0, _toSource.default)(_Promise.default),
+    setCtorString = (0, _toSource.default)(_Set.default),
+    weakMapCtorString = (0, _toSource.default)(_WeakMap.default);
+/**
+ * Gets the `toStringTag` of `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+
+var getTag = _baseGetTag.default; // Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
+
+if (_DataView.default && getTag(new _DataView.default(new ArrayBuffer(1))) != dataViewTag || _Map.default && getTag(new _Map.default()) != mapTag || _Promise.default && getTag(_Promise.default.resolve()) != promiseTag || _Set.default && getTag(new _Set.default()) != setTag || _WeakMap.default && getTag(new _WeakMap.default()) != weakMapTag) {
+  getTag = function (value) {
+    var result = (0, _baseGetTag.default)(value),
+        Ctor = result == objectTag ? value.constructor : undefined,
+        ctorString = Ctor ? (0, _toSource.default)(Ctor) : '';
+
+    if (ctorString) {
+      switch (ctorString) {
+        case dataViewCtorString:
+          return dataViewTag;
+
+        case mapCtorString:
+          return mapTag;
+
+        case promiseCtorString:
+          return promiseTag;
+
+        case setCtorString:
+          return setTag;
+
+        case weakMapCtorString:
+          return weakMapTag;
+      }
+    }
+
+    return result;
+  };
+}
+
+var _default = getTag;
+exports.default = _default;
+},{"./_DataView.js":"node_modules/lodash-es/_DataView.js","./_Map.js":"node_modules/lodash-es/_Map.js","./_Promise.js":"node_modules/lodash-es/_Promise.js","./_Set.js":"node_modules/lodash-es/_Set.js","./_WeakMap.js":"node_modules/lodash-es/_WeakMap.js","./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./_toSource.js":"node_modules/lodash-es/_toSource.js"}],"node_modules/lodash-es/_baseIsEqualDeep.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Stack = _interopRequireDefault(require("./_Stack.js"));
+
+var _equalArrays = _interopRequireDefault(require("./_equalArrays.js"));
+
+var _equalByTag = _interopRequireDefault(require("./_equalByTag.js"));
+
+var _equalObjects = _interopRequireDefault(require("./_equalObjects.js"));
+
+var _getTag = _interopRequireDefault(require("./_getTag.js"));
+
+var _isArray = _interopRequireDefault(require("./isArray.js"));
+
+var _isBuffer = _interopRequireDefault(require("./isBuffer.js"));
+
+var _isTypedArray = _interopRequireDefault(require("./isTypedArray.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG = 1;
+/** `Object#toString` result references. */
+
+var argsTag = '[object Arguments]',
+    arrayTag = '[object Array]',
+    objectTag = '[object Object]';
+/** Used for built-in method references. */
+
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/**
+ * A specialized version of `baseIsEqual` for arrays and objects which performs
+ * deep comparisons and tracks traversed objects enabling objects with circular
+ * references to be compared.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} [stack] Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+
+function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
+  var objIsArr = (0, _isArray.default)(object),
+      othIsArr = (0, _isArray.default)(other),
+      objTag = objIsArr ? arrayTag : (0, _getTag.default)(object),
+      othTag = othIsArr ? arrayTag : (0, _getTag.default)(other);
+  objTag = objTag == argsTag ? objectTag : objTag;
+  othTag = othTag == argsTag ? objectTag : othTag;
+  var objIsObj = objTag == objectTag,
+      othIsObj = othTag == objectTag,
+      isSameTag = objTag == othTag;
+
+  if (isSameTag && (0, _isBuffer.default)(object)) {
+    if (!(0, _isBuffer.default)(other)) {
+      return false;
+    }
+
+    objIsArr = true;
+    objIsObj = false;
+  }
+
+  if (isSameTag && !objIsObj) {
+    stack || (stack = new _Stack.default());
+    return objIsArr || (0, _isTypedArray.default)(object) ? (0, _equalArrays.default)(object, other, bitmask, customizer, equalFunc, stack) : (0, _equalByTag.default)(object, other, objTag, bitmask, customizer, equalFunc, stack);
+  }
+
+  if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
+    var objIsWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'),
+        othIsWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
+
+    if (objIsWrapped || othIsWrapped) {
+      var objUnwrapped = objIsWrapped ? object.value() : object,
+          othUnwrapped = othIsWrapped ? other.value() : other;
+      stack || (stack = new _Stack.default());
+      return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
+    }
+  }
+
+  if (!isSameTag) {
+    return false;
+  }
+
+  stack || (stack = new _Stack.default());
+  return (0, _equalObjects.default)(object, other, bitmask, customizer, equalFunc, stack);
+}
+
+var _default = baseIsEqualDeep;
+exports.default = _default;
+},{"./_Stack.js":"node_modules/lodash-es/_Stack.js","./_equalArrays.js":"node_modules/lodash-es/_equalArrays.js","./_equalByTag.js":"node_modules/lodash-es/_equalByTag.js","./_equalObjects.js":"node_modules/lodash-es/_equalObjects.js","./_getTag.js":"node_modules/lodash-es/_getTag.js","./isArray.js":"node_modules/lodash-es/isArray.js","./isBuffer.js":"node_modules/lodash-es/isBuffer.js","./isTypedArray.js":"node_modules/lodash-es/isTypedArray.js"}],"node_modules/lodash-es/_baseIsEqual.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseIsEqualDeep = _interopRequireDefault(require("./_baseIsEqualDeep.js"));
+
+var _isObjectLike = _interopRequireDefault(require("./isObjectLike.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The base implementation of `_.isEqual` which supports partial comparisons
+ * and tracks traversed objects.
+ *
+ * @private
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @param {boolean} bitmask The bitmask flags.
+ *  1 - Unordered comparison
+ *  2 - Partial comparison
+ * @param {Function} [customizer] The function to customize comparisons.
+ * @param {Object} [stack] Tracks traversed `value` and `other` objects.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ */
+function baseIsEqual(value, other, bitmask, customizer, stack) {
+  if (value === other) {
+    return true;
+  }
+
+  if (value == null || other == null || !(0, _isObjectLike.default)(value) && !(0, _isObjectLike.default)(other)) {
+    return value !== value && other !== other;
+  }
+
+  return (0, _baseIsEqualDeep.default)(value, other, bitmask, customizer, baseIsEqual, stack);
+}
+
+var _default = baseIsEqual;
+exports.default = _default;
+},{"./_baseIsEqualDeep.js":"node_modules/lodash-es/_baseIsEqualDeep.js","./isObjectLike.js":"node_modules/lodash-es/isObjectLike.js"}],"node_modules/lodash-es/_baseIsMatch.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Stack = _interopRequireDefault(require("./_Stack.js"));
+
+var _baseIsEqual = _interopRequireDefault(require("./_baseIsEqual.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG = 1,
+    COMPARE_UNORDERED_FLAG = 2;
+/**
+ * The base implementation of `_.isMatch` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Object} object The object to inspect.
+ * @param {Object} source The object of property values to match.
+ * @param {Array} matchData The property names, values, and compare flags to match.
+ * @param {Function} [customizer] The function to customize comparisons.
+ * @returns {boolean} Returns `true` if `object` is a match, else `false`.
+ */
+
+function baseIsMatch(object, source, matchData, customizer) {
+  var index = matchData.length,
+      length = index,
+      noCustomizer = !customizer;
+
+  if (object == null) {
+    return !length;
+  }
+
+  object = Object(object);
+
+  while (index--) {
+    var data = matchData[index];
+
+    if (noCustomizer && data[2] ? data[1] !== object[data[0]] : !(data[0] in object)) {
+      return false;
+    }
+  }
+
+  while (++index < length) {
+    data = matchData[index];
+    var key = data[0],
+        objValue = object[key],
+        srcValue = data[1];
+
+    if (noCustomizer && data[2]) {
+      if (objValue === undefined && !(key in object)) {
+        return false;
+      }
+    } else {
+      var stack = new _Stack.default();
+
+      if (customizer) {
+        var result = customizer(objValue, srcValue, key, object, source, stack);
+      }
+
+      if (!(result === undefined ? (0, _baseIsEqual.default)(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG, customizer, stack) : result)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+var _default = baseIsMatch;
+exports.default = _default;
+},{"./_Stack.js":"node_modules/lodash-es/_Stack.js","./_baseIsEqual.js":"node_modules/lodash-es/_baseIsEqual.js"}],"node_modules/lodash-es/_isStrictComparable.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isObject = _interopRequireDefault(require("./isObject.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` if suitable for strict
+ *  equality comparisons, else `false`.
+ */
+function isStrictComparable(value) {
+  return value === value && !(0, _isObject.default)(value);
+}
+
+var _default = isStrictComparable;
+exports.default = _default;
+},{"./isObject.js":"node_modules/lodash-es/isObject.js"}],"node_modules/lodash-es/_getMatchData.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isStrictComparable = _interopRequireDefault(require("./_isStrictComparable.js"));
+
+var _keys = _interopRequireDefault(require("./keys.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Gets the property names, values, and compare flags of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the match data of `object`.
+ */
+function getMatchData(object) {
+  var result = (0, _keys.default)(object),
+      length = result.length;
+
+  while (length--) {
+    var key = result[length],
+        value = object[key];
+    result[length] = [key, value, (0, _isStrictComparable.default)(value)];
+  }
+
+  return result;
+}
+
+var _default = getMatchData;
+exports.default = _default;
+},{"./_isStrictComparable.js":"node_modules/lodash-es/_isStrictComparable.js","./keys.js":"node_modules/lodash-es/keys.js"}],"node_modules/lodash-es/_matchesStrictComparable.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * A specialized version of `matchesProperty` for source values suitable
+ * for strict equality comparisons, i.e. `===`.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @param {*} srcValue The value to match.
+ * @returns {Function} Returns the new spec function.
+ */
+function matchesStrictComparable(key, srcValue) {
+  return function (object) {
+    if (object == null) {
+      return false;
+    }
+
+    return object[key] === srcValue && (srcValue !== undefined || key in Object(object));
+  };
+}
+
+var _default = matchesStrictComparable;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseMatches.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseIsMatch = _interopRequireDefault(require("./_baseIsMatch.js"));
+
+var _getMatchData = _interopRequireDefault(require("./_getMatchData.js"));
+
+var _matchesStrictComparable = _interopRequireDefault(require("./_matchesStrictComparable.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The base implementation of `_.matches` which doesn't clone `source`.
+ *
+ * @private
+ * @param {Object} source The object of property values to match.
+ * @returns {Function} Returns the new spec function.
+ */
+function baseMatches(source) {
+  var matchData = (0, _getMatchData.default)(source);
+
+  if (matchData.length == 1 && matchData[0][2]) {
+    return (0, _matchesStrictComparable.default)(matchData[0][0], matchData[0][1]);
+  }
+
+  return function (object) {
+    return object === source || (0, _baseIsMatch.default)(object, source, matchData);
+  };
+}
+
+var _default = baseMatches;
+exports.default = _default;
+},{"./_baseIsMatch.js":"node_modules/lodash-es/_baseIsMatch.js","./_getMatchData.js":"node_modules/lodash-es/_getMatchData.js","./_matchesStrictComparable.js":"node_modules/lodash-es/_matchesStrictComparable.js"}],"node_modules/lodash-es/isSymbol.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
+
+var _isObjectLike = _interopRequireDefault(require("./isObjectLike.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+
+function isSymbol(value) {
+  return typeof value == 'symbol' || (0, _isObjectLike.default)(value) && (0, _baseGetTag.default)(value) == symbolTag;
+}
+
+var _default = isSymbol;
+exports.default = _default;
+},{"./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./isObjectLike.js":"node_modules/lodash-es/isObjectLike.js"}],"node_modules/lodash-es/_isKey.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isArray = _interopRequireDefault(require("./isArray.js"));
+
+var _isSymbol = _interopRequireDefault(require("./isSymbol.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to match property names within property paths. */
+var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
+    reIsPlainProp = /^\w*$/;
+/**
+ * Checks if `value` is a property name and not a property path.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
+ */
+
+function isKey(value, object) {
+  if ((0, _isArray.default)(value)) {
+    return false;
+  }
+
+  var type = typeof value;
+
+  if (type == 'number' || type == 'symbol' || type == 'boolean' || value == null || (0, _isSymbol.default)(value)) {
+    return true;
+  }
+
+  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) || object != null && value in Object(object);
+}
+
+var _default = isKey;
+exports.default = _default;
+},{"./isArray.js":"node_modules/lodash-es/isArray.js","./isSymbol.js":"node_modules/lodash-es/isSymbol.js"}],"node_modules/lodash-es/memoize.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _MapCache = _interopRequireDefault(require("./_MapCache.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Error message constants. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+/**
+ * Creates a function that memoizes the result of `func`. If `resolver` is
+ * provided, it determines the cache key for storing the result based on the
+ * arguments provided to the memoized function. By default, the first argument
+ * provided to the memoized function is used as the map cache key. The `func`
+ * is invoked with the `this` binding of the memoized function.
+ *
+ * **Note:** The cache is exposed as the `cache` property on the memoized
+ * function. Its creation may be customized by replacing the `_.memoize.Cache`
+ * constructor with one whose instances implement the
+ * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
+ * method interface of `clear`, `delete`, `get`, `has`, and `set`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to have its output memoized.
+ * @param {Function} [resolver] The function to resolve the cache key.
+ * @returns {Function} Returns the new memoized function.
+ * @example
+ *
+ * var object = { 'a': 1, 'b': 2 };
+ * var other = { 'c': 3, 'd': 4 };
+ *
+ * var values = _.memoize(_.values);
+ * values(object);
+ * // => [1, 2]
+ *
+ * values(other);
+ * // => [3, 4]
+ *
+ * object.a = 2;
+ * values(object);
+ * // => [1, 2]
+ *
+ * // Modify the result cache.
+ * values.cache.set(object, ['a', 'b']);
+ * values(object);
+ * // => ['a', 'b']
+ *
+ * // Replace `_.memoize.Cache`.
+ * _.memoize.Cache = WeakMap;
+ */
+
+function memoize(func, resolver) {
+  if (typeof func != 'function' || resolver != null && typeof resolver != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+
+  var memoized = function () {
+    var args = arguments,
+        key = resolver ? resolver.apply(this, args) : args[0],
+        cache = memoized.cache;
+
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+
+    var result = func.apply(this, args);
+    memoized.cache = cache.set(key, result) || cache;
+    return result;
+  };
+
+  memoized.cache = new (memoize.Cache || _MapCache.default)();
+  return memoized;
+} // Expose `MapCache`.
+
+
+memoize.Cache = _MapCache.default;
+var _default = memoize;
+exports.default = _default;
+},{"./_MapCache.js":"node_modules/lodash-es/_MapCache.js"}],"node_modules/lodash-es/_memoizeCapped.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _memoize = _interopRequireDefault(require("./memoize.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used as the maximum memoize cache size. */
+var MAX_MEMOIZE_SIZE = 500;
+/**
+ * A specialized version of `_.memoize` which clears the memoized function's
+ * cache when it exceeds `MAX_MEMOIZE_SIZE`.
+ *
+ * @private
+ * @param {Function} func The function to have its output memoized.
+ * @returns {Function} Returns the new memoized function.
+ */
+
+function memoizeCapped(func) {
+  var result = (0, _memoize.default)(func, function (key) {
+    if (cache.size === MAX_MEMOIZE_SIZE) {
+      cache.clear();
+    }
+
+    return key;
+  });
+  var cache = result.cache;
+  return result;
+}
+
+var _default = memoizeCapped;
+exports.default = _default;
+},{"./memoize.js":"node_modules/lodash-es/memoize.js"}],"node_modules/lodash-es/_stringToPath.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _memoizeCapped = _interopRequireDefault(require("./_memoizeCapped.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to match property names within property paths. */
+var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
+/** Used to match backslashes in property paths. */
+
+var reEscapeChar = /\\(\\)?/g;
+/**
+ * Converts `string` to a property path array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the property path array.
+ */
+
+var stringToPath = (0, _memoizeCapped.default)(function (string) {
+  var result = [];
+
+  if (string.charCodeAt(0) === 46
+  /* . */
+  ) {
+      result.push('');
+    }
+
+  string.replace(rePropName, function (match, number, quote, subString) {
+    result.push(quote ? subString.replace(reEscapeChar, '$1') : number || match);
+  });
+  return result;
+});
+var _default = stringToPath;
+exports.default = _default;
+},{"./_memoizeCapped.js":"node_modules/lodash-es/_memoizeCapped.js"}],"node_modules/lodash-es/_arrayMap.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * A specialized version of `_.map` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the new mapped array.
+ */
+function arrayMap(array, iteratee) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      result = Array(length);
+
+  while (++index < length) {
+    result[index] = iteratee(array[index], index, array);
+  }
+
+  return result;
+}
+
+var _default = arrayMap;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseToString.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Symbol = _interopRequireDefault(require("./_Symbol.js"));
+
+var _arrayMap = _interopRequireDefault(require("./_arrayMap.js"));
+
+var _isArray = _interopRequireDefault(require("./isArray.js"));
+
+var _isSymbol = _interopRequireDefault(require("./isSymbol.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0;
+/** Used to convert symbols to primitives and strings. */
+
+var symbolProto = _Symbol.default ? _Symbol.default.prototype : undefined,
+    symbolToString = symbolProto ? symbolProto.toString : undefined;
+/**
+ * The base implementation of `_.toString` which doesn't convert nullish
+ * values to empty strings.
+ *
+ * @private
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ */
+
+function baseToString(value) {
+  // Exit early for strings to avoid a performance hit in some environments.
+  if (typeof value == 'string') {
+    return value;
+  }
+
+  if ((0, _isArray.default)(value)) {
+    // Recursively convert values (susceptible to call stack limits).
+    return (0, _arrayMap.default)(value, baseToString) + '';
+  }
+
+  if ((0, _isSymbol.default)(value)) {
+    return symbolToString ? symbolToString.call(value) : '';
+  }
+
+  var result = value + '';
+  return result == '0' && 1 / value == -INFINITY ? '-0' : result;
+}
+
+var _default = baseToString;
+exports.default = _default;
+},{"./_Symbol.js":"node_modules/lodash-es/_Symbol.js","./_arrayMap.js":"node_modules/lodash-es/_arrayMap.js","./isArray.js":"node_modules/lodash-es/isArray.js","./isSymbol.js":"node_modules/lodash-es/isSymbol.js"}],"node_modules/lodash-es/toString.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseToString = _interopRequireDefault(require("./_baseToString.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Converts `value` to a string. An empty string is returned for `null`
+ * and `undefined` values. The sign of `-0` is preserved.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ * @example
+ *
+ * _.toString(null);
+ * // => ''
+ *
+ * _.toString(-0);
+ * // => '-0'
+ *
+ * _.toString([1, 2, 3]);
+ * // => '1,2,3'
+ */
+function toString(value) {
+  return value == null ? '' : (0, _baseToString.default)(value);
+}
+
+var _default = toString;
+exports.default = _default;
+},{"./_baseToString.js":"node_modules/lodash-es/_baseToString.js"}],"node_modules/lodash-es/_castPath.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isArray = _interopRequireDefault(require("./isArray.js"));
+
+var _isKey = _interopRequireDefault(require("./_isKey.js"));
+
+var _stringToPath = _interopRequireDefault(require("./_stringToPath.js"));
+
+var _toString = _interopRequireDefault(require("./toString.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Casts `value` to a path array if it's not one.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {Array} Returns the cast property path array.
+ */
+function castPath(value, object) {
+  if ((0, _isArray.default)(value)) {
+    return value;
+  }
+
+  return (0, _isKey.default)(value, object) ? [value] : (0, _stringToPath.default)((0, _toString.default)(value));
+}
+
+var _default = castPath;
+exports.default = _default;
+},{"./isArray.js":"node_modules/lodash-es/isArray.js","./_isKey.js":"node_modules/lodash-es/_isKey.js","./_stringToPath.js":"node_modules/lodash-es/_stringToPath.js","./toString.js":"node_modules/lodash-es/toString.js"}],"node_modules/lodash-es/_toKey.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isSymbol = _interopRequireDefault(require("./isSymbol.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0;
+/**
+ * Converts `value` to a string key if it's not a string or symbol.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @returns {string|symbol} Returns the key.
+ */
+
+function toKey(value) {
+  if (typeof value == 'string' || (0, _isSymbol.default)(value)) {
+    return value;
+  }
+
+  var result = value + '';
+  return result == '0' && 1 / value == -INFINITY ? '-0' : result;
+}
+
+var _default = toKey;
+exports.default = _default;
+},{"./isSymbol.js":"node_modules/lodash-es/isSymbol.js"}],"node_modules/lodash-es/_baseGet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _castPath = _interopRequireDefault(require("./_castPath.js"));
+
+var _toKey = _interopRequireDefault(require("./_toKey.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The base implementation of `_.get` without support for default values.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @returns {*} Returns the resolved value.
+ */
+function baseGet(object, path) {
+  path = (0, _castPath.default)(path, object);
+  var index = 0,
+      length = path.length;
+
+  while (object != null && index < length) {
+    object = object[(0, _toKey.default)(path[index++])];
+  }
+
+  return index && index == length ? object : undefined;
+}
+
+var _default = baseGet;
+exports.default = _default;
+},{"./_castPath.js":"node_modules/lodash-es/_castPath.js","./_toKey.js":"node_modules/lodash-es/_toKey.js"}],"node_modules/lodash-es/get.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGet = _interopRequireDefault(require("./_baseGet.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Gets the value at `path` of `object`. If the resolved value is
+ * `undefined`, the `defaultValue` is returned in its place.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.7.0
+ * @category Object
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @param {*} [defaultValue] The value returned for `undefined` resolved values.
+ * @returns {*} Returns the resolved value.
+ * @example
+ *
+ * var object = { 'a': [{ 'b': { 'c': 3 } }] };
+ *
+ * _.get(object, 'a[0].b.c');
+ * // => 3
+ *
+ * _.get(object, ['a', '0', 'b', 'c']);
+ * // => 3
+ *
+ * _.get(object, 'a.b.c', 'default');
+ * // => 'default'
+ */
+function get(object, path, defaultValue) {
+  var result = object == null ? undefined : (0, _baseGet.default)(object, path);
+  return result === undefined ? defaultValue : result;
+}
+
+var _default = get;
+exports.default = _default;
+},{"./_baseGet.js":"node_modules/lodash-es/_baseGet.js"}],"node_modules/lodash-es/_baseHasIn.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * The base implementation of `_.hasIn` without support for deep paths.
+ *
+ * @private
+ * @param {Object} [object] The object to query.
+ * @param {Array|string} key The key to check.
+ * @returns {boolean} Returns `true` if `key` exists, else `false`.
+ */
+function baseHasIn(object, key) {
+  return object != null && key in Object(object);
+}
+
+var _default = baseHasIn;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_hasPath.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _castPath = _interopRequireDefault(require("./_castPath.js"));
+
+var _isArguments = _interopRequireDefault(require("./isArguments.js"));
+
+var _isArray = _interopRequireDefault(require("./isArray.js"));
+
+var _isIndex = _interopRequireDefault(require("./_isIndex.js"));
+
+var _isLength = _interopRequireDefault(require("./isLength.js"));
+
+var _toKey = _interopRequireDefault(require("./_toKey.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks if `path` exists on `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path to check.
+ * @param {Function} hasFunc The function to check properties.
+ * @returns {boolean} Returns `true` if `path` exists, else `false`.
+ */
+function hasPath(object, path, hasFunc) {
+  path = (0, _castPath.default)(path, object);
+  var index = -1,
+      length = path.length,
+      result = false;
+
+  while (++index < length) {
+    var key = (0, _toKey.default)(path[index]);
+
+    if (!(result = object != null && hasFunc(object, key))) {
+      break;
+    }
+
+    object = object[key];
+  }
+
+  if (result || ++index != length) {
+    return result;
+  }
+
+  length = object == null ? 0 : object.length;
+  return !!length && (0, _isLength.default)(length) && (0, _isIndex.default)(key, length) && ((0, _isArray.default)(object) || (0, _isArguments.default)(object));
+}
+
+var _default = hasPath;
+exports.default = _default;
+},{"./_castPath.js":"node_modules/lodash-es/_castPath.js","./isArguments.js":"node_modules/lodash-es/isArguments.js","./isArray.js":"node_modules/lodash-es/isArray.js","./_isIndex.js":"node_modules/lodash-es/_isIndex.js","./isLength.js":"node_modules/lodash-es/isLength.js","./_toKey.js":"node_modules/lodash-es/_toKey.js"}],"node_modules/lodash-es/hasIn.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseHasIn = _interopRequireDefault(require("./_baseHasIn.js"));
+
+var _hasPath = _interopRequireDefault(require("./_hasPath.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks if `path` is a direct or inherited property of `object`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Object
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path to check.
+ * @returns {boolean} Returns `true` if `path` exists, else `false`.
+ * @example
+ *
+ * var object = _.create({ 'a': _.create({ 'b': 2 }) });
+ *
+ * _.hasIn(object, 'a');
+ * // => true
+ *
+ * _.hasIn(object, 'a.b');
+ * // => true
+ *
+ * _.hasIn(object, ['a', 'b']);
+ * // => true
+ *
+ * _.hasIn(object, 'b');
+ * // => false
+ */
+function hasIn(object, path) {
+  return object != null && (0, _hasPath.default)(object, path, _baseHasIn.default);
+}
+
+var _default = hasIn;
+exports.default = _default;
+},{"./_baseHasIn.js":"node_modules/lodash-es/_baseHasIn.js","./_hasPath.js":"node_modules/lodash-es/_hasPath.js"}],"node_modules/lodash-es/_baseMatchesProperty.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseIsEqual = _interopRequireDefault(require("./_baseIsEqual.js"));
+
+var _get = _interopRequireDefault(require("./get.js"));
+
+var _hasIn = _interopRequireDefault(require("./hasIn.js"));
+
+var _isKey = _interopRequireDefault(require("./_isKey.js"));
+
+var _isStrictComparable = _interopRequireDefault(require("./_isStrictComparable.js"));
+
+var _matchesStrictComparable = _interopRequireDefault(require("./_matchesStrictComparable.js"));
+
+var _toKey = _interopRequireDefault(require("./_toKey.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG = 1,
+    COMPARE_UNORDERED_FLAG = 2;
+/**
+ * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
+ *
+ * @private
+ * @param {string} path The path of the property to get.
+ * @param {*} srcValue The value to match.
+ * @returns {Function} Returns the new spec function.
+ */
+
+function baseMatchesProperty(path, srcValue) {
+  if ((0, _isKey.default)(path) && (0, _isStrictComparable.default)(srcValue)) {
+    return (0, _matchesStrictComparable.default)((0, _toKey.default)(path), srcValue);
+  }
+
+  return function (object) {
+    var objValue = (0, _get.default)(object, path);
+    return objValue === undefined && objValue === srcValue ? (0, _hasIn.default)(object, path) : (0, _baseIsEqual.default)(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
+  };
+}
+
+var _default = baseMatchesProperty;
+exports.default = _default;
+},{"./_baseIsEqual.js":"node_modules/lodash-es/_baseIsEqual.js","./get.js":"node_modules/lodash-es/get.js","./hasIn.js":"node_modules/lodash-es/hasIn.js","./_isKey.js":"node_modules/lodash-es/_isKey.js","./_isStrictComparable.js":"node_modules/lodash-es/_isStrictComparable.js","./_matchesStrictComparable.js":"node_modules/lodash-es/_matchesStrictComparable.js","./_toKey.js":"node_modules/lodash-es/_toKey.js"}],"node_modules/lodash-es/identity.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * This method returns the first argument it receives.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Util
+ * @param {*} value Any value.
+ * @returns {*} Returns `value`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ *
+ * console.log(_.identity(object) === object);
+ * // => true
+ */
+function identity(value) {
+  return value;
+}
+
+var _default = identity;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseProperty.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function baseProperty(key) {
+  return function (object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+var _default = baseProperty;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_basePropertyDeep.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGet = _interopRequireDefault(require("./_baseGet.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * A specialized version of `baseProperty` which supports deep paths.
+ *
+ * @private
+ * @param {Array|string} path The path of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function basePropertyDeep(path) {
+  return function (object) {
+    return (0, _baseGet.default)(object, path);
+  };
+}
+
+var _default = basePropertyDeep;
+exports.default = _default;
+},{"./_baseGet.js":"node_modules/lodash-es/_baseGet.js"}],"node_modules/lodash-es/property.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseProperty = _interopRequireDefault(require("./_baseProperty.js"));
+
+var _basePropertyDeep = _interopRequireDefault(require("./_basePropertyDeep.js"));
+
+var _isKey = _interopRequireDefault(require("./_isKey.js"));
+
+var _toKey = _interopRequireDefault(require("./_toKey.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates a function that returns the value at `path` of a given object.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Util
+ * @param {Array|string} path The path of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ * @example
+ *
+ * var objects = [
+ *   { 'a': { 'b': 2 } },
+ *   { 'a': { 'b': 1 } }
+ * ];
+ *
+ * _.map(objects, _.property('a.b'));
+ * // => [2, 1]
+ *
+ * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
+ * // => [1, 2]
+ */
+function property(path) {
+  return (0, _isKey.default)(path) ? (0, _baseProperty.default)((0, _toKey.default)(path)) : (0, _basePropertyDeep.default)(path);
+}
+
+var _default = property;
+exports.default = _default;
+},{"./_baseProperty.js":"node_modules/lodash-es/_baseProperty.js","./_basePropertyDeep.js":"node_modules/lodash-es/_basePropertyDeep.js","./_isKey.js":"node_modules/lodash-es/_isKey.js","./_toKey.js":"node_modules/lodash-es/_toKey.js"}],"node_modules/lodash-es/_baseIteratee.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseMatches = _interopRequireDefault(require("./_baseMatches.js"));
+
+var _baseMatchesProperty = _interopRequireDefault(require("./_baseMatchesProperty.js"));
+
+var _identity = _interopRequireDefault(require("./identity.js"));
+
+var _isArray = _interopRequireDefault(require("./isArray.js"));
+
+var _property = _interopRequireDefault(require("./property.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The base implementation of `_.iteratee`.
+ *
+ * @private
+ * @param {*} [value=_.identity] The value to convert to an iteratee.
+ * @returns {Function} Returns the iteratee.
+ */
+function baseIteratee(value) {
+  // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
+  // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
+  if (typeof value == 'function') {
+    return value;
+  }
+
+  if (value == null) {
+    return _identity.default;
+  }
+
+  if (typeof value == 'object') {
+    return (0, _isArray.default)(value) ? (0, _baseMatchesProperty.default)(value[0], value[1]) : (0, _baseMatches.default)(value);
+  }
+
+  return (0, _property.default)(value);
+}
+
+var _default = baseIteratee;
+exports.default = _default;
+},{"./_baseMatches.js":"node_modules/lodash-es/_baseMatches.js","./_baseMatchesProperty.js":"node_modules/lodash-es/_baseMatchesProperty.js","./identity.js":"node_modules/lodash-es/identity.js","./isArray.js":"node_modules/lodash-es/isArray.js","./property.js":"node_modules/lodash-es/property.js"}],"node_modules/lodash-es/_baseFindIndex.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * The base implementation of `_.findIndex` and `_.findLastIndex` without
+ * support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {Function} predicate The function invoked per iteration.
+ * @param {number} fromIndex The index to search from.
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function baseFindIndex(array, predicate, fromIndex, fromRight) {
+  var length = array.length,
+      index = fromIndex + (fromRight ? 1 : -1);
+
+  while (fromRight ? index-- : ++index < length) {
+    if (predicate(array[index], index, array)) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+var _default = baseFindIndex;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseIsNaN.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * The base implementation of `_.isNaN` without support for number objects.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is `NaN`, else `false`.
+ */
+function baseIsNaN(value) {
+  return value !== value;
+}
+
+var _default = baseIsNaN;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_strictIndexOf.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * A specialized version of `_.indexOf` which performs strict equality
+ * comparisons of values, i.e. `===`.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} fromIndex The index to search from.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function strictIndexOf(array, value, fromIndex) {
+  var index = fromIndex - 1,
+      length = array.length;
+
+  while (++index < length) {
+    if (array[index] === value) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+var _default = strictIndexOf;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseIndexOf.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseFindIndex = _interopRequireDefault(require("./_baseFindIndex.js"));
+
+var _baseIsNaN = _interopRequireDefault(require("./_baseIsNaN.js"));
+
+var _strictIndexOf = _interopRequireDefault(require("./_strictIndexOf.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} fromIndex The index to search from.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function baseIndexOf(array, value, fromIndex) {
+  return value === value ? (0, _strictIndexOf.default)(array, value, fromIndex) : (0, _baseFindIndex.default)(array, _baseIsNaN.default, fromIndex);
+}
+
+var _default = baseIndexOf;
+exports.default = _default;
+},{"./_baseFindIndex.js":"node_modules/lodash-es/_baseFindIndex.js","./_baseIsNaN.js":"node_modules/lodash-es/_baseIsNaN.js","./_strictIndexOf.js":"node_modules/lodash-es/_strictIndexOf.js"}],"node_modules/lodash-es/_arrayIncludes.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseIndexOf = _interopRequireDefault(require("./_baseIndexOf.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * A specialized version of `_.includes` for arrays without support for
+ * specifying an index to search from.
+ *
+ * @private
+ * @param {Array} [array] The array to inspect.
+ * @param {*} target The value to search for.
+ * @returns {boolean} Returns `true` if `target` is found, else `false`.
+ */
+function arrayIncludes(array, value) {
+  var length = array == null ? 0 : array.length;
+  return !!length && (0, _baseIndexOf.default)(array, value, 0) > -1;
+}
+
+var _default = arrayIncludes;
+exports.default = _default;
+},{"./_baseIndexOf.js":"node_modules/lodash-es/_baseIndexOf.js"}],"node_modules/lodash-es/_arrayIncludesWith.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * This function is like `arrayIncludes` except that it accepts a comparator.
+ *
+ * @private
+ * @param {Array} [array] The array to inspect.
+ * @param {*} target The value to search for.
+ * @param {Function} comparator The comparator invoked per element.
+ * @returns {boolean} Returns `true` if `target` is found, else `false`.
+ */
+function arrayIncludesWith(array, value, comparator) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  while (++index < length) {
+    if (comparator(value, array[index])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+var _default = arrayIncludesWith;
+exports.default = _default;
+},{}],"node_modules/lodash-es/noop.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * This method returns `undefined`.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.3.0
+ * @category Util
+ * @example
+ *
+ * _.times(2, _.noop);
+ * // => [undefined, undefined]
+ */
+function noop() {// No operation performed.
+}
+
+var _default = noop;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_createSet.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Set = _interopRequireDefault(require("./_Set.js"));
+
+var _noop = _interopRequireDefault(require("./noop.js"));
+
+var _setToArray = _interopRequireDefault(require("./_setToArray.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0;
+/**
+ * Creates a set object of `values`.
+ *
+ * @private
+ * @param {Array} values The values to add to the set.
+ * @returns {Object} Returns the new set.
+ */
+
+var createSet = !(_Set.default && 1 / (0, _setToArray.default)(new _Set.default([, -0]))[1] == INFINITY) ? _noop.default : function (values) {
+  return new _Set.default(values);
+};
+var _default = createSet;
+exports.default = _default;
+},{"./_Set.js":"node_modules/lodash-es/_Set.js","./noop.js":"node_modules/lodash-es/noop.js","./_setToArray.js":"node_modules/lodash-es/_setToArray.js"}],"node_modules/lodash-es/_baseUniq.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _SetCache = _interopRequireDefault(require("./_SetCache.js"));
+
+var _arrayIncludes = _interopRequireDefault(require("./_arrayIncludes.js"));
+
+var _arrayIncludesWith = _interopRequireDefault(require("./_arrayIncludesWith.js"));
+
+var _cacheHas = _interopRequireDefault(require("./_cacheHas.js"));
+
+var _createSet = _interopRequireDefault(require("./_createSet.js"));
+
+var _setToArray = _interopRequireDefault(require("./_setToArray.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used as the size to enable large array optimizations. */
+var LARGE_ARRAY_SIZE = 200;
+/**
+ * The base implementation of `_.uniqBy` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {Function} [iteratee] The iteratee invoked per element.
+ * @param {Function} [comparator] The comparator invoked per element.
+ * @returns {Array} Returns the new duplicate free array.
+ */
+
+function baseUniq(array, iteratee, comparator) {
+  var index = -1,
+      includes = _arrayIncludes.default,
+      length = array.length,
+      isCommon = true,
+      result = [],
+      seen = result;
+
+  if (comparator) {
+    isCommon = false;
+    includes = _arrayIncludesWith.default;
+  } else if (length >= LARGE_ARRAY_SIZE) {
+    var set = iteratee ? null : (0, _createSet.default)(array);
+
+    if (set) {
+      return (0, _setToArray.default)(set);
+    }
+
+    isCommon = false;
+    includes = _cacheHas.default;
+    seen = new _SetCache.default();
+  } else {
+    seen = iteratee ? [] : result;
+  }
+
+  outer: while (++index < length) {
+    var value = array[index],
+        computed = iteratee ? iteratee(value) : value;
+    value = comparator || value !== 0 ? value : 0;
+
+    if (isCommon && computed === computed) {
+      var seenIndex = seen.length;
+
+      while (seenIndex--) {
+        if (seen[seenIndex] === computed) {
+          continue outer;
+        }
+      }
+
+      if (iteratee) {
+        seen.push(computed);
+      }
+
+      result.push(value);
+    } else if (!includes(seen, computed, comparator)) {
+      if (seen !== result) {
+        seen.push(computed);
+      }
+
+      result.push(value);
+    }
+  }
+
+  return result;
+}
+
+var _default = baseUniq;
+exports.default = _default;
+},{"./_SetCache.js":"node_modules/lodash-es/_SetCache.js","./_arrayIncludes.js":"node_modules/lodash-es/_arrayIncludes.js","./_arrayIncludesWith.js":"node_modules/lodash-es/_arrayIncludesWith.js","./_cacheHas.js":"node_modules/lodash-es/_cacheHas.js","./_createSet.js":"node_modules/lodash-es/_createSet.js","./_setToArray.js":"node_modules/lodash-es/_setToArray.js"}],"node_modules/lodash-es/uniqBy.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseIteratee = _interopRequireDefault(require("./_baseIteratee.js"));
+
+var _baseUniq = _interopRequireDefault(require("./_baseUniq.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * This method is like `_.uniq` except that it accepts `iteratee` which is
+ * invoked for each element in `array` to generate the criterion by which
+ * uniqueness is computed. The order of result values is determined by the
+ * order they occur in the array. The iteratee is invoked with one argument:
+ * (value).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Array
+ * @param {Array} array The array to inspect.
+ * @param {Function} [iteratee=_.identity] The iteratee invoked per element.
+ * @returns {Array} Returns the new duplicate free array.
+ * @example
+ *
+ * _.uniqBy([2.1, 1.2, 2.3], Math.floor);
+ * // => [2.1, 1.2]
+ *
+ * // The `_.property` iteratee shorthand.
+ * _.uniqBy([{ 'x': 1 }, { 'x': 2 }, { 'x': 1 }], 'x');
+ * // => [{ 'x': 1 }, { 'x': 2 }]
+ */
+function uniqBy(array, iteratee) {
+  return array && array.length ? (0, _baseUniq.default)(array, (0, _baseIteratee.default)(iteratee, 2)) : [];
+}
+
+var _default = uniqBy;
+exports.default = _default;
+},{"./_baseIteratee.js":"node_modules/lodash-es/_baseIteratee.js","./_baseUniq.js":"node_modules/lodash-es/_baseUniq.js"}],"src/models/snakes/model.js":[function(require,module,exports) {
+"use strict";
+
+var _effector = require("effector");
+
+var _uniqBy = _interopRequireDefault(require("lodash-es/uniqBy"));
+
+var _utils = require("../../utils");
+
+var _snake = require("../snake");
+
+var _game = require("../game");
+
+var _updaters = require("../../updaters");
+
+var _events = require("./events");
+
+var _store = require("./store");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+_store.$snakes.on(_game.updateStates, function (prev, _ref) {
+  var snakes = _ref.snakes;
+  return (0, _uniqBy.default)([].concat(_toConsumableArray(snakes), _toConsumableArray(prev)), function (snake) {
+    return snake.id;
+  });
+}).on(_events.addSnake, function (snakes, _ref2) {
+  var snakeId = _ref2.snakeId,
+      isAi = _ref2.isAi;
+  return [].concat(_toConsumableArray(snakes), [_snake.Snake.build((0, _utils.randomPosition)(), {
+    colors: (0, _snake.getColorsForSnake)(),
+    id: snakeId,
+    isAi: isAi,
+    updater: isAi ? _updaters.updaters.ai : _updaters.updaters.user
+  })]);
+}).on(_events.removeSnake, function (snakes, snakeId) {
+  return snakes.filter(function (snake) {
+    return snake.id !== snakeId;
+  });
+}).reset(_game.restart);
+
+_store.$settingsForSnakes.on(_events.removeSnake, function (settings, id) {
+  delete settings[id];
+  var nextSettiings = Object.assign({}, settings);
+  return nextSettiings;
+}).on(_events.updateSettingForSnake, function (state, _ref3) {
+  var snakeId = _ref3.snakeId,
+      settingName = _ref3.settingName,
+      value = _ref3.value;
+
+  if (state[snakeId]) {
+    return _objectSpread({}, state, _defineProperty({}, snakeId, _objectSpread({}, state[snakeId], _defineProperty({}, settingName, value))));
+  }
+
+  return state;
+});
+
+(0, _effector.forward)({
+  from: _game.addUserToGame,
+  to: _events.addSnake.prepend(function () {
+    return {
+      snakeId: 'user',
+      isAi: false
+    };
+  })
+});
+(0, _effector.forward)({
+  from: _game.removeUserFromGame,
+  to: _events.removeSnake.prepend(function () {
+    return 'user';
+  })
+});
+},{"effector":"node_modules/effector/effector.es.js","lodash-es/uniqBy":"node_modules/lodash-es/uniqBy.js","../../utils":"src/utils.js","../snake":"src/models/snake.js","../game":"src/models/game/index.js","../../updaters":"src/updaters/index.js","./events":"src/models/snakes/events.js","./store":"src/models/snakes/store.js"}],"src/models/snakes/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _events = require("./events");
+
+Object.keys(_events).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _events[key];
+    }
+  });
+});
+
+var _store = require("./store");
+
+Object.keys(_store).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _store[key];
+    }
+  });
+});
 
 var _model = require("./model");
 
-var _keyboard = require("./keyboard");
+Object.keys(_model).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _model[key];
+    }
+  });
+});
+},{"./events":"src/models/snakes/events.js","./store":"src/models/snakes/store.js","./model":"src/models/snakes/model.js"}],"src/GUI/common.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Checkbox = exports.Radio = exports.Name = exports.Title = void 0;
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _templateObject4() {
+  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  margin-right: 15px;\n"]);
+
+  _templateObject4 = function _templateObject4() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject3() {
+  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  margin-right: 15px;\n"]);
+
+  _templateObject3 = function _templateObject3() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject2() {
+  var data = _taggedTemplateLiteral(["\n  font-size: 16px;\n  text-align: left;\n  flex: 1 1 auto;\n"]);
+
+  _templateObject2 = function _templateObject2() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  color: #fff;\n  margin: 15px 0;\n  padding: 0;\n  font-weight: bold;\n  color: ", ";\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var Title = _styledComponents.default.h2(_templateObject(), function (props) {
+  return props.color;
+});
+
+exports.Title = Title;
+
+var Name = _styledComponents.default.p(_templateObject2());
+
+exports.Name = Name;
+
+var Radio = _styledComponents.default.input.attrs({
+  type: 'radio'
+})(_templateObject3());
+
+exports.Radio = Radio;
+
+var Checkbox = _styledComponents.default.input.attrs({
+  type: 'checkbox'
+})(_templateObject4());
+
+exports.Checkbox = Checkbox;
+},{"styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js"}],"src/GUI/use-snake.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useSnakeIsCrahedState = useSnakeIsCrahedState;
+exports.useSnakeScoreState = useSnakeScoreState;
+exports.useSnakeColorState = useSnakeColorState;
+exports.useSnakeSetings = useSnakeSetings;
+
+var _effectorReact = require("effector-react");
+
+var _snakes = require("../models/snakes");
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -39180,109 +43338,834 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-var gameInput = (0, _keyboard.keyboradFactory)();
-var updaters = {
-  ai: function ai(self, nextState) {
-    var _getSettingsForSnakeS = (0, _model.getSettingsForSnakeState)(self.id),
-        activeAlgorithm = _getSettingsForSnakeS.activeAlgorithm,
-        activeHeuristic = _getSettingsForSnakeS.activeHeuristic;
+function useSnakeIsCrahedState(snakeId) {
+  var isCrash = (0, _effectorReact.useStoreMap)({
+    store: _snakes.$snakes,
+    keys: [snakeId],
+    fn: function fn(snakes, _ref) {
+      var _ref2 = _slicedToArray(_ref, 1),
+          id = _ref2[0];
 
-    var _getHeuristicStateByI = (0, _model.getHeuristicStateById)(activeHeuristic),
-        heuristic = _getHeuristicStateByI.alg;
-
-    var _getAlgorithmStateByI = (0, _model.getAlgorithmStateById)(activeAlgorithm),
-        traverseAlgorithm = _getAlgorithmStateByI.alg;
-
-    var gameMapState = (0, _model.getGameMapState)();
-    var collisionState = (0, _model.getGameCollisionState)();
-    var withLogger = (0, _model.getLoggerState)();
-
-    function canTraverse(index) {
-      return !collisionState ? true : [_model.PLACE_TYPE.EMPTY, _model.PLACE_TYPE.FOOD].includes((0, _utils.extractTypeFromMap)(gameMapState[index]));
+      var snake = snakes.find(function (s) {
+        return s.id === id;
+      });
+      return snake ? snake.isCrash : null;
     }
+  });
+  return isCrash;
+}
 
-    function getCostByIndex() {
-      return 1;
+function useSnakeScoreState(snakeId) {
+  var score = (0, _effectorReact.useStoreMap)({
+    store: _snakes.$snakes,
+    keys: [snakeId],
+    fn: function fn(snakes, _ref3) {
+      var _ref4 = _slicedToArray(_ref3, 1),
+          id = _ref4[0];
+
+      var snake = snakes.find(function (s) {
+        return s.id === id;
+      });
+      return snake ? snake.score : null;
     }
+  });
+  return score;
+}
 
-    var _getNearestFood = (0, _model.getNearestFood)((0, _snake.headSnake)(self)),
-        _getNearestFood2 = _slicedToArray(_getNearestFood, 1),
-        target = _getNearestFood2[0];
+function useSnakeColorState(snakeId) {
+  var colors = (0, _effectorReact.useStoreMap)({
+    store: _snakes.$snakes,
+    keys: [snakeId],
+    fn: function fn(snakes, _ref5) {
+      var _ref6 = _slicedToArray(_ref5, 1),
+          id = _ref6[0];
 
-    var result = traverseAlgorithm((0, _utils.getIndexByPosition)((0, _snake.headSnake)(self)), (0, _utils.getIndexByPosition)(target), nextState.graph, {
-      canTraverse: canTraverse,
-      getCostByIndex: getCostByIndex,
-      heuristic: heuristic,
-      withLogger: withLogger
-    });
-    var pathPositions = result.path.map(_utils.getPositionByIndex);
-    var processedPositions = result.processed.map(_utils.getPositionByIndex);
-    nextState.path[self.id] = pathPositions;
-    nextState.processed[self.id] = processedPositions;
-    var nextPosition = pathPositions[0] || (0, _collision.checkBounds)((0, _controll.getNextPositionByDirection)((0, _snake.headSnake)(self), self.direction));
-    var nextDirection = (0, _controll.getDirectionByPosition)((0, _snake.headSnake)(self), nextPosition);
-    var diff = (0, _utils.getDifferenceBetweenPositions)((0, _snake.headSnake)(self), nextPosition);
-    (0, _model.onSetDirectionForSnake)({
-      id: self.id,
-      direction: diff !== 1 ? self.direction : nextDirection
-    });
-    (0, _model.onMoveSnake)({
-      id: self.id,
-      nextPosition: nextPosition
-    });
-  },
-  user: function user(self) {
-    var headPosition = (0, _controll.getNextPositionByDirection)((0, _snake.headSnake)(self), self.direction);
-    var nextPosition = (0, _collision.checkBounds)(headPosition);
-    (0, _model.onMoveSnake)({
-      id: self.id,
-      nextPosition: nextPosition
-    });
+      var snake = snakes.find(function (s) {
+        return s.id === id;
+      });
+      return snake ? snake.colors : {
+        head: 'black',
+        tail: 'black'
+      };
+    }
+  });
+  return colors;
+}
 
-    if (gameInput.isDown(_keyboard.KEYS.RIGHT_ARROW) && self.direction !== _config.DIRECTIONS.LEFT) {
-      (0, _model.onSetDirectionForSnake)({
-        id: self.id,
-        direction: _config.DIRECTIONS.RIGHT
+function useSnakeSetings(snakeId) {
+  var colors = (0, _effectorReact.useStoreMap)({
+    store: _snakes.$settingsForSnakes,
+    keys: [snakeId],
+    fn: function fn(settings, _ref7) {
+      var _ref8 = _slicedToArray(_ref7, 1),
+          id = _ref8[0];
+
+      return settings[id];
+    }
+  });
+  return colors;
+}
+},{"effector-react":"node_modules/effector-react/effector-react.es.js","../models/snakes":"src/models/snakes/index.js"}],"src/GUI/score-board.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ScoreItem = ScoreItem;
+exports.ScoreBoard = ScoreBoard;
+exports.Counter = exports.DroppedOutBlock = exports.Score = exports.Wrapper = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _effectorReact = require("effector-react");
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _snakes = require("../models/snakes");
+
+var _common = require("./common");
+
+var _useSnake = require("./use-snake");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _templateObject4() {
+  var data = _taggedTemplateLiteral(["\n  font-sixe: 12px;\n"]);
+
+  _templateObject4 = function _templateObject4() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject3() {
+  var data = _taggedTemplateLiteral(["\n  position: absolute;\n  background-color: #f7f7f787;\n  color: #000;\n  font-weight: bold;\n  width: 100%;\n  text-align: center;\n  font-size: 13px;\n"]);
+
+  _templateObject3 = function _templateObject3() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject2() {
+  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  padding: 0;\n  display: flex;\n  justify-content: space-around;\n  flex: 1 1 auto;\n  text-decoration: ", ";\n  color: ", ";\n  position: relative;\n  align-items: center;\n"]);
+
+  _templateObject2 = function _templateObject2() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  padding: 0;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var Wrapper = _styledComponents.default.ul(_templateObject());
+
+exports.Wrapper = Wrapper;
+
+var Score = _styledComponents.default.li(_templateObject2(), function (props) {
+  return props.isCrash ? 'line-through' : 'none';
+}, function (props) {
+  return props.color;
+});
+
+exports.Score = Score;
+
+var DroppedOutBlock = _styledComponents.default.div(_templateObject3());
+
+exports.DroppedOutBlock = DroppedOutBlock;
+
+var Counter = _styledComponents.default.p(_templateObject4());
+
+exports.Counter = Counter;
+
+function ScoreItem(_ref) {
+  var snakeId = _ref.snakeId;
+  var score = (0, _useSnake.useSnakeScoreState)(snakeId);
+  var isCrash = (0, _useSnake.useSnakeIsCrahedState)(snakeId);
+  var colors = (0, _useSnake.useSnakeColorState)(snakeId);
+  return _react.default.createElement(Score, {
+    isCrash: isCrash,
+    color: colors.head
+  }, _react.default.createElement(DroppedOutBlock, {
+    hidden: !isCrash
+  }, "Dropped out !"), _react.default.createElement(_common.Name, null, snakeId), _react.default.createElement(Counter, null, score));
+}
+
+function ScoreBoard() {
+  var snakesIds = (0, _effectorReact.useStore)(_snakes.$snakesIterator);
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Score board"), _react.default.createElement(Wrapper, null, snakesIds.map(function (snakeId) {
+    return _react.default.createElement(ScoreItem, {
+      snakeId: snakeId,
+      key: snakeId
+    });
+  })));
+}
+},{"react":"node_modules/react/index.js","effector-react":"node_modules/effector-react/effector-react.es.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","../models/snakes":"src/models/snakes/index.js","./common":"src/GUI/common.js","./use-snake":"src/GUI/use-snake.js"}],"src/GUI/settings.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.SettingsForSnake = SettingsForSnake;
+exports.Settings = Settings;
+exports.TitlesWrapper = exports.Select = exports.Name = exports.SettingWrapper = exports.Wrapper = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _effectorReact = require("effector-react");
+
+var _common = require("./common");
+
+var _useSnake = require("./use-snake");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _templateObject5() {
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n\n  & p {\n    cursor: pointer;\n    user-select: none;\n  }\n"]);
+
+  _templateObject5 = function _templateObject5() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject4() {
+  var data = _taggedTemplateLiteral(["\n  margin-top: 5px;\n"]);
+
+  _templateObject4 = function _templateObject4() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject3() {
+  var data = _taggedTemplateLiteral(["\n  font-size: 16px;\n  text-align: left;\n  flex: 1 1 auto;\n  cursor: pointer;\n  color: ", ";\n"]);
+
+  _templateObject3 = function _templateObject3() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject2() {
+  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  padding: 0;\n  display: flex;\n  justify-content: space-around;\n  flex: 1 1 auto;\n  margin-bottom: 5px;\n  user-select: none;\n  flex-direction: ", ";\n"]);
+
+  _templateObject2 = function _templateObject2() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  margin: 0;\n  padding: 0;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var Wrapper = _styledComponents.default.ul(_templateObject());
+
+exports.Wrapper = Wrapper;
+
+var SettingWrapper = _styledComponents.default.li(_templateObject2(), function (props) {
+  return props.dir || 'row';
+});
+
+exports.SettingWrapper = SettingWrapper;
+
+var Name = _styledComponents.default.label(_templateObject3(), function (props) {
+  return props.color;
+});
+
+exports.Name = Name;
+
+var Select = _styledComponents.default.select(_templateObject4());
+
+exports.Select = Select;
+
+var TitlesWrapper = _styledComponents.default.div(_templateObject5());
+
+exports.TitlesWrapper = TitlesWrapper;
+
+function SettingsForSnake(_ref) {
+  var snakeId = _ref.snakeId;
+  var isCrash = (0, _useSnake.useSnakeIsCrahedState)(snakeId);
+  var colors = (0, _useSnake.useSnakeColorState)(snakeId); // const algorithms = useStore($algorithmsStore)
+  // const heuristics = useStore($heuristicsStore)
+
+  var _useSnakeSetings = (0, _useSnake.useSnakeSetings)(snakeId),
+      showProcessedCells = _useSnakeSetings.showProcessedCells,
+      activeAlgorithm = _useSnakeSetings.activeAlgorithm,
+      activeHeuristic = _useSnakeSetings.activeHeuristic,
+      showAIPathToTarget = _useSnakeSetings.showAIPathToTarget; // const currentAlgorithm = algorithms.find((alg) => alg.id === activeAlgorithm)
+
+
+  function removeSnake() {
+    onRemoveSnake(snakeId);
+  }
+
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(TitlesWrapper, null, _react.default.createElement(_common.Title, {
+    color: colors.head
+  }, "Settings for ", snakeId), _react.default.createElement("p", {
+    onClick: removeSnake
+  }, "remove")), _react.default.createElement(Wrapper, null, _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    disabled: isCrash,
+    id: "path-".concat(snakeId),
+    checked: showAIPathToTarget,
+    onChange: function onChange() {
+      onUpdateSettingForSnake({
+        snakeId: snakeId,
+        value: !showAIPathToTarget,
+        settingName: 'showAIPathToTarget'
       });
     }
-
-    if (gameInput.isDown(_keyboard.KEYS.DOWN_ARROW) && self.direction !== _config.DIRECTIONS.TOP) {
-      (0, _model.onSetDirectionForSnake)({
-        id: self.id,
-        direction: _config.DIRECTIONS.DOWN
+  }), _react.default.createElement(Name, {
+    htmlFor: "path-".concat(snakeId),
+    color: colors.tail
+  }, "show ai path to target")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    disabled: isCrash,
+    id: "processed-".concat(snakeId),
+    checked: showProcessedCells,
+    onChange: function onChange() {
+      onUpdateSettingForSnake({
+        snakeId: snakeId,
+        value: !showProcessedCells,
+        settingName: 'showProcessedCells'
       });
     }
-
-    if (gameInput.isDown(_keyboard.KEYS.LEFT_ARROW) && self.direction !== _config.DIRECTIONS.RIGHT) {
-      (0, _model.onSetDirectionForSnake)({
-        id: self.id,
-        direction: _config.DIRECTIONS.LEFT
+  }), _react.default.createElement(Name, {
+    htmlFor: "processed-".concat(snakeId),
+    color: colors.tail
+  }, "show processed cells")), _react.default.createElement(SettingWrapper, {
+    dir: "column"
+  }, _react.default.createElement(Select, {
+    disabled: isCrash,
+    onChange: function onChange(_ref2) {
+      var target = _ref2.target;
+      onUpdateSettingForSnake({
+        snakeId: snakeId,
+        settingName: 'activeAlgorithm',
+        value: target.value
       });
     }
-
-    if (gameInput.isDown(_keyboard.KEYS.TOP_ARROW) && self.direction !== _config.DIRECTIONS.DOWN) {
-      (0, _model.onSetDirectionForSnake)({
-        id: self.id,
-        direction: _config.DIRECTIONS.TOP
+  }, algorithms.map(function (alg) {
+    return _react.default.createElement("option", {
+      key: alg.id,
+      selected: activeAlgorithm === alg.id,
+      value: alg.id
+    }, alg.name);
+  })), currentAlgorithm.hasHeuristic && _react.default.createElement(Select, {
+    disabled: isCrash,
+    onChange: function onChange(_ref3) {
+      var target = _ref3.target;
+      onUpdateSettingForSnake({
+        snakeId: snakeId,
+        settingName: 'activeHeuristic',
+        value: target.value
       });
+    }
+  }, heuristics.map(function (heuristic) {
+    return _react.default.createElement("option", {
+      key: heuristic.id,
+      selected: activeHeuristic === heuristic.id,
+      value: heuristic.id
+    }, heuristic.name);
+  })))));
+}
+
+function Settings() {
+  var collisionState = (0, _effectorReact.useStore)($gameCollisionStateStore);
+  var userInGameStore = (0, _effectorReact.useStore)($userInGameStore);
+  var indexesVisibleStore = (0, _effectorReact.useStore)($indexesVisibleStore);
+  var withLogger = (0, _effectorReact.useStore)($enableLoggerStore);
+  var snakeIterator = (0, _effectorReact.useStore)($snakeIterator);
+
+  function onSetCollision() {
+    onSetCollisionState(!collisionState);
+  }
+
+  function onSetIndexesVisibleState() {
+    onSetIndexesVisible(!indexesVisibleStore);
+  }
+
+  function handleChangeUserInGameState() {
+    if (userInGameStore) {
+      onRemoveUserFromGame();
+    } else {
+      onAddUserToGame();
     }
   }
-};
-exports.updaters = updaters;
-},{"./utils":"src/utils.js","./config":"src/config.js","./controll":"src/controll.js","./collision":"src/collision.js","./model/snake":"src/model/snake.js","./model":"src/model/index.js","./keyboard":"src/keyboard.js"}],"src/food.js":[function(require,module,exports) {
+
+  function toggleLoggerState() {
+    onToggleLoggerState(!withLogger);
+  }
+
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Common Settings"), _react.default.createElement(Wrapper, null, _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    id: "collision",
+    checked: collisionState,
+    onChange: onSetCollision
+  }), _react.default.createElement(Name, {
+    htmlFor: "collision"
+  }, "handle collision state")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    id: "withUser",
+    checked: userInGameStore,
+    onChange: handleChangeUserInGameState
+  }), _react.default.createElement(Name, {
+    htmlFor: "withUser"
+  }, "add user (you) to game")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    id: "indexesvisible",
+    checked: indexesVisibleStore,
+    onChange: onSetIndexesVisibleState
+  }), _react.default.createElement(Name, {
+    htmlFor: "indexesvisible"
+  }, "visible indexes")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    id: "logger",
+    checked: withLogger,
+    onChange: toggleLoggerState
+  }), _react.default.createElement(Name, {
+    htmlFor: "logger"
+  }, "show operations count in console"))), snakeIterator.filter(function (id) {
+    return id !== 'user';
+  }).map(function (id) {
+    return _react.default.createElement(SettingsForSnake, {
+      snakeId: id,
+      key: id
+    });
+  }));
+}
+},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","effector-react":"node_modules/effector-react/effector-react.es.js","./common":"src/GUI/common.js","./use-snake":"src/GUI/use-snake.js"}],"src/GUI/right-panel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RightPanel = RightPanel;
+exports.Wrapper = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _scoreBoard = require("./score-board");
+
+var _settings = require("./settings");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  padding: 20px;\n  background-color: rgba(0, 0, 0, 0.6);\n  color: #fff;\n  border-radius: 8px;\n  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);\n  width: 100%;\n  min-height: 100px;\n  max-height: 80vh;\n  overflow: auto;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var Wrapper = _styledComponents.default.div(_templateObject());
+
+exports.Wrapper = Wrapper;
+
+function RightPanel() {
+  return _react.default.createElement(Wrapper, null, _react.default.createElement(_scoreBoard.ScoreBoard, null));
+}
+},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./score-board":"src/GUI/score-board.js","./settings":"src/GUI/settings.js"}],"src/GUI/control-pannel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ControllPanel = void 0;
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: flex-start;\n  align-items: center;\n  padding: 20px;\n  background-color: rgba(0, 0, 0, 0.6);\n  color: #fff;\n  border-radius: 8px;\n  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);\n  width: 100%;\n  min-height: 50px;\n  margin-top: 15px;\n\n  > button {\n    margin: auto;\n  }\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var ControllPanel = _styledComponents.default.div(_templateObject());
+
+exports.ControllPanel = ControllPanel;
+},{"styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js"}],"src/GUI/side-bar.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.SideBar = SideBar;
+exports.SideBarInner = exports.SideBarWrapper = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _effectorReact = require("effector-react");
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _reactDraggable = _interopRequireDefault(require("react-draggable"));
+
+var _game = require("../models/game");
+
+var _snakes = require("../models/snakes");
+
+var _rightPanel = require("./right-panel");
+
+var _controlPannel = require("./control-pannel");
+
+var _config = require("../config");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _templateObject3() {
+  var data = _taggedTemplateLiteral(["\n  border: none;\n  background: rgba(255, 255, 255, 0.7);\n  border-radius: 5px;\n  font-size: 90%;\n  cursor: pointer;\n  padding: 8px 15px;\n  transition: 0.5s;\n  outline: none;\n\n  &:hover {\n    background: #fff;\n  }\n\n  &:disabled {\n    background: #fff;\n    cursor: not-allowed;\n  }\n"]);
+
+  _templateObject3 = function _templateObject3() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject2() {
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  position: relative;\n  flex: 1 1 auto;\n  flex-direction: column;\n"]);
+
+  _templateObject2 = function _templateObject2() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  width: 300px;\n  cursor: move;\n\n  & div {\n    box-sizing: border-box;\n  }\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var SideBarWrapper = _styledComponents.default.div(_templateObject());
+
+exports.SideBarWrapper = SideBarWrapper;
+
+var SideBarInner = _styledComponents.default.div(_templateObject2());
+
+exports.SideBarInner = SideBarInner;
+
+var Button = _styledComponents.default.button(_templateObject3());
+
+function SideBar() {
+  var lastId = (0, _react.useRef)(2);
+  var gameState = (0, _effectorReact.useStore)(_game.$gameState);
+  var isPlay = gameState === _config.GAME_STATE.IS_PLAY;
+  var playOrPause = isPlay ? _game.stop : _game.play;
+  var text = isPlay ? 'pause' : 'play';
+
+  function addSnakeToGame() {
+    (0, _snakes.addSnake)({
+      snakeId: "ai-".concat(lastId.current++),
+      isAi: true
+    });
+  }
+
+  return _react.default.createElement(_reactDraggable.default, null, _react.default.createElement(SideBarWrapper, null, _react.default.createElement(SideBarInner, null, _react.default.createElement(_rightPanel.RightPanel, null), _react.default.createElement(_controlPannel.ControllPanel, null, _react.default.createElement(Button, {
+    onClick: playOrPause
+  }, text), _react.default.createElement(Button, {
+    onClick: _game.restart
+  }, "restart"), _react.default.createElement(Button, {
+    onClick: addSnakeToGame
+  }, "add snake")))));
+}
+},{"react":"node_modules/react/index.js","effector-react":"node_modules/effector-react/effector-react.es.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","react-draggable":"node_modules/react-draggable/dist/react-draggable.js","../models/game":"src/models/game/index.js","../models/snakes":"src/models/snakes/index.js","./right-panel":"src/GUI/right-panel.js","./control-pannel":"src/GUI/control-pannel.js","../config":"src/config.js"}],"src/GUI/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.renderGUI = renderGUI;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _reactDom = _interopRequireDefault(require("react-dom"));
+
+var _sideBar = require("./side-bar");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function App() {
+  return _react.default.createElement(_sideBar.SideBar, null);
+}
+
+var root = document.querySelector('#root');
+
+function renderGUI() {
+  _reactDom.default.render(_react.default.createElement(App, null), root);
+}
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./side-bar":"src/GUI/side-bar.js"}],"src/models/graph/store.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.$graph = void 0;
+
+var _effector = require("effector");
+
+var _algorithms = require("../../algorithms");
+
+var _utils = require("../../utils");
+
+var _config = require("../../config");
+
+var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
+var $graph = (0, _effector.createStore)(new _algorithms.Graph(localSize));
+exports.$graph = $graph;
+},{"effector":"node_modules/effector/effector.es.js","../../algorithms":"src/algorithms/index.js","../../utils":"src/utils.js","../../config":"src/config.js"}],"src/models/graph/model.js":[function(require,module,exports) {
+"use strict";
+
+var _game = require("../game");
+
+var _store = require("./store");
+
+_store.$graph.on(_game.updateStates, function (_, _ref) {
+  var graph = _ref.graph;
+  return graph;
+}).reset(_game.restart);
+},{"../game":"src/models/game/index.js","./store":"src/models/graph/store.js"}],"src/models/graph/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _store = require("./store");
+
+Object.keys(_store).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _store[key];
+    }
+  });
+});
+
+var _model = require("./model");
+
+Object.keys(_model).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _model[key];
+    }
+  });
+});
+},{"./store":"src/models/graph/store.js","./model":"src/models/graph/model.js"}],"src/models/objects/store.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.$foods = void 0;
+
+var _effector = require("effector");
+
+var _utils = require("../../utils");
+
+var $foods = (0, _effector.createStore)((0, _utils.generateRandomFoodByCount)(15));
+exports.$foods = $foods;
+},{"effector":"node_modules/effector/effector.es.js","../../utils":"src/utils.js"}],"src/models/objects/events.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.generateFoods = void 0;
+
+var _effector = require("effector");
+
+var generateFoods = (0, _effector.createEvent)('generate food');
+exports.generateFoods = generateFoods;
+},{"effector":"node_modules/effector/effector.es.js"}],"src/models/objects/model.js":[function(require,module,exports) {
+"use strict";
+
+var _uniqBy = _interopRequireDefault(require("lodash-es/uniqBy"));
+
+var _game = require("../game");
+
+var _store = require("./store");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+_store.$foods.on(_game.updateStates, function (prevFoods, _ref) {
+  var foods = _ref.foods;
+  return (0, _uniqBy.default)([].concat(_toConsumableArray(foods), _toConsumableArray(prevFoods)), function (food) {
+    return food[1];
+  });
+});
+},{"lodash-es/uniqBy":"node_modules/lodash-es/uniqBy.js","../game":"src/models/game/index.js","./store":"src/models/objects/store.js"}],"src/models/objects/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _store = require("./store");
+
+Object.keys(_store).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _store[key];
+    }
+  });
+});
+
+var _events = require("./events");
+
+Object.keys(_events).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _events[key];
+    }
+  });
+});
+
+var _model = require("./model");
+
+Object.keys(_model).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _model[key];
+    }
+  });
+});
+},{"./store":"src/models/objects/store.js","./events":"src/models/objects/events.js","./model":"src/models/objects/model.js"}],"src/models/tick.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createTick = createTick;
+
+var _effector = require("effector");
+
+var _config = require("../config");
+
+var _game = require("./game");
+
+var $isPlay = _game.$gameState.map(function (s) {
+  return s === _config.GAME_STATE.IS_PLAY;
+});
+
+var tickFx = (0, _effector.createEffect)().use(function (fps) {
+  return new Promise(function (rs, rej) {
+    var unbind = _game.stop.watch(function () {
+      rej();
+      unbind();
+    });
+
+    setTimeout(function () {
+      rs();
+      unbind();
+    }, 1000 / fps);
+  });
+});
+
+function createTick(_ref) {
+  var $state = _ref.$state,
+      runLogic = _ref.runLogic,
+      runRender = _ref.runRender;
+  var $tick = (0, _effector.createStore)(0);
+  var nextTickFx = (0, _effector.attach)({
+    effect: tickFx,
+    source: _game.$fps,
+    mapParams: function mapParams(_, fps) {
+      return fps;
+    }
+  });
+  $tick.on(nextTickFx.done, function (previous) {
+    return previous + 1;
+  });
+  (0, _effector.sample)($state, nextTickFx).watch(runLogic);
+  (0, _effector.sample)($state, nextTickFx.done).watch(runRender);
+  (0, _effector.forward)({
+    from: (0, _effector.guard)((0, _effector.merge)([nextTickFx.done, $isPlay]), {
+      filter: $isPlay
+    }),
+    to: nextTickFx
+  });
+  return {
+    $tick: $tick,
+    nextTickFx: nextTickFx
+  };
+}
+},{"effector":"node_modules/effector/effector.es.js","../config":"src/config.js","./game":"src/models/game/index.js"}],"src/renderer/foods.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.renderFoods = renderFoods;
-exports.updateGameMapForFood = updateGameMapForFood;
 
-var _utils = require("./utils");
+var _utils = require("../utils");
 
-var _model = require("./model");
-
-var _renderer = require("./renderer");
+var _shapes = require("./shapes");
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -39292,33 +44175,20 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function renderFoods(context, foods, callback) {
+function renderFoods(context, foods) {
   foods.forEach(function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         position = _ref2[0],
         id = _ref2[1];
 
-    var index = (0, _utils.getIndexByPosition)(position);
-    callback(index, id);
-    (0, _renderer.drawSquare)(context, position, {
+    (0, _shapes.drawSquare)(context, position, {
       color: 'rgb(238, 68, 0)'
-    });
-
-    if ((0, _model.getIndexesVisibleStore)()) {
-      (0, _renderer.renderText)(context, index, position);
-    }
+    }); // if (getIndexesVisibleStore()) {
+    //   renderText(context, index, position)
+    // }
   });
 }
-
-function updateGameMapForFood() {
-  return function (index, foodId) {
-    (0, _model.onUpdateGameMap)({
-      index: index,
-      placeType: [_model.PLACE_TYPE.FOOD, foodId]
-    });
-  };
-}
-},{"./utils":"src/utils.js","./model":"src/model/index.js","./renderer":"src/renderer.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"../utils":"src/utils.js","./shapes":"src/renderer/shapes.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -39394,6 +44264,8 @@ module.exports = reloadCSS;
 },{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/index.js":[function(require,module,exports) {
 "use strict";
 
+var _effector = require("effector");
+
 var _utils = require("./utils");
 
 var _renderer = require("./renderer");
@@ -39404,25 +44276,49 @@ var _controll = require("./controll");
 
 var _canvas = require("./canvas");
 
-var _snake = require("./model/snake");
+var _snake = require("./models/snake");
 
 var _algorithms = require("./algorithms");
 
 var _GUI = require("./GUI");
 
-var _model = require("./model");
+var _snakes = require("./models/snakes");
 
-var _snake2 = require("./snake");
+var _graph = require("./models/graph");
 
-var _brick = require("./brick");
+var _objects = require("./models/objects");
 
-var _updaters = require("./updaters");
+var _tick = require("./models/tick");
 
-var _food = require("./food");
+var _game = require("./models/game");
+
+var _foods = require("./renderer/foods");
 
 require("reset-css");
 
-/* eslint-disable unicorn/prevent-abbreviations */
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var $state = (0, _effector.combine)({
+  snakes: _snakes.$snakes,
+  settingsForSnakes: _snakes.$settingsForSnakes,
+  isLoggerEnabled: _game.$isLoggerEnabled,
+  indexesVisible: _game.$indexesVisible,
+  graph: _graph.$graph,
+  foods: _objects.$foods
+});
+
 function main(canvas, context) {
   (0, _GUI.renderGUI)();
 
@@ -39433,124 +44329,144 @@ function main(canvas, context) {
   var gridData = (0, _renderer.buildGrid)(context);
   var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
   var globalSize = (0, _utils.getGlobalSize)(localSize.w, localSize.h);
-  var state = {
-    graph: new _algorithms.Graph(localSize),
-    path: {},
-    processed: {}
-  };
-  var nextTick = (0, _controll.createTimeController)(_config.fps);
   (0, _canvas.convigureCanvas)(canvas, localSize, globalSize);
-
-  function eatFood(snake) {
-    if (!snake.isCrash) {
-      var gameMap = (0, _model.getGameMapState)();
-      var headIndex = (0, _utils.getIndexByPosition)((0, _snake.headSnake)(snake));
-      var isArray = Array.isArray(gameMap[headIndex]);
-
-      if (isArray && gameMap[headIndex][0] === _model.PLACE_TYPE.FOOD) {
-        var peaceOfSnake = (0, _controll.getNextPositionByDirection)((0, _snake.headSnake)(snake), snake.direction);
-        (0, _model.onEatFood)({
-          id: snake.id,
-          peaceOfSnake: peaceOfSnake,
-          foodId: gameMap[headIndex][1]
-        });
-      }
-    }
-  }
-
-  function checkCollision(snake) {
-    var collisionState = (0, _model.getGameCollisionState)();
-
-    if (collisionState) {
-      var gameMap = (0, _model.getGameMapState)();
-      var headIndex = (0, _utils.getIndexByPosition)((0, _snake.headSnake)(snake));
-      var isCrash = [_model.PLACE_TYPE.GAME_OBJECT, _model.PLACE_TYPE.BRICK].includes((0, _utils.extractTypeFromMap)(gameMap[headIndex]));
-
-      if (isCrash) {
-        (0, _model.onCrashSnake)(snake.id);
-      }
-    }
-  }
 
   function clearGame() {
     context.clearRect(0, 0, globalSize.w, globalSize.h);
-    (0, _model.onClearGameMap)();
   }
 
-  function updateGameMap(placeType) {
-    return function (index) {
-      (0, _model.onUpdateGameMap)({
-        index: index,
-        placeType: placeType
-      });
-    };
-  }
+  function runLogic(nextState) {
+    var nextSnakes = [];
 
-  nextTick.start(function (isPLay) {
-    var foods = (0, _model.getFoodsState)();
+    var graph = _algorithms.Graph.extend(nextState.graph);
 
-    function updateSnakes() {
-      var snakes = (0, _model.getSnakesState)();
-      snakes.forEach(function (snake) {
-        if (!snake.isCrash) {
-          var isAi = /ai/.test(snake.id);
-          var updater = isAi ? 'ai' : 'user';
+    var foods = nextState.foods;
 
-          _updaters.updaters[updater](snake, state);
+    function markFoodOnGraph() {
+      foods.forEach(function (food) {
+        var _food = _slicedToArray(food, 1),
+            position = _food[0];
+
+        var idx = (0, _utils.getIndexByPosition)(position);
+        var vertex = graph.getVertex(idx);
+
+        if (vertex.value === _config.PLACE_TYPE.EMPTY) {
+          graph.setValueByIndex(idx, _config.PLACE_TYPE.FOOD);
         }
       });
     }
 
-    function applyCollisionDetection() {
-      var snakes = (0, _model.getSnakesState)();
-      snakes.forEach(eatFood);
-      snakes.forEach(checkCollision);
+    function handleEatFood(_ref) {
+      var snake = _ref.snake,
+          nextPosition = _ref.nextPosition,
+          nextIndex = _ref.nextIndex;
+      var nextSnake = (0, _snake.addPeaceOfSnake)((0, _snake.setScore)(snake, snake.score + 1), nextPosition);
+      foods = foods.map(function (food) {
+        var _food2 = _slicedToArray(food, 2),
+            position = _food2[0],
+            id = _food2[1];
+
+        if ((0, _utils.getIndexByPosition)(position) === nextIndex) {
+          return [(0, _utils.randomPosition)(), id];
+        }
+
+        return food;
+      });
+      return nextSnake;
     }
 
-    if (isPLay) {
-      updateSnakes();
-      applyCollisionDetection();
+    function reCreateSnakeInGraph(prevSnake, nextSnake) {
+      var tail = (0, _snake.tailSnake)(prevSnake);
+      var head = (0, _snake.headSnake)(nextSnake);
+      graph.setValueByIndex((0, _utils.getIndexByPosition)(tail), _config.PLACE_TYPE.EMPTY);
+      graph.setValueByIndex((0, _utils.getIndexByPosition)(head), _config.PLACE_TYPE.GAME_OBJECT);
     }
 
-    var bricks = (0, _model.getBrickState)();
+    markFoodOnGraph();
+    nextState.snakes.filter(function (s) {
+      return !s.isCrash;
+    }).forEach(function (snake) {
+      var _snake$updater = snake.updater(snake, _objectSpread({}, nextState, {
+        graph: graph,
+        foods: foods
+      })),
+          nextDirection = _snake$updater.nextDirection,
+          nextPosition = _snake$updater.nextPosition;
+
+      var nextIndex = (0, _utils.getIndexByPosition)(nextPosition);
+      var nextVertex = graph.getVertex(nextIndex);
+      var nextSnake = (0, _snake.setDirection)((0, _snake.updateBody)(snake, nextPosition), nextDirection);
+
+      if ((nextVertex === null || nextVertex === void 0 ? void 0 : nextVertex.value) === _config.PLACE_TYPE.FOOD) {
+        nextSnake = handleEatFood({
+          snake: snake,
+          nextPosition: nextPosition,
+          nextIndex: nextIndex
+        });
+      }
+
+      if ((nextVertex === null || nextVertex === void 0 ? void 0 : nextVertex.value) === _config.PLACE_TYPE.GAME_OBJECT) {
+        nextSnake = (0, _snake.setCrash)(snake, true);
+      }
+
+      reCreateSnakeInGraph(snake, nextSnake);
+      nextSnakes.push(nextSnake);
+    });
+    (0, _game.updateStates)({
+      snakes: nextSnakes,
+      graph: graph,
+      foods: foods
+    });
+  }
+
+  function runRender(nextState) {
+    var snakes = nextState.snakes,
+        settingsForSnakes = nextState.settingsForSnakes,
+        foods = nextState.foods;
     clearGame();
-    var snakes = (0, _model.getSnakesState)();
-    (0, _food.renderFoods)(context, foods, (0, _food.updateGameMapForFood)());
-    (0, _brick.renderBricks)(context, bricks, updateGameMap(_model.PLACE_TYPE.BRICK));
+    (0, _foods.renderFoods)(context, foods);
+    snakes.forEach(function (snake) {
+      if (snake.id !== 'user') {
+        var _ref2 = settingsForSnakes[snake.id] || {},
+            _ref2$showAIPathToTar = _ref2.showAIPathToTarget,
+            showAIPathToTarget = _ref2$showAIPathToTar === void 0 ? false : _ref2$showAIPathToTar,
+            _ref2$showProcessedCe = _ref2.showProcessedCells,
+            showProcessedCells = _ref2$showProcessedCe === void 0 ? false : _ref2$showProcessedCe;
 
-    function renderSnakes() {
-      snakes.forEach(function (snake) {
-        if (snake.id !== 'user') {
-          var _getSettingsForSnakeS = (0, _model.getSettingsForSnakeState)(snake.id),
-              showAIPathToTarget = _getSettingsForSnakeS.showAIPathToTarget,
-              showProcessedCells = _getSettingsForSnakeS.showProcessedCells;
+        (0, _renderer.renderSnake)({
+          context: context,
+          snake: snake
+        });
 
-          (0, _snake2.renderSnake)(context, snake);
-
-          if (showProcessedCells) {
-            (0, _renderer.renderProcessed)(context, state.processed[snake.id] || [], snake.colors.processed);
-          }
-
-          if (showAIPathToTarget) {
-            (0, _renderer.renderPath)(context, state.path[snake.id] || [], snake.colors.head);
-          }
-        } else {
-          (0, _snake2.renderSnake)(context, snake);
+        if (showProcessedCells) {
+          (0, _renderer.renderProcessed)(context, [], snake.colors.processed);
         }
-      });
-    }
 
-    renderSnakes();
-    (0, _model.onUpdateGameMapWithNexState)((0, _snake2.batchUpdateSnakeStateForGameMap)(snakes));
+        if (showAIPathToTarget) {
+          (0, _renderer.renderPath)(context, [], snake.colors.head);
+        }
+      } else {
+        (0, _renderer.renderSnake)({
+          context: context,
+          snake: snake
+        });
+      }
+    });
     gridData.applyStyles();
     context.stroke(gridData.grid);
-  });
+  }
+
+  (0, _tick.createTick)({
+    $state: $state,
+    runLogic: runLogic,
+    runRender: runRender
+  }).nextTickFx();
 }
 
 var canvas = document.querySelector('canvas');
 var context = canvas.getContext('2d');
 main(canvas, context);
-},{"./utils":"src/utils.js","./renderer":"src/renderer.js","./config":"src/config.js","./controll":"src/controll.js","./canvas":"src/canvas.js","./model/snake":"src/model/snake.js","./algorithms":"src/algorithms/index.js","./GUI":"src/GUI/index.js","./model":"src/model/index.js","./snake":"src/snake.js","./brick":"src/brick.js","./updaters":"src/updaters.js","./food":"src/food.js","reset-css":"node_modules/reset-css/reset.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","./utils":"src/utils.js","./renderer":"src/renderer/index.js","./config":"src/config.js","./controll":"src/controll.js","./canvas":"src/canvas.js","./models/snake":"src/models/snake.js","./algorithms":"src/algorithms/index.js","./GUI":"src/GUI/index.js","./models/snakes":"src/models/snakes/index.js","./models/graph":"src/models/graph/index.js","./models/objects":"src/models/objects/index.js","./models/tick":"src/models/tick.js","./models/game":"src/models/game/index.js","./renderer/foods":"src/renderer/foods.js","reset-css":"node_modules/reset-css/reset.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -39578,7 +44494,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61843" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63545" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
