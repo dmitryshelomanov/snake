@@ -21,7 +21,7 @@ const colorsStub = [
 ]
 
 export class Snake {
-  static build(headPosition, { colors, id }) {
+  static build(headPosition, { colors, id, isAi, updater }) {
     return {
       id,
       body: [headPosition, [headPosition[0] + 1, headPosition[1]]],
@@ -30,11 +30,14 @@ export class Snake {
       weight: 1,
       score: 0,
       colors,
+      isAi,
+      updater,
+      meta: isAi ? { processed: [], path: [] } : undefined,
     }
   }
 }
 
-export function moveSnake(snake, nextPosition) {
+export function updateBody(snake, nextPosition) {
   const [_, ...rest] = snake.body
 
   if (nextPosition) {
@@ -63,6 +66,13 @@ export function setDirection(snake, direction) {
   return {
     ...snake,
     direction,
+  }
+}
+
+export function setMeta(snake, meta) {
+  return {
+    ...snake,
+    meta,
   }
 }
 
