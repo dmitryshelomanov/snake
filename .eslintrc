@@ -4,7 +4,9 @@
     "prefer-promise-reject-errors": "off",
     "no-param-reassign": "off",
     "unicorn/no-process-exit": "off",
-    "no-mixed-operators": "off"
+    "no-mixed-operators": "off",
+    "import/export": "off",
+    "unicorn/prevent-abbreviations": "off"
   },
   "globals": {
     "requestAnimationFrame": true,
