@@ -12,19 +12,37 @@
   reference: https://habr.com/ru/post/331192/
 */
 
+import { PLACE_TYPE } from '../config'
+
 export class Graph {
-  constructor({ w, h, withBounds = false }) {
+  constructor({ w, h, withBounds = false, emptyGraph, graph }) {
     this.w = w
     this.h = h
     this.withBounds = withBounds
-    this.graph = Array.from({ length: w * h }, (_, index) =>
-      [
-        this.getTopNeigbour(index),
-        this.getLeftNeigbour(index),
-        this.getDownNeigbour(index),
-        this.getRightNeigbour(index),
-      ].filter((i) => typeof i !== 'undefined')
-    )
+    // for quick copy
+    this.emptyGraph =
+      typeof emptyGraph !== 'undefined'
+        ? emptyGraph
+        : Array.from({ length: w * h }, (_, index) => ({
+            neigbors: [
+              this.getTopNeigbour(index),
+              this.getLeftNeigbour(index),
+              this.getDownNeigbour(index),
+              this.getRightNeigbour(index),
+            ].filter((i) => typeof i !== 'undefined'),
+            value: { type: PLACE_TYPE.EMPTY },
+          }))
+    this.graph = typeof graph !== 'undefined' ? graph : this.emptyGraph.slice()
+  }
+
+  static extend(graph) {
+    return new Graph({
+      w: graph.w,
+      h: graph.h,
+      withBounds: graph.withBounds,
+      graph: graph.graph.slice(),
+      emptyGraph: graph.emptyGraph.slice(),
+    })
   }
 
   getTopNeigbour(index) {
@@ -69,7 +87,13 @@ export class Graph {
     return this.withBounds ? undefined : index % this.w
   }
 
-  getNeighbors(index) {
-    return this.graph[index] || []
+  getVertex(index) {
+    return this.graph[index]
+  }
+
+  setValueByIndex(index, value) {
+    if (this.graph[index]) {
+      this.graph[index] = { ...this.graph[index], value }
+    }
   }
 }

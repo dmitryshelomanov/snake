@@ -2,7 +2,7 @@
 
 [Try it](https://dmitryshelomanov.github.io/snake/)
 
-![preview](preview_2.png)
+![preview](preview.gif)
 
 ## Introduction
 
@@ -15,4 +15,11 @@ Your opportunities
 - Add bricks to arbitrary place
 - Use different search algorighms
 
-> _Use keyword [/_ Note:](https://github.com/dmitryshelomanov/snake/search?q=%2F*+Note%3A&unscoped_q=%2F*+Note%3A) if you want to read algorigthm details\*
+Feature
+
+- change FPS
+- algorithm visualization
+
+Notes
+
+_Use keyword [/_ Note:](https://github.com/dmitryshelomanov/snake/search?q=%2F*+Note%3A&unscoped_q=%2F*+Note%3A) if you want to read algorigthm details\*

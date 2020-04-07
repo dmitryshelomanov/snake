@@ -1,28 +1,33 @@
-import React from 'react'
+import React, { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { useStore } from 'effector-react'
-import {
-  $gameCollisionStateStore,
-  $userInGameStore,
-  $indexesVisibleStore,
-  $enableLoggerStore,
-  $snakeIterator,
-  $algorithmsStore,
-  $heuristicsStore,
-  onSetCollisionState,
-  onAddUserToGame,
-  onRemoveUserFromGame,
-  onSetIndexesVisible,
-  onToggleLoggerState,
-  onUpdateSettingForSnake,
-  onRemoveSnake,
-} from '../model'
+import { combine } from 'effector'
 import { Title, Checkbox } from './common'
+import { $algorithms, $heuristics } from '../models/algorithms'
 import {
   useSnakeColorState,
   useSnakeSetings,
   useSnakeIsCrahedState,
 } from './use-snake'
+import {
+  $isEnabledCollisionDetect,
+  $indexesVisible,
+  $isLoggerEnabled,
+  addUserToGame,
+  removeUserFromGame,
+  setIndexesVisible,
+  setCollisionState,
+  setLoggerState,
+  $fps,
+  changeFps,
+} from '../models/game'
+import {
+  $isUserInGame,
+  $snakesIterator,
+  updateSettingForSnake,
+  removeSnake,
+} from '../models/snakes'
+import { Icon, Close } from './icons'
 
 export const Wrapper = styled.ul`
   margin: 0;
@@ -63,28 +68,42 @@ export const TitlesWrapper = styled.div`
   }
 `
 
+export const NumberInput = styled.input.attrs({ type: 'number' })`
+  border-radius: 0;
+  width: 50px;
+  margin-right: 15px;
+  font-weight: bold;
+`
+
 export function SettingsForSnake({ snakeId }) {
   const isCrash = useSnakeIsCrahedState(snakeId)
   const colors = useSnakeColorState(snakeId)
-  const algorithms = useStore($algorithmsStore)
-  const heuristics = useStore($heuristicsStore)
+  const algorithms = useStore($algorithms)
+  const heuristics = useStore($heuristics)
   const {
     showProcessedCells,
     activeAlgorithm,
     activeHeuristic,
     showAIPathToTarget,
   } = useSnakeSetings(snakeId)
-  const currentAlgorithm = algorithms.find((alg) => alg.id === activeAlgorithm)
 
-  function removeSnake() {
-    onRemoveSnake(snakeId)
-  }
+  const currentAlgorithm = useMemo(
+    () => algorithms.find((alg) => alg.id === activeAlgorithm),
+    [algorithms, activeAlgorithm]
+  )
+
+  const removeSnakeHandler = useCallback(() => {
+    removeSnake(snakeId)
+  }, [snakeId])
 
   return (
     <>
       <TitlesWrapper>
         <Title color={colors.head}>Settings for {snakeId}</Title>
-        <p onClick={removeSnake}>remove</p>
+        <Icon
+          icon={<Close color={colors.head} />}
+          onClick={removeSnakeHandler}
+        />
       </TitlesWrapper>
       <Wrapper>
         <SettingWrapper>
@@ -93,7 +112,7 @@ export function SettingsForSnake({ snakeId }) {
             id={`path-${snakeId}`}
             checked={showAIPathToTarget}
             onChange={() => {
-              onUpdateSettingForSnake({
+              updateSettingForSnake({
                 snakeId,
                 value: !showAIPathToTarget,
                 settingName: 'showAIPathToTarget',
@@ -101,7 +120,7 @@ export function SettingsForSnake({ snakeId }) {
             }}
           />
           <Name htmlFor={`path-${snakeId}`} color={colors.tail}>
-            show ai path to target
+            Show ai path to target
           </Name>
         </SettingWrapper>
         <SettingWrapper>
@@ -110,7 +129,7 @@ export function SettingsForSnake({ snakeId }) {
             id={`processed-${snakeId}`}
             checked={showProcessedCells}
             onChange={() => {
-              onUpdateSettingForSnake({
+              updateSettingForSnake({
                 snakeId,
                 value: !showProcessedCells,
                 settingName: 'showProcessedCells',
@@ -118,14 +137,14 @@ export function SettingsForSnake({ snakeId }) {
             }}
           />
           <Name htmlFor={`processed-${snakeId}`} color={colors.tail}>
-            show processed cells
+            Show processed cells
           </Name>
         </SettingWrapper>
         <SettingWrapper dir="column">
           <Select
             disabled={isCrash}
             onChange={({ target }) => {
-              onUpdateSettingForSnake({
+              updateSettingForSnake({
                 snakeId,
                 settingName: 'activeAlgorithm',
                 value: target.value,
@@ -146,7 +165,7 @@ export function SettingsForSnake({ snakeId }) {
             <Select
               disabled={isCrash}
               onChange={({ target }) => {
-                onUpdateSettingForSnake({
+                updateSettingForSnake({
                   snakeId,
                   settingName: 'activeHeuristic',
                   value: target.value,
@@ -170,32 +189,44 @@ export function SettingsForSnake({ snakeId }) {
   )
 }
 
+const $state = combine({
+  isEnabledCollisionDetect: $isEnabledCollisionDetect,
+  isUserInGame: $isUserInGame,
+  indexesVisible: $indexesVisible,
+  isLoggerEnabled: $isLoggerEnabled,
+  snakesIterator: $snakesIterator,
+  fps: $fps,
+})
+
 export function Settings() {
-  const collisionState = useStore($gameCollisionStateStore)
-  const userInGameStore = useStore($userInGameStore)
-  const indexesVisibleStore = useStore($indexesVisibleStore)
-  const withLogger = useStore($enableLoggerStore)
-  const snakeIterator = useStore($snakeIterator)
+  const {
+    isEnabledCollisionDetect,
+    isUserInGame,
+    indexesVisible,
+    isLoggerEnabled,
+    snakesIterator,
+    fps,
+  } = useStore($state)
 
-  function onSetCollision() {
-    onSetCollisionState(!collisionState)
-  }
+  const onSetCollision = useCallback(() => {
+    setCollisionState(!isEnabledCollisionDetect)
+  }, [isEnabledCollisionDetect])
 
-  function onSetIndexesVisibleState() {
-    onSetIndexesVisible(!indexesVisibleStore)
-  }
+  const onSetIndexesVisibleState = useCallback(() => {
+    setIndexesVisible(!indexesVisible)
+  }, [indexesVisible])
 
-  function handleChangeUserInGameState() {
-    if (userInGameStore) {
-      onRemoveUserFromGame()
+  const handleChangeUserInGameState = useCallback(() => {
+    if (isUserInGame) {
+      removeUserFromGame()
     } else {
-      onAddUserToGame()
+      addUserToGame()
     }
-  }
+  }, [isUserInGame])
 
-  function toggleLoggerState() {
-    onToggleLoggerState(!withLogger)
-  }
+  const toggleLogger = useCallback(() => {
+    setLoggerState(!isLoggerEnabled)
+  }, [isLoggerEnabled])
 
   return (
     <>
@@ -204,23 +235,23 @@ export function Settings() {
         <SettingWrapper>
           <Checkbox
             id="collision"
-            checked={collisionState}
+            checked={isEnabledCollisionDetect}
             onChange={onSetCollision}
           />
           <Name htmlFor="collision">handle collision state</Name>
         </SettingWrapper>
-        <SettingWrapper>
+        {/* <SettingWrapper>
           <Checkbox
             id="withUser"
-            checked={userInGameStore}
+            checked={isUserInGame}
             onChange={handleChangeUserInGameState}
           />
           <Name htmlFor="withUser">add user (you) to game</Name>
-        </SettingWrapper>
+        </SettingWrapper> */}
         <SettingWrapper>
           <Checkbox
             id="indexesvisible"
-            checked={indexesVisibleStore}
+            checked={indexesVisible}
             onChange={onSetIndexesVisibleState}
           />
           <Name htmlFor="indexesvisible">visible indexes</Name>
@@ -228,14 +259,27 @@ export function Settings() {
         <SettingWrapper>
           <Checkbox
             id="logger"
-            checked={withLogger}
-            onChange={toggleLoggerState}
+            checked={isLoggerEnabled}
+            onChange={toggleLogger}
           />
           <Name htmlFor="logger">show operations count in console</Name>
         </SettingWrapper>
+        <SettingWrapper>
+          <NumberInput
+            type="number"
+            max={120}
+            min={1}
+            step={2}
+            value={fps}
+            onChange={({ target }) => {
+              changeFps(Number.parseInt(target.value))
+            }}
+          />
+          <Name htmlFor="logger">FPS</Name>
+        </SettingWrapper>
       </Wrapper>
-      {snakeIterator
-        .filter((id) => id !== 'user')
+      {snakesIterator
+        .filter((id) => id !== 'user' && id !== '')
         .map((id) => (
           <SettingsForSnake snakeId={id} key={id} />
         ))}

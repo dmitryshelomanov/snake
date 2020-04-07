@@ -1,5 +1,4 @@
 import { DIRECTIONS, cellSize } from './config'
-import { getGameState, onPlay, onStop, GAME_STATE } from './model'
 import { getIndexByPosition } from './utils'
 
 export function getNextPositionByDirection([x, y], direction) {
@@ -47,42 +46,6 @@ export function getDirectionByPosition(currentPosition, nextPosition) {
   }
 
   return DIRECTIONS.RIGHT
-}
-
-export function createTimeController(fps) {
-  const fpsInterval = 1000 / fps
-  let callback = null
-  let now = null
-  let then = Date.now()
-
-  function loop() {
-    now = Date.now()
-    const delta = now - then
-    const isPLay = getGameState() === GAME_STATE.IS_PLAY
-
-    requestAnimationFrame(loop)
-
-    if (delta > fpsInterval) {
-      then = now - (delta % fpsInterval)
-
-      if (callback) {
-        callback(isPLay)
-      }
-    }
-  }
-
-  return {
-    start: (fn) => {
-      callback = fn
-      loop()
-    },
-    pause: () => {
-      onStop()
-    },
-    play: () => {
-      onPlay()
-    },
-  }
 }
 
 export class CanvasInput {

@@ -22,31 +22,3 @@ export function checkBounds([x, y]) {
 
   return [x, y]
 }
-
-export function checkCollision([x, y], [x1, y1]) {
-  if (x === x1 && y === y1) {
-    return true
-  }
-
-  return false
-}
-
-export function oneToManyCollision(targetPosition, otherPositions, callback) {
-  for (const element of otherPositions) {
-    const isCrash = checkCollision(targetPosition, element)
-
-    if (isCrash) {
-      callback(element)
-
-      break
-    }
-  }
-}
-
-export function oneToOneCollision(object1, object2, callback) {
-  const isCrash = checkCollision(object1, object2)
-
-  if (isCrash) {
-    callback(object1)
-  }
-}

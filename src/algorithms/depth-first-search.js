@@ -16,13 +16,13 @@ export function depthFirstSearch(
 
   while (!isTraverse && stack.length > 0) {
     const currentIndex = stack.shift()
-    const neigbors = graph.getNeighbors(currentIndex)
+    const vertex = graph.getVertex(currentIndex)
 
     // eslint-disable-next-line unicorn/no-for-loop
-    for (let i = 0; i < neigbors.length; i++) {
-      const next = neigbors[i]
+    for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
+      const next = vertex.neigbors[i]
 
-      if (canTraverse(next) && !processed.has(next)) {
+      if (canTraverse(graph.getVertex(next), next) && !processed.has(next)) {
         parent[next] = currentIndex
         stack.unshift(next)
         processed.set(next, true)
