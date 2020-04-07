@@ -21,13 +21,13 @@ export function greedy(
 
   while (!isTraverse && !queue.isEmpty()) {
     const currentChild = queue.poll()
-    const neigbors = graph.getNeighbors(currentChild[0])
+    const vertex = graph.getVertex(currentChild[0])
 
     // eslint-disable-next-line unicorn/no-for-loop
-    for (let i = 0; i < neigbors.length; i++) {
-      const next = neigbors[i]
+    for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
+      const next = vertex.neigbors[i]
 
-      if (canTraverse(next)) {
+      if (canTraverse(graph.getVertex(next), next)) {
         const nextCost = heuristic(goal, getPositionByIndex(next))
 
         if (!processed.has(next)) {

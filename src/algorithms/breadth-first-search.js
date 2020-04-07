@@ -119,13 +119,13 @@ export function breadthFirstSearch(
 
   while (!isTraverse && queue.length > 0) {
     const currentIndex = queue.shift()
-    const neigbors = graph.getNeighbors(currentIndex)
+    const vertex = graph.getVertex(currentIndex)
 
     // eslint-disable-next-line unicorn/no-for-loop
-    for (let i = 0; i < neigbors.length; i++) {
-      const next = neigbors[i]
+    for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
+      const next = vertex.neigbors[i]
 
-      if (canTraverse(next) && !processed.has(next)) {
+      if (canTraverse(graph.getVertex(next), next) && !processed.has(next)) {
         queue.push(next)
         processed.set(next, true)
         parent[next] = currentIndex
