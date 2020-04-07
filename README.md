@@ -18,7 +18,6 @@ Your opportunities
 Feature
 
 - change FPS
-- change collision strategy
 - algorithm visualization
 
 Notes

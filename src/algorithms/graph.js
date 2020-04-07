@@ -30,7 +30,7 @@ export class Graph {
               this.getDownNeigbour(index),
               this.getRightNeigbour(index),
             ].filter((i) => typeof i !== 'undefined'),
-            value: PLACE_TYPE.EMPTY,
+            value: { type: PLACE_TYPE.EMPTY },
           }))
     this.graph = typeof graph !== 'undefined' ? graph : this.emptyGraph.slice()
   }

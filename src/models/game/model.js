@@ -3,7 +3,7 @@ import { play, stop, restart } from './events'
 import {
   $gameState,
   $indexesVisible,
-  $collisionState,
+  $isEnabledCollisionDetect,
   $isLoggerEnabled,
 } from './store'
 
@@ -14,6 +14,6 @@ $gameState
 
 $indexesVisible.reset(restart)
 
-$collisionState.reset(restart)
+$isEnabledCollisionDetect.reset(restart)
 
 $isLoggerEnabled.reset(restart)
