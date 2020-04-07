@@ -20,7 +20,7 @@ function buildSnakesByCount(count) {
   return snakes
 }
 
-export const $snakes = createStore(buildSnakesByCount(1))
+export const $snakes = createStore(buildSnakesByCount(3))
 
 export const $snakeIdsAsString = $snakes.map(
   (snakes) => snakes.map((snake) => snake.id).join(','),
