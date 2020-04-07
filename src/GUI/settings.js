@@ -182,8 +182,6 @@ export function Settings() {
   const withLogger = useStore($isLoggerEnabled)
   const snakeIterator = useStore($snakesIterator)
 
-  console.log({ userInGame })
-
   const onSetCollision = useCallback(() => {
     setCollisionState(!collisionState)
   }, [collisionState])
@@ -194,10 +192,8 @@ export function Settings() {
 
   const handleChangeUserInGameState = useCallback(() => {
     if (userInGame) {
-      console.log('removeUserFromGame')
       removeUserFromGame()
     } else {
-      console.log('addUserToGame')
       addUserToGame()
     }
   }, [userInGame])
