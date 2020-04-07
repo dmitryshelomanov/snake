@@ -24,6 +24,7 @@ const tickFx = createEffect().use(
 export function createTick({ $state, runLogic, runRender }) {
   const $tick = createStore(0)
   const render = createEvent()
+  const start = createEvent()
 
   const nextTickFx = attach({
     effect: tickFx,
@@ -37,17 +38,17 @@ export function createTick({ $state, runLogic, runRender }) {
   sample($state, merge([render, nextTickFx.done])).watch(runRender)
 
   forward({
-    from: guard(merge([nextTickFx.done, $isPlay]), { filter: $isPlay }),
+    from: guard(merge([nextTickFx.done, $isPlay, start]), { filter: $isPlay }),
     to: nextTickFx,
   })
 
   forward({
-    from: guard($state, { filter: $isPause }),
+    from: guard(merge([start, $state]), { filter: $isPause }),
     to: render,
   })
 
   return {
     $tick,
-    nextTickFx,
+    start,
   }
 }
