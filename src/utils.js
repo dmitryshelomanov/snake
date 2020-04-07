@@ -1,22 +1,26 @@
-import { cellSize, pageHeight, pageWidth } from './config'
+import { cellSize, pageHeight, pageWidth, PLACE_TYPE } from './config'
 
 /**
   cellSize = 20
   getLocalSize(500, 500) // => { w: 25, h: 25 }
 */
-export const getLocalSize = (w, h) => ({
-  w: Math.floor(w / cellSize),
-  h: Math.floor(h / cellSize),
-})
+export function getLocalSize(w, h) {
+  return {
+    w: Math.floor(w / cellSize),
+    h: Math.floor(h / cellSize),
+  }
+}
 
 /**
   cellSize = 20
   getLocalSize(20, 20) // => { w: 400, h: 400 }
 */
-export const getGlobalSize = (w, h) => ({
-  w: Math.floor(w * cellSize),
-  h: Math.floor(h * cellSize),
-})
+export function getGlobalSize(w, h) {
+  return {
+    w: Math.floor(w * cellSize),
+    h: Math.floor(h * cellSize),
+  }
+}
 
 /**
   localX = 5
@@ -24,10 +28,9 @@ export const getGlobalSize = (w, h) => ({
   cellSize = 20
   convertGlobalPositionToLocal([localX, localY]) // => [100, 200]
 */
-export const convertLocalPositionToGlobal = ([x, y]) => [
-  x * cellSize,
-  y * cellSize,
-]
+export function convertLocalPositionToGlobal([x, y]) {
+  return [x * cellSize, y * cellSize]
+}
 
 /**
   x = 100
@@ -35,10 +38,9 @@ export const convertLocalPositionToGlobal = ([x, y]) => [
   cellSize = 20
   convertGlobalPositionToLocal([x, y]) // => [5, 10]
 */
-export const convertGlobalPositionToLocal = ([x, y]) => [
-  x / cellSize,
-  y / cellSize,
-]
+export function convertGlobalPositionToLocal([x, y]) {
+  return [x / cellSize, y / cellSize]
+}
 
 export function randomPosition() {
   const { w, h } = getLocalSize(pageWidth, pageHeight)
@@ -91,14 +93,36 @@ export function generateRandomFoodByCount(count) {
   return foods
 }
 
-export function extractTypeFromMap(place) {
-  if (Array.isArray(place)) {
-    return place[0]
-  }
-
-  return place
-}
-
 export function getDifferenceBetweenPositions([x, y], [x1, y1]) {
   return Math.abs(x1 + y1 - (x + y))
+}
+
+export function setValuesToGraph(graph, values = []) {
+  values.forEach(({ index, type, value }) => {
+    switch (type) {
+      case PLACE_TYPE.FOOD: {
+        graph.setValueByIndex(index, {
+          type,
+          foodId: value,
+        })
+
+        break
+      }
+
+      case PLACE_TYPE.GAME_OBJECT: {
+        graph.setValueByIndex(index, {
+          type,
+          snakeId: value,
+        })
+
+        break
+      }
+
+      default: {
+        graph.setValueByIndex(index, {
+          type: PLACE_TYPE.EMPTY,
+        })
+      }
+    }
+  })
 }

@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { useStore } from 'effector-react'
+import { combine } from 'effector'
 import { Title, Checkbox } from './common'
 import { $algorithms, $heuristics } from '../models/algorithms'
 import {
@@ -9,7 +10,7 @@ import {
   useSnakeIsCrahedState,
 } from './use-snake'
 import {
-  $collisionState,
+  $isEnabledCollisionDetect,
   $indexesVisible,
   $isLoggerEnabled,
   addUserToGame,
@@ -17,6 +18,8 @@ import {
   setIndexesVisible,
   setCollisionState,
   setLoggerState,
+  $fps,
+  changeFps,
 } from '../models/game'
 import {
   $isUserInGame,
@@ -24,6 +27,7 @@ import {
   updateSettingForSnake,
   removeSnake,
 } from '../models/snakes'
+import { Icon, Close } from './icons'
 
 export const Wrapper = styled.ul`
   margin: 0;
@@ -64,6 +68,13 @@ export const TitlesWrapper = styled.div`
   }
 `
 
+export const NumberInput = styled.input.attrs({ type: 'number' })`
+  border-radius: 0;
+  width: 50px;
+  margin-right: 15px;
+  font-weight: bold;
+`
+
 export function SettingsForSnake({ snakeId }) {
   const isCrash = useSnakeIsCrahedState(snakeId)
   const colors = useSnakeColorState(snakeId)
@@ -89,7 +100,10 @@ export function SettingsForSnake({ snakeId }) {
     <>
       <TitlesWrapper>
         <Title color={colors.head}>Settings for {snakeId}</Title>
-        <p onClick={removeSnakeHandler}>remove</p>
+        <Icon
+          icon={<Close color={colors.head} />}
+          onClick={removeSnakeHandler}
+        />
       </TitlesWrapper>
       <Wrapper>
         <SettingWrapper>
@@ -175,32 +189,44 @@ export function SettingsForSnake({ snakeId }) {
   )
 }
 
+const $state = combine({
+  isEnabledCollisionDetect: $isEnabledCollisionDetect,
+  isUserInGame: $isUserInGame,
+  indexesVisible: $indexesVisible,
+  isLoggerEnabled: $isLoggerEnabled,
+  snakesIterator: $snakesIterator,
+  fps: $fps,
+})
+
 export function Settings() {
-  const collisionState = useStore($collisionState)
-  const userInGame = useStore($isUserInGame)
-  const indexesVisible = useStore($indexesVisible)
-  const withLogger = useStore($isLoggerEnabled)
-  const snakeIterator = useStore($snakesIterator)
+  const {
+    isEnabledCollisionDetect,
+    isUserInGame,
+    indexesVisible,
+    isLoggerEnabled,
+    snakesIterator,
+    fps,
+  } = useStore($state)
 
   const onSetCollision = useCallback(() => {
-    setCollisionState(!collisionState)
-  }, [collisionState])
+    setCollisionState(!isEnabledCollisionDetect)
+  }, [isEnabledCollisionDetect])
 
   const onSetIndexesVisibleState = useCallback(() => {
     setIndexesVisible(!indexesVisible)
   }, [indexesVisible])
 
   const handleChangeUserInGameState = useCallback(() => {
-    if (userInGame) {
+    if (isUserInGame) {
       removeUserFromGame()
     } else {
       addUserToGame()
     }
-  }, [userInGame])
+  }, [isUserInGame])
 
   const toggleLogger = useCallback(() => {
-    setLoggerState(!withLogger)
-  }, [withLogger])
+    setLoggerState(!isLoggerEnabled)
+  }, [isLoggerEnabled])
 
   return (
     <>
@@ -209,19 +235,19 @@ export function Settings() {
         <SettingWrapper>
           <Checkbox
             id="collision"
-            checked={collisionState}
+            checked={isEnabledCollisionDetect}
             onChange={onSetCollision}
           />
           <Name htmlFor="collision">handle collision state</Name>
         </SettingWrapper>
-        <SettingWrapper>
+        {/* <SettingWrapper>
           <Checkbox
             id="withUser"
-            checked={userInGame}
+            checked={isUserInGame}
             onChange={handleChangeUserInGameState}
           />
           <Name htmlFor="withUser">add user (you) to game</Name>
-        </SettingWrapper>
+        </SettingWrapper> */}
         <SettingWrapper>
           <Checkbox
             id="indexesvisible"
@@ -231,11 +257,28 @@ export function Settings() {
           <Name htmlFor="indexesvisible">visible indexes</Name>
         </SettingWrapper>
         <SettingWrapper>
-          <Checkbox id="logger" checked={withLogger} onChange={toggleLogger} />
+          <Checkbox
+            id="logger"
+            checked={isLoggerEnabled}
+            onChange={toggleLogger}
+          />
           <Name htmlFor="logger">show operations count in console</Name>
         </SettingWrapper>
+        <SettingWrapper>
+          <NumberInput
+            type="number"
+            max={120}
+            min={1}
+            step={2}
+            value={fps}
+            onChange={({ target }) => {
+              changeFps(Number.parseInt(target.value))
+            }}
+          />
+          <Name htmlFor="logger">FPS</Name>
+        </SettingWrapper>
       </Wrapper>
-      {snakeIterator
+      {snakesIterator
         .filter((id) => id !== 'user' && id !== '')
         .map((id) => (
           <SettingsForSnake snakeId={id} key={id} />

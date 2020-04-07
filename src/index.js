@@ -5,19 +5,18 @@ import {
   getGlobalSize,
   getIndexByPosition,
   randomPosition,
+  setValuesToGraph,
 } from './utils'
 import { buildGrid, renderPath, renderProcessed, renderSnake } from './renderer'
 import { pageHeight, pageWidth, PLACE_TYPE } from './config'
 import { canvasInput } from './controll'
 import { convigureCanvas } from './canvas'
 import {
-  headSnake,
   setDirection,
   updateBody,
   addPeaceOfSnake,
   setScore,
   setCrash,
-  tailSnake,
   setMeta,
   buildSettingsForSnake,
 } from './models/snake'
@@ -27,7 +26,12 @@ import { $snakes, $settingsForSnakes } from './models/snakes'
 import { $graph } from './models/graph'
 import { $foods } from './models/objects'
 import { createTick } from './models/tick'
-import { $isLoggerEnabled, $indexesVisible, updateStates } from './models/game'
+import {
+  $isLoggerEnabled,
+  $indexesVisible,
+  updateStates,
+  $isEnabledCollisionDetect,
+} from './models/game'
 import { renderFoods } from './renderer/foods'
 import 'reset-css'
 import { $algorithms, $heuristics } from './models/algorithms'
@@ -72,6 +76,7 @@ const $state = combine({
   graph: $graph,
   foods: $foods,
   computedSnakes: $computedSnakes,
+  isEnabledCollisionDetect: $isEnabledCollisionDetect,
 })
 
 function main(canvas, context) {
@@ -95,28 +100,35 @@ function main(canvas, context) {
     let { foods } = nextState
 
     function markFoodOnGraph() {
-      foods.forEach((food) => {
-        const [position] = food
-        const idx = getIndexByPosition(position)
-        const vertex = graph.getVertex(idx)
+      setValuesToGraph(graph, [
+        ...foods
+          .map(([position, id]) => {
+            const index = getIndexByPosition(position)
+            const vertex = graph.getVertex(index)
 
-        if (vertex.value === PLACE_TYPE.EMPTY) {
-          graph.setValueByIndex(idx, PLACE_TYPE.FOOD)
-        }
-      })
+            if (vertex.value.type === PLACE_TYPE.EMPTY) {
+              return {
+                type: PLACE_TYPE.FOOD,
+                value: id,
+                index,
+              }
+            }
+
+            return undefined
+          })
+          .filter(Boolean),
+      ])
     }
 
-    function handleEatFood({ snake, nextPosition, nextIndex }) {
+    function handleEatFood({ snake, nextPosition, foodId }) {
       const nextSnake = addPeaceOfSnake(
         setScore(snake, snake.score + 1),
         nextPosition
       )
 
       foods = foods.map((food) => {
-        const [position, id] = food
-
-        if (getIndexByPosition(position) === nextIndex) {
-          return [randomPosition(), id]
+        if (foodId === food[1]) {
+          return [randomPosition(), food[1]]
         }
 
         return food
@@ -126,11 +138,21 @@ function main(canvas, context) {
     }
 
     function reCreateSnakeInGraph(prevSnake, nextSnake) {
-      const tail = tailSnake(prevSnake)
-      const head = headSnake(nextSnake)
-
-      graph.setValueByIndex(getIndexByPosition(tail), PLACE_TYPE.EMPTY)
-      graph.setValueByIndex(getIndexByPosition(head), PLACE_TYPE.GAME_OBJECT)
+      setValuesToGraph(graph, [
+        ...prevSnake.body.map((position) => {
+          return {
+            type: PLACE_TYPE.EMPTY,
+            index: getIndexByPosition(position),
+          }
+        }),
+        ...nextSnake.body.map((position) => {
+          return {
+            type: PLACE_TYPE.GAME_OBJECT,
+            index: getIndexByPosition(position),
+            value: nextSnake.id,
+          }
+        }),
+      ])
     }
 
     markFoodOnGraph()
@@ -139,6 +161,8 @@ function main(canvas, context) {
       .filter(({ snake }) => !snake.isCrash)
       .forEach(({ snake, algorithm }) => {
         const { nextDirection, nextPosition, meta } = snake.updater({
+          withLogger: nextState.isLoggerEnabled,
+          isEnabledCollisionDetect: nextState.isEnabledCollisionDetect,
           snake,
           ...algorithm,
           state: {
@@ -157,21 +181,25 @@ function main(canvas, context) {
           nextSnake = setMeta(snake, meta)
         }
 
-        switch (nextVertex?.value) {
+        switch (nextVertex?.value?.type) {
           case PLACE_TYPE.FOOD: {
             nextSnake = handleEatFood({
               snake: nextSnake,
               nextPosition,
-              nextIndex,
+              foodId: nextVertex.value.foodId,
             })
             break
           }
 
           case PLACE_TYPE.GAME_OBJECT: {
-            nextSnake = setCrash(nextSnake, true)
-            break
+            if (nextState.isEnabledCollisionDetect) {
+              nextSnake = setCrash(nextSnake, true)
+
+              break
+            }
           }
 
+          // eslint-disable-next-line no-fallthrough
           default: {
             nextSnake = setDirection(
               updateBody(nextSnake, nextPosition),
@@ -189,7 +217,7 @@ function main(canvas, context) {
   }
 
   function runRender(nextState) {
-    const { computedSnakes, foods } = nextState
+    const { computedSnakes, foods, indexesVisible } = nextState
 
     clearGame()
 
@@ -197,12 +225,9 @@ function main(canvas, context) {
 
     computedSnakes.forEach(({ snake, settings }) => {
       if (snake.isAi) {
-        const {
-          showAIPathToTarget = false,
-          showProcessedCells = false,
-        } = settings
+        const { showAIPathToTarget, showProcessedCells } = settings
 
-        renderSnake({ context, snake })
+        renderSnake({ context, snake, indexesVisible })
 
         if (showProcessedCells) {
           renderProcessed(context, snake.meta.processed, snake.colors.processed)
@@ -212,7 +237,7 @@ function main(canvas, context) {
           renderPath(context, snake.meta.path, snake.colors.head)
         }
       } else {
-        renderSnake({ context, snake })
+        renderSnake({ context, snake, indexesVisible })
       }
     })
 
@@ -224,7 +249,7 @@ function main(canvas, context) {
     $state,
     runLogic,
     runRender,
-  }).nextTickFx()
+  }).start()
 }
 
 const canvas = document.querySelector('canvas')

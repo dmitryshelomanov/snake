@@ -1,4 +1,3 @@
-import { aStar } from '../algorithms'
 import { manhattanDistance } from '../algorithms/heuristic'
 import {
   getIndexByPosition,
@@ -10,20 +9,12 @@ import { checkBounds } from '../collision'
 import { getNextPositionByDirection, getDirectionByPosition } from '../controll'
 import { PLACE_TYPE } from '../config'
 
-function canTraverse(vertex) {
-  return vertex.value === PLACE_TYPE.EMPTY || vertex.value === PLACE_TYPE.FOOD
-}
-
-function getCostByIndex() {
-  return 1
-}
-
 function getNearestFood({ foods, graph, currentPosition }) {
   return (
     foods
       .filter(
         ([position]) =>
-          graph.getVertex(getIndexByPosition(position)).value ===
+          graph.getVertex(getIndexByPosition(position)).value.type ===
           PLACE_TYPE.FOOD
       )
       .sort(
@@ -34,10 +25,28 @@ function getNearestFood({ foods, graph, currentPosition }) {
   )
 }
 
-export function ai({ snake, state, traverseAlgorithm, heuristic, withLogger }) {
+export function ai({
+  snake,
+  state,
+  traverseAlgorithm,
+  heuristic,
+  withLogger,
+  isEnabledCollisionDetect,
+}) {
   const { graph, foods } = state
   const currentPosition = headSnake(snake)
   const nearestFood = getNearestFood({ foods, currentPosition, graph })
+
+  function canTraverse(vertex) {
+    return isEnabledCollisionDetect
+      ? vertex.value.type === PLACE_TYPE.EMPTY ||
+          vertex.value.type === PLACE_TYPE.FOOD
+      : true
+  }
+
+  function getCostByIndex() {
+    return 1
+  }
 
   const result = traverseAlgorithm(
     getIndexByPosition(currentPosition),

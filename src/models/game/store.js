@@ -7,9 +7,9 @@ import {
   changeFps,
 } from './events'
 
-export const $gameState = createStore(GAME_STATE.IS_PLAY)
+export const $gameState = createStore(GAME_STATE.IS_PAUSE)
 
-export const $collisionState = restore(setCollisionState, true)
+export const $isEnabledCollisionDetect = restore(setCollisionState, true)
 
 export const $indexesVisible = restore(setIndexesVisible, false)
 
