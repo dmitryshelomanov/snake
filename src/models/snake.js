@@ -102,8 +102,8 @@ export function getColorsForSnake() {
 
 export function buildSettingsForSnake() {
   return {
-    showProcessedCells: false,
-    showAIPathToTarget: false,
+    showProcessedCells: true,
+    showAIPathToTarget: true,
     activeAlgorithm: 'aStar',
     activeHeuristic: 'manhattan',
   }
