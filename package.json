@@ -20,6 +20,7 @@
     "@atomix/eslint-config-react": "^7.1.0",
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "eslint": "^5.16.0",
@@ -37,13 +38,15 @@
   },
   "dependencies": {
     "color": "^3.1.2",
-    "effector": "^20.1.1",
-    "effector-react": "^20.1.1",
+    "effector": "^20.13.4",
+    "effector-react": "^20.6.3",
     "fastpriorityqueue": "^0.6.3",
+    "lodash-es": "^4.17.15",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-draggable": "^3.3.2",
     "reset-css": "^4.0.1",
+    "shallowequal": "^1.1.0",
     "styled-components": "^4.3.2"
   }
 }
