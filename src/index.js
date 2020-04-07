@@ -1,40 +1,78 @@
 /* eslint-disable unicorn/prevent-abbreviations */
+import { combine } from 'effector'
 import {
   getLocalSize,
   getGlobalSize,
   getIndexByPosition,
-  extractTypeFromMap,
+  randomPosition,
 } from './utils'
-import { buildGrid, renderPath, renderProcessed } from './renderer'
-import { pageHeight, pageWidth, fps } from './config'
-import {
-  createTimeController,
-  getNextPositionByDirection,
-  canvasInput,
-} from './controll'
+import { buildGrid, renderPath, renderProcessed, renderSnake } from './renderer'
+import { pageHeight, pageWidth, PLACE_TYPE } from './config'
+import { canvasInput } from './controll'
 import { convigureCanvas } from './canvas'
-import { headSnake } from './model/snake'
+import {
+  headSnake,
+  setDirection,
+  updateBody,
+  addPeaceOfSnake,
+  setScore,
+  setCrash,
+  tailSnake,
+  setMeta,
+  buildSettingsForSnake,
+} from './models/snake'
 import { Graph } from './algorithms'
 import { renderGUI } from './GUI'
-import {
-  PLACE_TYPE,
-  getFoodsState,
-  getGameMapState,
-  getGameCollisionState,
-  getBrickState,
-  getSettingsForSnakeState,
-  onClearGameMap,
-  onCrashSnake,
-  onEatFood,
-  onUpdateGameMapWithNexState,
-  onUpdateGameMap,
-  getSnakesState,
-} from './model'
-import { batchUpdateSnakeStateForGameMap, renderSnake } from './snake'
-import { renderBricks } from './brick'
-import { updaters } from './updaters'
-import { renderFoods, updateGameMapForFood } from './food'
+import { $snakes, $settingsForSnakes } from './models/snakes'
+import { $graph } from './models/graph'
+import { $foods } from './models/objects'
+import { createTick } from './models/tick'
+import { $isLoggerEnabled, $indexesVisible, updateStates } from './models/game'
+import { renderFoods } from './renderer/foods'
 import 'reset-css'
+import { $algorithms, $heuristics } from './models/algorithms'
+
+const defaultSettings = buildSettingsForSnake()
+
+const $computedSnakes = combine(
+  $snakes,
+  $algorithms,
+  $heuristics,
+  $settingsForSnakes,
+  (snakes, algorithms, heuristics, settings) =>
+    snakes.map((snake) => {
+      if (snake.isAi) {
+        const settingsForSnake = settings[snake.id] || defaultSettings
+
+        const traverseAlgorithm = algorithms.find(
+          (algorithm) => algorithm.id === settingsForSnake.activeAlgorithm
+        )
+
+        const heuristic = heuristics.find(
+          (it) => it.id === settingsForSnake.activeHeuristic
+        )
+
+        return {
+          snake,
+          settings: settingsForSnake,
+          algorithm: {
+            traverseAlgorithm: traverseAlgorithm?.alg,
+            heuristic: heuristic?.alg,
+          },
+        }
+      }
+
+      return { snake }
+    })
+)
+
+const $state = combine({
+  isLoggerEnabled: $isLoggerEnabled,
+  indexesVisible: $indexesVisible,
+  graph: $graph,
+  foods: $foods,
+  computedSnakes: $computedSnakes,
+})
 
 function main(canvas, context) {
   renderGUI()
@@ -45,131 +83,148 @@ function main(canvas, context) {
   const localSize = getLocalSize(pageWidth, pageHeight)
   const globalSize = getGlobalSize(localSize.w, localSize.h)
 
-  const state = {
-    graph: new Graph(localSize),
-    path: {},
-    processed: {},
-  }
-
-  const nextTick = createTimeController(fps)
-
   convigureCanvas(canvas, localSize, globalSize)
-
-  function eatFood(snake) {
-    if (!snake.isCrash) {
-      const gameMap = getGameMapState()
-      const headIndex = getIndexByPosition(headSnake(snake))
-      const isArray = Array.isArray(gameMap[headIndex])
-
-      if (isArray && gameMap[headIndex][0] === PLACE_TYPE.FOOD) {
-        const peaceOfSnake = getNextPositionByDirection(
-          headSnake(snake),
-          snake.direction
-        )
-
-        onEatFood({ id: snake.id, peaceOfSnake, foodId: gameMap[headIndex][1] })
-      }
-    }
-  }
-
-  function checkCollision(snake) {
-    const collisionState = getGameCollisionState()
-
-    if (collisionState) {
-      const gameMap = getGameMapState()
-      const headIndex = getIndexByPosition(headSnake(snake))
-      const isCrash = [PLACE_TYPE.GAME_OBJECT, PLACE_TYPE.BRICK].includes(
-        extractTypeFromMap(gameMap[headIndex])
-      )
-
-      if (isCrash) {
-        onCrashSnake(snake.id)
-      }
-    }
-  }
 
   function clearGame() {
     context.clearRect(0, 0, globalSize.w, globalSize.h)
-    onClearGameMap()
   }
 
-  function updateGameMap(placeType) {
-    return (index) => {
-      onUpdateGameMap({ index, placeType })
-    }
-  }
+  function runLogic(nextState) {
+    const nextSnakes = []
+    const graph = Graph.extend(nextState.graph)
+    let { foods } = nextState
 
-  nextTick.start((isPLay) => {
-    const foods = getFoodsState()
+    function markFoodOnGraph() {
+      foods.forEach((food) => {
+        const [position] = food
+        const idx = getIndexByPosition(position)
+        const vertex = graph.getVertex(idx)
 
-    function updateSnakes() {
-      const snakes = getSnakesState()
-
-      snakes.forEach((snake) => {
-        if (!snake.isCrash) {
-          const isAi = /ai/.test(snake.id)
-          const updater = isAi ? 'ai' : 'user'
-
-          updaters[updater](snake, state)
+        if (vertex.value === PLACE_TYPE.EMPTY) {
+          graph.setValueByIndex(idx, PLACE_TYPE.FOOD)
         }
       })
     }
 
-    function applyCollisionDetection() {
-      const snakes = getSnakesState()
+    function handleEatFood({ snake, nextPosition, nextIndex }) {
+      const nextSnake = addPeaceOfSnake(
+        setScore(snake, snake.score + 1),
+        nextPosition
+      )
 
-      snakes.forEach(eatFood)
-      snakes.forEach(checkCollision)
+      foods = foods.map((food) => {
+        const [position, id] = food
+
+        if (getIndexByPosition(position) === nextIndex) {
+          return [randomPosition(), id]
+        }
+
+        return food
+      })
+
+      return nextSnake
     }
 
-    if (isPLay) {
-      updateSnakes()
-      applyCollisionDetection()
+    function reCreateSnakeInGraph(prevSnake, nextSnake) {
+      const tail = tailSnake(prevSnake)
+      const head = headSnake(nextSnake)
+
+      graph.setValueByIndex(getIndexByPosition(tail), PLACE_TYPE.EMPTY)
+      graph.setValueByIndex(getIndexByPosition(head), PLACE_TYPE.GAME_OBJECT)
     }
 
-    const bricks = getBrickState()
+    markFoodOnGraph()
+
+    nextState.computedSnakes
+      .filter(({ snake }) => !snake.isCrash)
+      .forEach(({ snake, algorithm }) => {
+        const { nextDirection, nextPosition, meta } = snake.updater({
+          snake,
+          ...algorithm,
+          state: {
+            ...nextState,
+            graph,
+            foods,
+          },
+        })
+
+        const nextIndex = getIndexByPosition(nextPosition)
+        const nextVertex = graph.getVertex(nextIndex)
+
+        let nextSnake = snake
+
+        if (meta && snake.isAi) {
+          nextSnake = setMeta(snake, meta)
+        }
+
+        switch (nextVertex?.value) {
+          case PLACE_TYPE.FOOD: {
+            nextSnake = handleEatFood({
+              snake: nextSnake,
+              nextPosition,
+              nextIndex,
+            })
+            break
+          }
+
+          case PLACE_TYPE.GAME_OBJECT: {
+            nextSnake = setCrash(nextSnake, true)
+            break
+          }
+
+          default: {
+            nextSnake = setDirection(
+              updateBody(nextSnake, nextPosition),
+              nextDirection
+            )
+          }
+        }
+
+        reCreateSnakeInGraph(snake, nextSnake)
+
+        nextSnakes.push(nextSnake)
+      })
+
+    updateStates({ snakes: nextSnakes, graph, foods })
+  }
+
+  function runRender(nextState) {
+    const { computedSnakes, foods } = nextState
 
     clearGame()
 
-    const snakes = getSnakesState()
+    renderFoods(context, foods)
 
-    renderFoods(context, foods, updateGameMapForFood())
-    renderBricks(context, bricks, updateGameMap(PLACE_TYPE.BRICK))
+    computedSnakes.forEach(({ snake, settings }) => {
+      if (snake.isAi) {
+        const {
+          showAIPathToTarget = false,
+          showProcessedCells = false,
+        } = settings
 
-    function renderSnakes() {
-      snakes.forEach((snake) => {
-        if (snake.id !== 'user') {
-          const {
-            showAIPathToTarget,
-            showProcessedCells,
-          } = getSettingsForSnakeState(snake.id)
+        renderSnake({ context, snake })
 
-          renderSnake(context, snake)
-
-          if (showProcessedCells) {
-            renderProcessed(
-              context,
-              state.processed[snake.id] || [],
-              snake.colors.processed
-            )
-          }
-
-          if (showAIPathToTarget) {
-            renderPath(context, state.path[snake.id] || [], snake.colors.head)
-          }
-        } else {
-          renderSnake(context, snake)
+        if (showProcessedCells) {
+          renderProcessed(context, snake.meta.processed, snake.colors.processed)
         }
-      })
-    }
 
-    renderSnakes()
-
-    onUpdateGameMapWithNexState(batchUpdateSnakeStateForGameMap(snakes))
+        if (showAIPathToTarget) {
+          renderPath(context, snake.meta.path, snake.colors.head)
+        }
+      } else {
+        renderSnake({ context, snake })
+      }
+    })
 
     gridData.applyStyles()
     context.stroke(gridData.grid)
-  })
+  }
+
+  createTick({
+    $state,
+    runLogic,
+    runRender,
+  }).nextTickFx()
 }
 
 const canvas = document.querySelector('canvas')
