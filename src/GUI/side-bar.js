@@ -2,16 +2,11 @@ import React, { useRef } from 'react'
 import { useStore } from 'effector-react'
 import styled from 'styled-components'
 import Draggable from 'react-draggable'
-import {
-  onPlay,
-  onStop,
-  onRestart,
-  onAddSnake,
-  $gameStateStore,
-  GAME_STATE,
-} from '../model'
+import { $gameState, play, stop, restart } from '../models/game'
+import { addSnake } from '../models/snakes'
 import { RightPanel } from './right-panel'
 import { ControllPanel } from './control-pannel'
+import { GAME_STATE } from '../config'
 
 export const SideBarWrapper = styled.div`
   position: absolute;
@@ -54,13 +49,13 @@ const Button = styled.button`
 
 export function SideBar() {
   const lastId = useRef(2)
-  const gameState = useStore($gameStateStore)
+  const gameState = useStore($gameState)
   const isPlay = gameState === GAME_STATE.IS_PLAY
-  const playOrPause = isPlay ? onStop : onPlay
+  const playOrPause = isPlay ? stop : play
   const text = isPlay ? 'pause' : 'play'
 
   function addSnakeToGame() {
-    onAddSnake(`ai-${lastId.current++}`)
+    addSnake({ snakeId: `ai-${lastId.current++}`, isAi: true })
   }
 
   return (
@@ -70,7 +65,7 @@ export function SideBar() {
           <RightPanel />
           <ControllPanel>
             <Button onClick={playOrPause}>{text}</Button>
-            <Button onClick={onRestart}>restart</Button>
+            <Button onClick={restart}>restart</Button>
             <Button onClick={addSnakeToGame}>add snake</Button>
           </ControllPanel>
         </SideBarInner>
