@@ -1,7 +1,7 @@
 import React from 'react'
 import { useStore } from 'effector-react'
 import styled from 'styled-components'
-import { $snakeIterator } from '../model'
+import { $snakesIterator } from '../models/snakes'
 import { Title, Name } from './common'
 import {
   useSnakeIsCrahedState,
@@ -55,7 +55,7 @@ export function ScoreItem({ snakeId }) {
 }
 
 export function ScoreBoard() {
-  const snakesIds = useStore($snakeIterator)
+  const snakesIds = useStore($snakesIterator)
 
   return (
     <>
