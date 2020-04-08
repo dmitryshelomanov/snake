@@ -1,6 +1,7 @@
 /* eslint-disable no-loop-func */
 import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
+import { createFirstEmptyCellSaver } from './utils'
 
 /*
   Note:
@@ -112,10 +113,11 @@ export function breadthFirstSearch(
   { canTraverse, withLogger = false }
 ) {
   const queue = [startIndex]
-  const processed = new Map()
+  const processed = new Map([[startIndex, true]])
   const parent = {}
   let isTraverse = false
   const logger = createOperationLogger('breadthFirstSearch')
+  const { getCell, saveCell } = createFirstEmptyCellSaver()
 
   while (!isTraverse && queue.length > 0) {
     const currentIndex = queue.shift()
@@ -135,6 +137,7 @@ export function breadthFirstSearch(
           break
         }
 
+        saveCell(next)
         logger.increment()
       }
     }
@@ -145,7 +148,7 @@ export function breadthFirstSearch(
   }
 
   return {
-    path: isTraverse ? restorePath(endIndex, startIndex, parent) : [],
+    path: isTraverse ? restorePath(endIndex, startIndex, parent) : getCell(),
     processed: [...processed.keys()],
   }
 }

@@ -6,6 +6,8 @@ export const pageHeight = window.innerHeight
 export const fps = 60
 export const borderSize = 1
 export const boardLength = pageWidth * pageHeight
+export const foodCount = 50
+export const snakeCount = 3
 
 export const DIRECTIONS = {
   LEFT: KEYS.LEFT_ARROW,

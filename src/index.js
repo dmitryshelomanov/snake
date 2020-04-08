@@ -19,6 +19,8 @@ import {
   setCrash,
   setMeta,
   buildSettingsForSnake,
+  tailSnake,
+  headSnake,
 } from './models/snake'
 import { Graph } from './algorithms'
 import { renderGUI } from './GUI'
@@ -120,6 +122,20 @@ function main(canvas, context) {
       ])
     }
 
+    function markSnakesOnGraph() {
+      nextState.computedSnakes.forEach(({ snake }) => {
+        setValuesToGraph(graph, [
+          ...snake.body.map((position) => {
+            return {
+              type: PLACE_TYPE.GAME_OBJECT,
+              index: getIndexByPosition(position),
+              value: snake.id,
+            }
+          }),
+        ])
+      })
+    }
+
     function handleEatFood({ snake, nextPosition, foodId }) {
       const nextSnake = addPeaceOfSnake(
         setScore(snake, snake.score + 1),
@@ -138,24 +154,24 @@ function main(canvas, context) {
     }
 
     function reCreateSnakeInGraph(prevSnake, nextSnake) {
+      const tail = tailSnake(prevSnake)
+      const head = headSnake(nextSnake)
+
       setValuesToGraph(graph, [
-        ...prevSnake.body.map((position) => {
-          return {
-            type: PLACE_TYPE.EMPTY,
-            index: getIndexByPosition(position),
-          }
-        }),
-        ...nextSnake.body.map((position) => {
-          return {
-            type: PLACE_TYPE.GAME_OBJECT,
-            index: getIndexByPosition(position),
-            value: nextSnake.id,
-          }
-        }),
+        {
+          type: PLACE_TYPE.EMPTY,
+          index: getIndexByPosition(tail),
+        },
+        {
+          type: PLACE_TYPE.GAME_OBJECT,
+          index: getIndexByPosition(head),
+          value: nextSnake.id,
+        },
       ])
     }
 
     markFoodOnGraph()
+    markSnakesOnGraph()
 
     nextState.computedSnakes
       .filter(({ snake }) => !snake.isCrash)

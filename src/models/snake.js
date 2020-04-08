@@ -21,10 +21,10 @@ const colorsStub = [
 ]
 
 export class Snake {
-  static build(headPosition, { colors, id, isAi, updater }) {
+  static build(headPosition, { colors, id, isAi, updater, body }) {
     return {
       id,
-      body: [headPosition, [headPosition[0] + 1, headPosition[1]]],
+      body: body || [headPosition, [headPosition[0] + 1, headPosition[1]]],
       isCrash: false,
       direction: DIRECTIONS.RIGHT,
       weight: 1,
@@ -102,8 +102,8 @@ export function getColorsForSnake() {
 
 export function buildSettingsForSnake() {
   return {
-    showProcessedCells: true,
-    showAIPathToTarget: true,
+    showProcessedCells: false,
+    showAIPathToTarget: false,
     activeAlgorithm: 'aStar',
     activeHeuristic: 'manhattan',
   }
