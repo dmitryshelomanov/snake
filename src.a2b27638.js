@@ -1870,7 +1870,7 @@ function keyboradFactory() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.boardLength = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
+exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.snakeCount = exports.foodCount = exports.boardLength = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
 
 var _keyboard = require("./keyboard");
 
@@ -1886,6 +1886,10 @@ var borderSize = 1;
 exports.borderSize = borderSize;
 var boardLength = pageWidth * pageHeight;
 exports.boardLength = boardLength;
+var foodCount = 50;
+exports.foodCount = foodCount;
+var snakeCount = 3;
+exports.snakeCount = snakeCount;
 var DIRECTIONS = {
   LEFT: _keyboard.KEYS.LEFT_ARROW,
   RIGHT: _keyboard.KEYS.RIGHT_ARROW,
@@ -4532,10 +4536,11 @@ function () {
       var colors = _ref.colors,
           id = _ref.id,
           isAi = _ref.isAi,
-          updater = _ref.updater;
+          updater = _ref.updater,
+          body = _ref.body;
       return {
         id: id,
-        body: [headPosition, [headPosition[0] + 1, headPosition[1]]],
+        body: body || [headPosition, [headPosition[0] + 1, headPosition[1]]],
         isCrash: false,
         direction: _config.DIRECTIONS.RIGHT,
         weight: 1,
@@ -4619,8 +4624,8 @@ function getColorsForSnake() {
 
 function buildSettingsForSnake() {
   return {
-    showProcessedCells: true,
-    showAIPathToTarget: true,
+    showProcessedCells: false,
+    showAIPathToTarget: false,
     activeAlgorithm: 'aStar',
     activeHeuristic: 'manhattan'
   };
@@ -4775,6 +4780,27 @@ function restorePath(end, start, parent) {
 
   return path;
 }
+},{}],"src/algorithms/utils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createFirstEmptyCellSaver = createFirstEmptyCellSaver;
+
+function createFirstEmptyCellSaver() {
+  var cell;
+  return {
+    getCell: function getCell() {
+      return [cell].filter(Boolean);
+    },
+    saveCell: function saveCell(nextCell) {
+      if (!cell) {
+        cell = nextCell;
+      }
+    }
+  };
+}
 },{}],"src/algorithms/breadth-first-search.js":[function(require,module,exports) {
 "use strict";
 
@@ -4786,6 +4812,8 @@ exports.breadthFirstSearch = breadthFirstSearch;
 var _utils = require("../utils");
 
 var _restorePath = require("./restore-path");
+
+var _utils2 = require("./utils");
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -4902,10 +4930,14 @@ function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
       _ref$withLogger = _ref.withLogger,
       withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
   var queue = [startIndex];
-  var processed = new Map();
+  var processed = new Map([[startIndex, true]]);
   var parent = {};
   var isTraverse = false;
   var logger = (0, _utils.createOperationLogger)('breadthFirstSearch');
+
+  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
+      getCell = _createFirstEmptyCell.getCell,
+      saveCell = _createFirstEmptyCell.saveCell;
 
   while (!isTraverse && queue.length > 0) {
     var currentIndex = queue.shift();
@@ -4924,6 +4956,7 @@ function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
           break;
         }
 
+        saveCell(next);
         logger.increment();
       }
     }
@@ -4934,11 +4967,11 @@ function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"src/algorithms/depth-first-search.js":[function(require,module,exports) {
+},{"../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./utils":"src/algorithms/utils.js"}],"src/algorithms/depth-first-search.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4949,6 +4982,8 @@ exports.depthFirstSearch = depthFirstSearch;
 var _utils = require("../utils");
 
 var _restorePath = require("./restore-path");
+
+var _utils2 = require("./utils");
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -4968,6 +5003,10 @@ function depthFirstSearch(startIndex, endIndex, graph, _ref) {
   var isTraverse = false;
   var logger = (0, _utils.createOperationLogger)('depthFirstSearch');
 
+  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
+      getCell = _createFirstEmptyCell.getCell,
+      saveCell = _createFirstEmptyCell.saveCell;
+
   while (!isTraverse && stack.length > 0) {
     var currentIndex = stack.shift();
     var vertex = graph.getVertex(currentIndex); // eslint-disable-next-line unicorn/no-for-loop
@@ -4985,6 +5024,7 @@ function depthFirstSearch(startIndex, endIndex, graph, _ref) {
           break;
         }
 
+        saveCell(next);
         logger.increment();
       }
     }
@@ -4995,11 +5035,11 @@ function depthFirstSearch(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"node_modules/fastpriorityqueue/FastPriorityQueue.js":[function(require,module,exports) {
+},{"../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./utils":"src/algorithms/utils.js"}],"node_modules/fastpriorityqueue/FastPriorityQueue.js":[function(require,module,exports) {
 /**
  * FastPriorityQueue.js : a fast heap-based priority queue  in JavaScript.
  * (c) the authors
@@ -5333,6 +5373,8 @@ var _utils = require("../utils");
 
 var _restorePath = require("./restore-path");
 
+var _utils2 = require("./utils");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -5343,6 +5385,8 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function dijkstra(startIndex, endIndex, graph, _ref) {
   var canTraverse = _ref.canTraverse,
       getCostByIndex = _ref.getCostByIndex,
@@ -5351,13 +5395,19 @@ function dijkstra(startIndex, endIndex, graph, _ref) {
   var queue = new _fastpriorityqueue.default(function (a, b) {
     return a[1] < b[1];
   });
-  var processed = new Map();
+  var processed = new Map([[startIndex, true]]);
   var parent = {};
-  var costFar = {};
+
+  var costFar = _defineProperty({}, startIndex, true);
+
   var isTraverse = false;
   var logger = (0, _utils.createOperationLogger)('dijkstra');
+
+  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
+      getCell = _createFirstEmptyCell.getCell,
+      saveCell = _createFirstEmptyCell.saveCell;
+
   queue.add([startIndex, 0]);
-  costFar[startIndex] = 0;
 
   while (!isTraverse && !queue.isEmpty()) {
     var currentChild = queue.poll();
@@ -5382,6 +5432,7 @@ function dijkstra(startIndex, endIndex, graph, _ref) {
             break;
           }
 
+          saveCell(next);
           logger.increment();
         }
       }
@@ -5393,11 +5444,11 @@ function dijkstra(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js"}],"src/algorithms/heuristic.js":[function(require,module,exports) {
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./utils":"src/algorithms/utils.js"}],"src/algorithms/heuristic.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5460,6 +5511,8 @@ var _restorePath = require("./restore-path");
 
 var _heuristic = require("./heuristic");
 
+var _utils2 = require("./utils");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -5479,11 +5532,16 @@ function greedy(startIndex, endIndex, graph, _ref) {
   var queue = new _fastpriorityqueue.default(function (a, b) {
     return a[1] < b[1];
   });
-  var processed = new Map();
+  var processed = new Map([[startIndex, true]]);
   var parent = {};
   var goal = (0, _utils.getPositionByIndex)(endIndex);
   var isTraverse = false;
   var logger = (0, _utils.createOperationLogger)('greedy');
+
+  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
+      getCell = _createFirstEmptyCell.getCell,
+      saveCell = _createFirstEmptyCell.saveCell;
+
   queue.add([startIndex, 0]);
 
   while (!isTraverse && !queue.isEmpty()) {
@@ -5493,21 +5551,19 @@ function greedy(startIndex, endIndex, graph, _ref) {
     for (var i = 0; vertex && i < vertex.neigbors.length; i++) {
       var next = vertex.neigbors[i];
 
-      if (canTraverse(graph.getVertex(next), next)) {
+      if (canTraverse(graph.getVertex(next), next) && !processed.has(next)) {
         var nextCost = heuristic(goal, (0, _utils.getPositionByIndex)(next));
+        queue.add([next, nextCost]);
+        processed.set(next, true); // eslint-disable-next-line prefer-destructuring
 
-        if (!processed.has(next)) {
-          queue.add([next, nextCost]);
-          processed.set(next, true); // eslint-disable-next-line prefer-destructuring
+        parent[next] = currentChild[0];
 
-          parent[next] = currentChild[0];
-
-          if (endIndex === next) {
-            isTraverse = true;
-            break;
-          }
+        if (endIndex === next) {
+          isTraverse = true;
+          break;
         }
 
+        saveCell(next);
         logger.increment();
       }
     }
@@ -5518,11 +5574,11 @@ function greedy(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./heuristic":"src/algorithms/heuristic.js"}],"src/algorithms/a-star.js":[function(require,module,exports) {
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./heuristic":"src/algorithms/heuristic.js","./utils":"src/algorithms/utils.js"}],"src/algorithms/a-star.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5538,6 +5594,8 @@ var _restorePath = require("./restore-path");
 
 var _heuristic = require("./heuristic");
 
+var _utils2 = require("./utils");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -5547,6 +5605,8 @@ function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread n
 function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function aStar(startIndex, endIndex, graph, _ref) {
   var canTraverse = _ref.canTraverse,
@@ -5559,13 +5619,19 @@ function aStar(startIndex, endIndex, graph, _ref) {
   var queue = new _fastpriorityqueue.default(function (a, b) {
     return a[1] < b[1];
   });
-  var processed = new Map();
+  var processed = new Map([[startIndex, true]]);
   var parent = {};
-  var costFar = {};
+
+  var costFar = _defineProperty({}, startIndex, 0);
+
   var isTraverse = false;
+
+  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
+      getCell = _createFirstEmptyCell.getCell,
+      saveCell = _createFirstEmptyCell.saveCell;
+
   var logger = (0, _utils.createOperationLogger)('aStar');
   queue.add([startIndex, 0]);
-  costFar[startIndex] = 0;
 
   while (!isTraverse && !queue.isEmpty()) {
     var currentChild = queue.poll();
@@ -5590,6 +5656,7 @@ function aStar(startIndex, endIndex, graph, _ref) {
             break;
           }
 
+          saveCell(next);
           logger.increment();
         }
       }
@@ -5601,11 +5668,11 @@ function aStar(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : [],
+    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./heuristic":"src/algorithms/heuristic.js"}],"src/algorithms/index.js":[function(require,module,exports) {
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.js","./restore-path":"src/algorithms/restore-path.js","./heuristic":"src/algorithms/heuristic.js","./utils":"src/algorithms/utils.js"}],"src/algorithms/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38213,6 +38280,8 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+var INDEX = -1;
+
 function getNearestFood(_ref) {
   var foods = _ref.foods,
       graph = _ref.graph,
@@ -38251,7 +38320,7 @@ function ai(_ref4) {
     return 1;
   }
 
-  var result = traverseAlgorithm((0, _utils.getIndexByPosition)(currentPosition), (0, _utils.getIndexByPosition)(nearestFood[0]), graph, {
+  var result = traverseAlgorithm((0, _utils.getIndexByPosition)(currentPosition), nearestFood ? (0, _utils.getIndexByPosition)(nearestFood[0]) : INDEX, graph, {
     canTraverse: canTraverse,
     getCostByIndex: getCostByIndex,
     heuristic: heuristic,
@@ -38363,6 +38432,8 @@ var _snake = require("../snake");
 
 var _utils = require("../../utils");
 
+var _config = require("../../config");
+
 function buildSnakesByCount(count) {
   var snakes = [];
 
@@ -38378,7 +38449,7 @@ function buildSnakesByCount(count) {
   return snakes;
 }
 
-var $snakes = (0, _effector.createStore)(buildSnakesByCount(3));
+var $snakes = (0, _effector.createStore)(buildSnakesByCount(_config.snakeCount));
 exports.$snakes = $snakes;
 var $snakeIdsAsString = $snakes.map(function (snakes) {
   return snakes.map(function (snake) {
@@ -38406,7 +38477,7 @@ var $isUserInGame = $snakes.map(function (snakes) {
   });
 });
 exports.$isUserInGame = $isUserInGame;
-},{"effector":"node_modules/effector/effector.es.js","../../updaters":"src/updaters/index.js","../snake":"src/models/snake.js","../../utils":"src/utils.js"}],"node_modules/lodash-es/_listCacheClear.js":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","../../updaters":"src/updaters/index.js","../snake":"src/models/snake.js","../../utils":"src/utils.js","../../config":"src/config.js"}],"node_modules/lodash-es/_listCacheClear.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44184,9 +44255,11 @@ var _effector = require("effector");
 
 var _utils = require("../../utils");
 
-var $foods = (0, _effector.createStore)((0, _utils.generateRandomFoodByCount)(50));
+var _config = require("../../config");
+
+var $foods = (0, _effector.createStore)((0, _utils.generateRandomFoodByCount)(_config.foodCount));
 exports.$foods = $foods;
-},{"effector":"node_modules/effector/effector.es.js","../../utils":"src/utils.js"}],"src/models/objects/events.js":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","../../utils":"src/utils.js","../../config":"src/config.js"}],"src/models/objects/events.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44307,21 +44380,23 @@ function createTick(_ref) {
       return fps;
     }
   });
+  var triggerTick = (0, _effector.guard)((0, _effector.merge)([nextTickFx.done, $isPlay]), {
+    filter: $isPlay
+  });
+  var triggerRender = (0, _effector.guard)($state, {
+    filter: $isPause
+  });
   $tick.on(nextTickFx.done, function (previous) {
     return previous + 1;
   });
   (0, _effector.sample)($state, nextTickFx).watch(runLogic);
-  (0, _effector.sample)($state, (0, _effector.merge)([render, nextTickFx.done])).watch(runRender);
+  (0, _effector.sample)($state, render).watch(runRender);
   (0, _effector.forward)({
-    from: (0, _effector.guard)((0, _effector.merge)([nextTickFx.done, $isPlay, start]), {
-      filter: $isPlay
-    }),
+    from: (0, _effector.merge)([start, triggerTick]),
     to: nextTickFx
   });
   (0, _effector.forward)({
-    from: (0, _effector.guard)((0, _effector.merge)([start, $state]), {
-      filter: $isPause
-    }),
+    from: (0, _effector.merge)([triggerRender, nextTickFx.done]),
     to: render
   });
   return {
@@ -44573,10 +44648,23 @@ function main(canvas, context) {
       }).filter(Boolean)));
     }
 
-    function handleEatFood(_ref3) {
-      var snake = _ref3.snake,
-          nextPosition = _ref3.nextPosition,
-          foodId = _ref3.foodId;
+    function markSnakesOnGraph() {
+      nextState.computedSnakes.forEach(function (_ref3) {
+        var snake = _ref3.snake;
+        (0, _utils.setValuesToGraph)(graph, _toConsumableArray(snake.body.map(function (position) {
+          return {
+            type: _config.PLACE_TYPE.GAME_OBJECT,
+            index: (0, _utils.getIndexByPosition)(position),
+            value: snake.id
+          };
+        })));
+      });
+    }
+
+    function handleEatFood(_ref4) {
+      var snake = _ref4.snake,
+          nextPosition = _ref4.nextPosition,
+          foodId = _ref4.foodId;
       var nextSnake = (0, _snake.addPeaceOfSnake)((0, _snake.setScore)(snake, snake.score + 1), nextPosition);
       foods = foods.map(function (food) {
         if (foodId === food[1]) {
@@ -44589,29 +44677,28 @@ function main(canvas, context) {
     }
 
     function reCreateSnakeInGraph(prevSnake, nextSnake) {
-      (0, _utils.setValuesToGraph)(graph, [].concat(_toConsumableArray(prevSnake.body.map(function (position) {
-        return {
-          type: _config.PLACE_TYPE.EMPTY,
-          index: (0, _utils.getIndexByPosition)(position)
-        };
-      })), _toConsumableArray(nextSnake.body.map(function (position) {
-        return {
-          type: _config.PLACE_TYPE.GAME_OBJECT,
-          index: (0, _utils.getIndexByPosition)(position),
-          value: nextSnake.id
-        };
-      }))));
+      var tail = (0, _snake.tailSnake)(prevSnake);
+      var head = (0, _snake.headSnake)(nextSnake);
+      (0, _utils.setValuesToGraph)(graph, [{
+        type: _config.PLACE_TYPE.EMPTY,
+        index: (0, _utils.getIndexByPosition)(tail)
+      }, {
+        type: _config.PLACE_TYPE.GAME_OBJECT,
+        index: (0, _utils.getIndexByPosition)(head),
+        value: nextSnake.id
+      }]);
     }
 
     markFoodOnGraph();
-    nextState.computedSnakes.filter(function (_ref4) {
-      var snake = _ref4.snake;
+    markSnakesOnGraph();
+    nextState.computedSnakes.filter(function (_ref5) {
+      var snake = _ref5.snake;
       return !snake.isCrash;
-    }).forEach(function (_ref5) {
+    }).forEach(function (_ref6) {
       var _nextVertex$value;
 
-      var snake = _ref5.snake,
-          algorithm = _ref5.algorithm;
+      var snake = _ref6.snake,
+          algorithm = _ref6.algorithm;
 
       var _snake$updater = snake.updater(_objectSpread({
         withLogger: nextState.isLoggerEnabled,
@@ -44677,9 +44764,9 @@ function main(canvas, context) {
         indexesVisible = nextState.indexesVisible;
     clearGame();
     (0, _foods.renderFoods)(context, foods);
-    computedSnakes.forEach(function (_ref6) {
-      var snake = _ref6.snake,
-          settings = _ref6.settings;
+    computedSnakes.forEach(function (_ref7) {
+      var snake = _ref7.snake,
+          settings = _ref7.settings;
 
       if (snake.isAi) {
         var showAIPathToTarget = settings.showAIPathToTarget,
@@ -44747,7 +44834,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64010" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51886" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
