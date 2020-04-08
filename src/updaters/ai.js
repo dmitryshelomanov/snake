@@ -9,6 +9,8 @@ import { checkBounds } from '../collision'
 import { getNextPositionByDirection, getDirectionByPosition } from '../controll'
 import { PLACE_TYPE } from '../config'
 
+const INDEX = -1
+
 function getNearestFood({ foods, graph, currentPosition }) {
   return (
     foods
@@ -50,7 +52,7 @@ export function ai({
 
   const result = traverseAlgorithm(
     getIndexByPosition(currentPosition),
-    getIndexByPosition(nearestFood[0]),
+    nearestFood ? getIndexByPosition(nearestFood[0]) : INDEX,
     graph,
     {
       canTraverse,
