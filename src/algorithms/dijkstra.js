@@ -2,6 +2,7 @@
 import PriorityQueue from 'fastpriorityqueue'
 import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
+import { createFirstEmptyCellSaver } from './utils'
 
 export function dijkstra(
   startIndex,
@@ -10,14 +11,16 @@ export function dijkstra(
   { canTraverse, getCostByIndex, withLogger = false }
 ) {
   const queue = new PriorityQueue((a, b) => a[1] < b[1])
-  const processed = new Map()
+  const processed = new Map([[startIndex, true]])
   const parent = {}
-  const costFar = {}
+  const costFar = {
+    [startIndex]: true,
+  }
   let isTraverse = false
   const logger = createOperationLogger('dijkstra')
+  const { getCell, saveCell } = createFirstEmptyCellSaver()
 
   queue.add([startIndex, 0])
-  costFar[startIndex] = 0
 
   while (!isTraverse && !queue.isEmpty()) {
     const currentChild = queue.poll()
@@ -43,6 +46,7 @@ export function dijkstra(
             break
           }
 
+          saveCell(next)
           logger.increment()
         }
       }
@@ -54,7 +58,7 @@ export function dijkstra(
   }
 
   return {
-    path: isTraverse ? restorePath(endIndex, startIndex, parent) : [],
+    path: isTraverse ? restorePath(endIndex, startIndex, parent) : getCell(),
     processed: [...processed.keys()],
   }
 }

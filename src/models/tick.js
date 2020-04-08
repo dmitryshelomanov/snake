@@ -32,18 +32,24 @@ export function createTick({ $state, runLogic, runRender }) {
     mapParams: (_, fps) => fps,
   })
 
+  const triggerTick = guard(merge([nextTickFx.done, $isPlay]), {
+    filter: $isPlay,
+  })
+
+  const triggerRender = guard($state, { filter: $isPause })
+
   $tick.on(nextTickFx.done, (previous) => previous + 1)
 
   sample($state, nextTickFx).watch(runLogic)
-  sample($state, merge([render, nextTickFx.done])).watch(runRender)
+  sample($state, render).watch(runRender)
 
   forward({
-    from: guard(merge([nextTickFx.done, $isPlay, start]), { filter: $isPlay }),
+    from: merge([start, triggerTick]),
     to: nextTickFx,
   })
 
   forward({
-    from: guard(merge([start, $state]), { filter: $isPause }),
+    from: merge([triggerRender, nextTickFx.done]),
     to: render,
   })
 

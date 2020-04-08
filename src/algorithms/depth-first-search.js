@@ -1,6 +1,7 @@
 /* eslint-disable no-loop-func */
 import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
+import { createFirstEmptyCellSaver } from './utils'
 
 export function depthFirstSearch(
   startIndex,
@@ -13,6 +14,7 @@ export function depthFirstSearch(
   const parent = {}
   let isTraverse = false
   const logger = createOperationLogger('depthFirstSearch')
+  const { getCell, saveCell } = createFirstEmptyCellSaver()
 
   while (!isTraverse && stack.length > 0) {
     const currentIndex = stack.shift()
@@ -32,6 +34,7 @@ export function depthFirstSearch(
           break
         }
 
+        saveCell(next)
         logger.increment()
       }
     }
@@ -42,7 +45,7 @@ export function depthFirstSearch(
   }
 
   return {
-    path: isTraverse ? restorePath(endIndex, startIndex, parent) : [],
+    path: isTraverse ? restorePath(endIndex, startIndex, parent) : getCell(),
     processed: [...processed.keys()],
   }
 }

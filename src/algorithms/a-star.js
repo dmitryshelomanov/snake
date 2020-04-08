@@ -3,6 +3,7 @@ import PriorityQueue from 'fastpriorityqueue'
 import { createOperationLogger, getPositionByIndex } from '../utils'
 import { restorePath } from './restore-path'
 import { manhattanDistance } from './heuristic'
+import { createFirstEmptyCellSaver } from './utils'
 
 export function aStar(
   startIndex,
@@ -17,14 +18,16 @@ export function aStar(
 ) {
   const goal = getPositionByIndex(endIndex)
   const queue = new PriorityQueue((a, b) => a[1] < b[1])
-  const processed = new Map()
+  const processed = new Map([[startIndex, true]])
   const parent = {}
-  const costFar = {}
+  const costFar = {
+    [startIndex]: 0,
+  }
   let isTraverse = false
+  const { getCell, saveCell } = createFirstEmptyCellSaver()
   const logger = createOperationLogger('aStar')
 
   queue.add([startIndex, 0])
-  costFar[startIndex] = 0
 
   while (!isTraverse && !queue.isEmpty()) {
     const currentChild = queue.poll()
@@ -53,6 +56,7 @@ export function aStar(
             break
           }
 
+          saveCell(next)
           logger.increment()
         }
       }
@@ -64,7 +68,7 @@ export function aStar(
   }
 
   return {
-    path: isTraverse ? restorePath(endIndex, startIndex, parent) : [],
+    path: isTraverse ? restorePath(endIndex, startIndex, parent) : getCell(),
     processed: [...processed.keys()],
   }
 }
