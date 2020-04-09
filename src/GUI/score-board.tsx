@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { useStore } from 'effector-react'
 import styled from 'styled-components'
 import { $snakesIterator } from '../models/snakes'
@@ -40,7 +40,7 @@ export const Counter = styled.p`
   font-sixe: 12px;
 `
 
-export function ScoreItem({ snakeId }: { snakeId: string }) {
+export const ScoreItem = memo(({ snakeId }: { snakeId: string }) => {
   const score = useSnakeScoreState(snakeId)
   const isCrash = useSnakeIsCrahedState(snakeId)
   const colors = useSnakeColorState(snakeId)
@@ -52,9 +52,9 @@ export function ScoreItem({ snakeId }: { snakeId: string }) {
       <Counter>{score}</Counter>
     </Score>
   )
-}
+})
 
-export function ScoreBoard() {
+export const ScoreBoard = memo(() => {
   const snakesIds = useStore($snakesIterator)
 
   return (
@@ -67,4 +67,4 @@ export function ScoreBoard() {
       </Wrapper>
     </>
   )
-}
+})
