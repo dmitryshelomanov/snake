@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { useStore } from 'effector-react'
 import styled from 'styled-components'
 import Draggable from 'react-draggable'
@@ -48,25 +48,33 @@ const Button = styled.button<any>`
 `
 
 export function SideBar() {
+  const [isVisibleBoard, setVisibleState] = useState(true)
   const gameState = useStore($gameState)
   const snakesIterator = useStore($snakesIterator)
   const isPlay = gameState === GAME_STATE.IS_PLAY
   const playOrPause = isPlay ? stop : play
   const text = isPlay ? 'pause' : 'play'
 
-  function addSnakeToGame() {
+  const addSnakeToGame = useCallback(() => {
     addSnake({ snakeId: `ai-${snakesIterator.length + 1}`, isAi: true })
-  }
+  }, [snakesIterator])
+
+  const toggleBoardVisibleState = useCallback(() => {
+    setVisibleState((prev) => !prev)
+  }, [])
 
   return (
     <Draggable>
       <SideBarWrapper>
         <SideBarInner>
-          <RightPanel />
+          {isVisibleBoard && <RightPanel />}
           <ControllPanel>
             <Button onClick={playOrPause}>{text}</Button>
             <Button onClick={restart}>restart</Button>
             <Button onClick={addSnakeToGame}>add snake</Button>
+            <Button onClick={toggleBoardVisibleState}>
+              {isVisibleBoard ? 'hide board' : 'show board'}
+            </Button>
           </ControllPanel>
         </SideBarInner>
       </SideBarWrapper>
