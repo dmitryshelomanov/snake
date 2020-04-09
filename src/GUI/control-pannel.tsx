@@ -12,8 +12,11 @@ export const ControllPanel = styled.div`
   width: 100%;
   min-height: 50px;
   margin-top: 15px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 
   > button {
-    margin: auto;
+    margin-right: 15px;
+    margin-bottom: 15px;
   }
 `
