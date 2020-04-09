@@ -1,25 +1,46 @@
 import { getIndexByPosition } from '../utils'
 import { drawSquare, renderText } from './shapes'
+import { Snake } from 'models/snake'
 
-export function renderSnake({ context, snake, indexesVisible = false }) {
+export function renderSnake({
+  context,
+  snake,
+  indexesVisible = false,
+}: {
+  context: CanvasRenderingContext2D
+  snake: Snake
+  indexesVisible?: boolean
+}) {
   for (let i = 0; i < snake.body.length; i++) {
     const isHead = i === snake.body.length - 1
     const color = isHead ? snake.colors.head : snake.colors.tail
     const crashedColor = isHead ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.6)'
     const index = getIndexByPosition(snake.body[i])
 
-    drawSquare(context, snake.body[i], {
+    drawSquare({
+      context,
+      position: snake.body[i],
       color: snake.isCrash ? crashedColor : color,
     })
 
     if (isHead && indexesVisible) {
-      renderText(context, index, snake.body[i])
+      renderText({
+        context,
+        text: index.toString(),
+        position: snake.body[i],
+      })
     }
   }
 }
 
-export function renderSnakes(context, snakes = []) {
+export function renderSnakes({
+  context,
+  snakes = [],
+}: {
+  context: CanvasRenderingContext2D
+  snakes: Array<Snake>
+}) {
   snakes.forEach((snake) => {
-    renderSnake(context, snake)
+    renderSnake({ context, snake })
   })
 }

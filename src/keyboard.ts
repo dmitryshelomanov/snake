@@ -18,6 +18,6 @@ export function keyboradFactory() {
   })
 
   return {
-    isDown: (keyCode) => pressedKeys[keyCode],
+    isDown: (keyCode: number) => pressedKeys[keyCode],
   }
 }

@@ -1,7 +1,7 @@
 import { forward } from 'effector'
 import uniqBy from 'lodash-es/uniqBy'
 import { randomPosition } from '../../utils'
-import { Snake, getColorsForSnake } from '../snake'
+import { Snake, getColorsForSnake, buildSnake } from '../snake'
 import {
   addUserToGame,
   removeUserFromGame,
@@ -18,10 +18,11 @@ $snakes
   )
   .on(addSnake, (snakes, { snakeId, isAi }) => [
     ...snakes,
-    Snake.build(randomPosition(), {
+    buildSnake(randomPosition(), {
       colors: getColorsForSnake(),
       id: snakeId,
       isAi,
+      // @ts-ignore
       updater: isAi ? updaters.ai : updaters.user,
     }),
   ])
@@ -38,13 +39,13 @@ $settingsForSnakes
 
     return nextSettiings
   })
-  .on(updateSettingForSnake, (state, { snakeId, settingName, value }) => {
+  .on(updateSettingForSnake, (state, { snakeId, settings }) => {
     if (state[snakeId]) {
       return {
         ...state,
         [snakeId]: {
           ...state[snakeId],
-          [settingName]: value,
+          ...settings,
         },
       }
     }

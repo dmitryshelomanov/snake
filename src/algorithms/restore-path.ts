@@ -1,4 +1,8 @@
-export function restorePath(end, start, parent) {
+export function restorePath(
+  end: number,
+  start: number,
+  parent: { [key: number]: number }
+) {
   const path = [end]
   let goal = parent[end]
 

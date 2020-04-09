@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const Title = styled.h2`
+export const Title = styled.h2<{ color?: string }>`
   color: #fff;
   margin: 15px 0;
   padding: 0;

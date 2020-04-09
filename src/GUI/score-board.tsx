@@ -14,7 +14,7 @@ export const Wrapper = styled.ul`
   padding: 0;
 `
 
-export const Score = styled.li`
+export const Score = styled.li<{ isCrash: boolean }>`
   margin: 0;
   padding: 0;
   display: flex;
@@ -40,7 +40,7 @@ export const Counter = styled.p`
   font-sixe: 12px;
 `
 
-export function ScoreItem({ snakeId }) {
+export function ScoreItem({ snakeId }: { snakeId: string }) {
   const score = useSnakeScoreState(snakeId)
   const isCrash = useSnakeIsCrahedState(snakeId)
   const colors = useSnakeColorState(snakeId)

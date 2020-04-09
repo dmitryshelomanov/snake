@@ -4,18 +4,28 @@ import {
   getPositionByIndex,
   getDifferenceBetweenPositions,
 } from '../utils'
-import { headSnake } from '../models/snake'
+import { headSnake, Snake } from '../models/snake'
 import { checkBounds } from '../collision'
 import { getNextPositionByDirection, getDirectionByPosition } from '../controll'
 import { PLACE_TYPE } from '../config'
+import { Graph, Vertex } from 'algorithms'
 
 const INDEX = -1
 
-function getNearestFood({ foods, graph, currentPosition }) {
+function getNearestFood({
+  foods,
+  graph,
+  currentPosition,
+}: {
+  foods: Array<Food>
+  graph: Graph
+  currentPosition: Coords
+}) {
   return (
     foods
       .filter(
         ([position]) =>
+          // @ts-ignore
           graph.getVertex(getIndexByPosition(position)).value.type ===
           PLACE_TYPE.FOOD
       )
@@ -27,6 +37,32 @@ function getNearestFood({ foods, graph, currentPosition }) {
   )
 }
 
+export type TraverseAlgorithm = (
+  startIndex: number,
+  endIndex: number,
+  graph: Graph,
+  config: {
+    canTraverse: (arg0: Vertex) => boolean
+    getCostByIndex: (arg0: Vertex) => number
+    withLogger: boolean
+    heuristic: (arg0: Coords, arg1: Coords) => number
+  }
+) => {
+  path: Array<number>
+  processed: Array<number>
+}
+
+export type Heuristic = (arg0: Coords, arg1: Coords) => number
+
+type Props = {
+  snake: Snake
+  state: { graph: Graph; foods: Array<Food> }
+  withLogger: boolean
+  heuristic: (arg0: Coords, arg1: Coords) => number
+  isEnabledCollisionDetect: boolean
+  traverseAlgorithm: TraverseAlgorithm
+}
+
 export function ai({
   snake,
   state,
@@ -34,12 +70,12 @@ export function ai({
   heuristic,
   withLogger,
   isEnabledCollisionDetect,
-}) {
+}: Props) {
   const { graph, foods } = state
   const currentPosition = headSnake(snake)
   const nearestFood = getNearestFood({ foods, currentPosition, graph })
 
-  function canTraverse(vertex) {
+  function canTraverse(vertex: Vertex) {
     return isEnabledCollisionDetect
       ? vertex.value.type === PLACE_TYPE.EMPTY ||
           vertex.value.type === PLACE_TYPE.FOOD

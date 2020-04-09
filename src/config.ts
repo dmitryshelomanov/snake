@@ -16,16 +16,16 @@ export const DIRECTIONS = {
   DOWN: KEYS.DOWN_ARROW,
 }
 
-export const GAME_STATE = {
-  IS_PLAY: 'play',
-  IS_PAUSE: 'pause',
+export enum GAME_STATE {
+  IS_PLAY,
+  IS_PAUSE,
 }
 
-export const PLACE_TYPE = {
-  EMPTY: 'empty',
-  GAME_OBJECT: 'game_object',
-  BRICK: 'brick',
-  FOOD: 'food',
+export enum PLACE_TYPE {
+  EMPTY,
+  GAME_OBJECT,
+  BRICK,
+  FOOD,
 }
 
 export const colorScheme = {

@@ -1,9 +1,9 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { useStore } from 'effector-react'
 import styled from 'styled-components'
 import Draggable from 'react-draggable'
 import { $gameState, play, stop, restart } from '../models/game'
-import { addSnake } from '../models/snakes'
+import { addSnake, $snakesIterator } from '../models/snakes'
 import { RightPanel } from './right-panel'
 import { ControllPanel } from './control-pannel'
 import { GAME_STATE } from '../config'
@@ -27,7 +27,7 @@ export const SideBarInner = styled.div`
   flex-direction: column;
 `
 
-const Button = styled.button`
+const Button = styled.button<any>`
   border: none;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 5px;
@@ -48,14 +48,14 @@ const Button = styled.button`
 `
 
 export function SideBar() {
-  const lastId = useRef(2)
   const gameState = useStore($gameState)
+  const snakesIterator = useStore($snakesIterator)
   const isPlay = gameState === GAME_STATE.IS_PLAY
   const playOrPause = isPlay ? stop : play
   const text = isPlay ? 'pause' : 'play'
 
   function addSnakeToGame() {
-    addSnake({ snakeId: `ai-${lastId.current++}`, isAi: true })
+    addSnake({ snakeId: `ai-${snakesIterator.length + 1}`, isAi: true })
   }
 
   return (
