@@ -1838,6 +1838,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.keyboradFactory = keyboradFactory;
 exports.KEYS = void 0;
+var _effectorFileName = "/src/keyboard.js";
 
 /* eslint-disable unicorn/prefer-event-key */
 var KEYS = {
@@ -1851,7 +1852,6 @@ exports.KEYS = KEYS;
 function keyboradFactory() {
   var pressedKeys = {};
   document.addEventListener('keydown', function (event) {
-    event.preventDefault();
     pressedKeys = {};
 
     if (Object.values(KEYS).includes(event.keyCode)) {
@@ -1870,7 +1870,7 @@ function keyboradFactory() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.snakeCount = exports.foodCount = exports.boardLength = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
+exports.colorScheme = exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.snakeCount = exports.foodCount = exports.boardLength = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
 
 var _keyboard = require("./keyboard");
 
@@ -1880,7 +1880,7 @@ var pageWidth = window.innerWidth;
 exports.pageWidth = pageWidth;
 var pageHeight = window.innerHeight;
 exports.pageHeight = pageHeight;
-var fps = 60;
+var fps = 30;
 exports.fps = fps;
 var borderSize = 1;
 exports.borderSize = borderSize;
@@ -1909,6 +1909,12 @@ var PLACE_TYPE = {
   FOOD: 'food'
 };
 exports.PLACE_TYPE = PLACE_TYPE;
+var colorScheme = {
+  emptyCells: '#0080007d',
+  borderColor: 'rgba(0, 0, 0, 0.2)',
+  foodColor: 'rgb(238, 68, 0)'
+};
+exports.colorScheme = colorScheme;
 },{"./keyboard":"src/keyboard.js"}],"src/utils.js":[function(require,module,exports) {
 "use strict";
 
@@ -1929,6 +1935,8 @@ exports.getDifferenceBetweenPositions = getDifferenceBetweenPositions;
 exports.setValuesToGraph = setValuesToGraph;
 
 var _config = require("./config");
+
+var _effectorFileName = "/src/utils.js";
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -2108,6 +2116,8 @@ var _config = require("../config");
 
 var _utils = require("../utils");
 
+var _effectorFileName = "/src/renderer/grid.js";
+
 function buildGrid(context) {
   var grid = new Path2D();
   var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
@@ -2127,7 +2137,7 @@ function buildGrid(context) {
     grid: grid,
     applyStyles: function applyStyles() {
       context.lineWidth = _config.borderSize;
-      context.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+      context.strokeStyle = _config.colorScheme.borderColor;
     }
   };
 }
@@ -2145,6 +2155,8 @@ exports.renderProcessed = renderProcessed;
 var _config = require("../config");
 
 var _utils = require("../utils");
+
+var _effectorFileName = "/src/renderer/shapes.js";
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -2256,6 +2268,8 @@ var _utils = require("../utils");
 
 var _shapes = require("./shapes");
 
+var _effectorFileName = "/src/renderer/snake.js";
+
 function renderSnake(_ref) {
   var context = _ref.context,
       snake = _ref.snake,
@@ -2338,6 +2352,8 @@ exports.canvasInput = exports.CanvasInput = void 0;
 var _config = require("./config");
 
 var _utils = require("./utils");
+
+var _effectorFileName = "/src/controll.js";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2495,6 +2511,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.setCanvasSize = setCanvasSize;
 exports.convigureCanvas = convigureCanvas;
+var _effectorFileName = "/src/canvas.js";
 
 function setCanvasSize(canvas, _ref) {
   var w = _ref.w,
@@ -4493,6 +4510,8 @@ var _color = _interopRequireDefault(require("color"));
 
 var _config = require("../config");
 
+var _effectorFileName = "/src/models/snake.js";
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -4614,7 +4633,7 @@ function setCrash(snake, isCrash) {
 }
 
 function getColorsForSnake() {
-  var color = (0, _color.default)(colorsStub[Math.ceil(Math.random() * colorsStub.length)]);
+  var color = (0, _color.default)(colorsStub[Math.ceil(Math.random() * (colorsStub.length - 1))]);
   return {
     head: color.toString(),
     tail: color.alpha(0.7).toString(),
@@ -4639,6 +4658,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.Graph = void 0;
 
 var _config = require("../config");
+
+var _effectorFileName = "/src/algorithms/graph.js";
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -4680,7 +4701,8 @@ function () {
         }),
         value: {
           type: _config.PLACE_TYPE.EMPTY
-        }
+        },
+        index: index
       };
     });
     this.graph = typeof graph !== 'undefined' ? graph : this.emptyGraph.slice();
@@ -4744,6 +4766,16 @@ function () {
         });
       }
     }
+  }, {
+    key: "getVertexes",
+    value: function getVertexes() {
+      return this.graph;
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      this.graph = this.emptyGraph.slice();
+    }
   }], [{
     key: "extend",
     value: function extend(graph) {
@@ -4768,6 +4800,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.restorePath = restorePath;
+var _effectorFileName = "/src/algorithms/restore-path.js";
 
 function restorePath(end, start, parent) {
   var path = [end];
@@ -4787,6 +4820,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.createFirstEmptyCellSaver = createFirstEmptyCellSaver;
+var _effectorFileName = "/src/algorithms/utils.js";
 
 function createFirstEmptyCellSaver() {
   var cell;
@@ -4814,6 +4848,8 @@ var _utils = require("../utils");
 var _restorePath = require("./restore-path");
 
 var _utils2 = require("./utils");
+
+var _effectorFileName = "/src/algorithms/breadth-first-search.js";
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -4946,7 +4982,7 @@ function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
     for (var i = 0; vertex && i < vertex.neigbors.length; i++) {
       var next = vertex.neigbors[i];
 
-      if (canTraverse(graph.getVertex(next), next) && !processed.has(next)) {
+      if (canTraverse(graph.getVertex(next)) && !processed.has(next)) {
         queue.push(next);
         processed.set(next, true);
         parent[next] = currentIndex;
@@ -4985,6 +5021,8 @@ var _restorePath = require("./restore-path");
 
 var _utils2 = require("./utils");
 
+var _effectorFileName = "/src/algorithms/depth-first-search.js";
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -5014,7 +5052,7 @@ function depthFirstSearch(startIndex, endIndex, graph, _ref) {
     for (var i = 0; vertex && i < vertex.neigbors.length; i++) {
       var next = vertex.neigbors[i];
 
-      if (canTraverse(graph.getVertex(next), next) && !processed.has(next)) {
+      if (canTraverse(graph.getVertex(next)) && !processed.has(next)) {
         parent[next] = currentIndex;
         stack.unshift(next);
         processed.set(next, true);
@@ -5375,6 +5413,8 @@ var _restorePath = require("./restore-path");
 
 var _utils2 = require("./utils");
 
+var _effectorFileName = "/src/algorithms/dijkstra.js";
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -5416,11 +5456,11 @@ function dijkstra(startIndex, endIndex, graph, _ref) {
     for (var i = 0; vertex && i < vertex.neigbors.length; i++) {
       var next = vertex.neigbors[i];
 
-      if (canTraverse(graph.getVertex(next), next) && canTraverse(next)) {
+      if (canTraverse(graph.getVertex(next) && !processed.has(next))) {
         var nextCost = costFar[currentChild[0]] + getCostByIndex(next);
         var nextCostIsLower = nextCost <= (costFar[next] || Infinity);
 
-        if (nextCostIsLower && !processed.has(next)) {
+        if (nextCostIsLower) {
           queue.add([next, nextCost]);
           processed.set(next, true);
           costFar[next] = nextCost; // eslint-disable-next-line prefer-destructuring
@@ -5456,6 +5496,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.manhattanDistance = manhattanDistance;
 exports.chebyshevDistance = chebyshevDistance;
+var _effectorFileName = "/src/algorithms/heuristic.js";
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -5513,6 +5554,8 @@ var _heuristic = require("./heuristic");
 
 var _utils2 = require("./utils");
 
+var _effectorFileName = "/src/algorithms/greedy.js";
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -5551,7 +5594,7 @@ function greedy(startIndex, endIndex, graph, _ref) {
     for (var i = 0; vertex && i < vertex.neigbors.length; i++) {
       var next = vertex.neigbors[i];
 
-      if (canTraverse(graph.getVertex(next), next) && !processed.has(next)) {
+      if (canTraverse(graph.getVertex(next)) && !processed.has(next)) {
         var nextCost = heuristic(goal, (0, _utils.getPositionByIndex)(next));
         queue.add([next, nextCost]);
         processed.set(next, true); // eslint-disable-next-line prefer-destructuring
@@ -5595,6 +5638,8 @@ var _restorePath = require("./restore-path");
 var _heuristic = require("./heuristic");
 
 var _utils2 = require("./utils");
+
+var _effectorFileName = "/src/algorithms/a-star.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5640,7 +5685,7 @@ function aStar(startIndex, endIndex, graph, _ref) {
     for (var i = 0; vertex && i < vertex.neigbors.length; i++) {
       var next = vertex.neigbors[i];
 
-      if (canTraverse(graph.getVertex(next), next)) {
+      if (canTraverse(graph.getVertex(next))) {
         var nextCost = costFar[currentChild[0]] + getCostByIndex(next);
         var nextCostIsLower = nextCost < (costFar[next] || Infinity);
 
@@ -38078,38 +38123,129 @@ var global = arguments[3];
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.changeFps = exports.updateStates = exports.setLoggerState = exports.setIndexesVisible = exports.setCollisionState = exports.removeUserFromGame = exports.addUserToGame = exports.restart = exports.stop = exports.play = void 0;
+exports.fillEmptyGraphCells = exports.changeFps = exports.updateStates = exports.setLoggerState = exports.setIndexesVisible = exports.setCollisionState = exports.removeUserFromGame = exports.addUserToGame = exports.restart = exports.stop = exports.play = void 0;
 
 var _effector = require("effector");
 
-var play = (0, _effector.createEvent)('play game');
+var _effectorFileName = "/src/models/game/events.js";
+var play = (0, _effector.createEvent)("play", {
+  loc: {
+    file: _effectorFileName,
+    line: 3,
+    column: 20
+  },
+  name: "play",
+  sid: "-do1dw5"
+});
 exports.play = play;
-var stop = (0, _effector.createEvent)('stop game');
+var stop = (0, _effector.createEvent)("stop", {
+  loc: {
+    file: _effectorFileName,
+    line: 4,
+    column: 20
+  },
+  name: "stop",
+  sid: "e5dmkc"
+});
 exports.stop = stop;
-var restart = (0, _effector.createEvent)('restart game');
+var restart = (0, _effector.createEvent)("restart", {
+  loc: {
+    file: _effectorFileName,
+    line: 5,
+    column: 23
+  },
+  name: "restart",
+  sid: "-jmt7zp"
+});
 exports.restart = restart;
-var addUserToGame = (0, _effector.createEvent)('add user to game');
+var addUserToGame = (0, _effector.createEvent)("addUserToGame", {
+  loc: {
+    file: _effectorFileName,
+    line: 7,
+    column: 29
+  },
+  name: "addUserToGame",
+  sid: "6xjmxl"
+});
 exports.addUserToGame = addUserToGame;
-var removeUserFromGame = (0, _effector.createEvent)('remove user from game');
+var removeUserFromGame = (0, _effector.createEvent)("removeUserFromGame", {
+  loc: {
+    file: _effectorFileName,
+    line: 8,
+    column: 34
+  },
+  name: "removeUserFromGame",
+  sid: "-t130s4"
+});
 exports.removeUserFromGame = removeUserFromGame;
-var setCollisionState = (0, _effector.createEvent)('set collision state');
+var setCollisionState = (0, _effector.createEvent)("setCollisionState", {
+  loc: {
+    file: _effectorFileName,
+    line: 10,
+    column: 33
+  },
+  name: "setCollisionState",
+  sid: "-b3hcgs"
+});
 exports.setCollisionState = setCollisionState;
-var setIndexesVisible = (0, _effector.createEvent)('set visible indexes');
+var setIndexesVisible = (0, _effector.createEvent)("setIndexesVisible", {
+  loc: {
+    file: _effectorFileName,
+    line: 12,
+    column: 33
+  },
+  name: "setIndexesVisible",
+  sid: "-u4j64r"
+});
 exports.setIndexesVisible = setIndexesVisible;
-var setLoggerState = (0, _effector.createEvent)('on toggle logger'); // update all states per one update
+var setLoggerState = (0, _effector.createEvent)("setLoggerState", {
+  loc: {
+    file: _effectorFileName,
+    line: 14,
+    column: 30
+  },
+  name: "setLoggerState",
+  sid: "-5kmen3"
+}); // update all states per one update
 
 exports.setLoggerState = setLoggerState;
-var updateStates = (0, _effector.createEvent)('update states');
+var updateStates = (0, _effector.createEvent)("updateStates", {
+  loc: {
+    file: _effectorFileName,
+    line: 17,
+    column: 28
+  },
+  name: "updateStates",
+  sid: "-n97q7z"
+});
 exports.updateStates = updateStates;
-var changeFps = (0, _effector.createEvent)('change fps');
+var changeFps = (0, _effector.createEvent)("changeFps", {
+  loc: {
+    file: _effectorFileName,
+    line: 19,
+    column: 25
+  },
+  name: "changeFps",
+  sid: "-1a46nk"
+});
 exports.changeFps = changeFps;
+var fillEmptyGraphCells = (0, _effector.createEvent)("fillEmptyGraphCells", {
+  loc: {
+    file: _effectorFileName,
+    line: 21,
+    column: 35
+  },
+  name: "fillEmptyGraphCells",
+  sid: "-db3h0y"
+});
+exports.fillEmptyGraphCells = fillEmptyGraphCells;
 },{"effector":"node_modules/effector/effector.es.js"}],"src/models/game/store.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$fps = exports.$isLoggerEnabled = exports.$indexesVisible = exports.$isEnabledCollisionDetect = exports.$gameState = void 0;
+exports.$needFillEmptyGraphsCellls = exports.$fps = exports.$isLoggerEnabled = exports.$indexesVisible = exports.$isEnabledCollisionDetect = exports.$gameState = void 0;
 
 var _effector = require("effector");
 
@@ -38117,16 +38253,67 @@ var _config = require("../../config");
 
 var _events = require("./events");
 
-var $gameState = (0, _effector.createStore)(_config.GAME_STATE.IS_PAUSE);
+var _effectorFileName = "/src/models/game/store.js";
+var $gameState = (0, _effector.createStore)(_config.GAME_STATE.IS_PAUSE, {
+  loc: {
+    file: _effectorFileName,
+    line: 5,
+    column: 26
+  },
+  name: "$gameState",
+  sid: "c8tvy"
+});
 exports.$gameState = $gameState;
-var $isEnabledCollisionDetect = (0, _effector.restore)(_events.setCollisionState, true);
+var $isEnabledCollisionDetect = (0, _effector.createStore)(true, {
+  loc: {
+    file: _effectorFileName,
+    line: 7,
+    column: 41
+  },
+  name: "$isEnabledCollisionDetect",
+  sid: "45onzu"
+});
 exports.$isEnabledCollisionDetect = $isEnabledCollisionDetect;
-var $indexesVisible = (0, _effector.restore)(_events.setIndexesVisible, false);
+var $indexesVisible = (0, _effector.createStore)(false, {
+  loc: {
+    file: _effectorFileName,
+    line: 9,
+    column: 31
+  },
+  name: "$indexesVisible",
+  sid: "sr4u4r"
+});
 exports.$indexesVisible = $indexesVisible;
-var $isLoggerEnabled = (0, _effector.restore)(_events.setLoggerState, false);
+var $isLoggerEnabled = (0, _effector.createStore)(false, {
+  loc: {
+    file: _effectorFileName,
+    line: 11,
+    column: 32
+  },
+  name: "$isLoggerEnabled",
+  sid: "-ox8poc"
+});
 exports.$isLoggerEnabled = $isLoggerEnabled;
-var $fps = (0, _effector.restore)(_events.changeFps, _config.fps);
+var $fps = (0, _effector.restore)(_events.changeFps, _config.fps, {
+  loc: {
+    file: _effectorFileName,
+    line: 13,
+    column: 20
+  },
+  name: "$fps",
+  sid: "-soo1un"
+});
 exports.$fps = $fps;
+var $needFillEmptyGraphsCellls = (0, _effector.createStore)(false, {
+  loc: {
+    file: _effectorFileName,
+    line: 15,
+    column: 42
+  },
+  name: "$needFillEmptyGraphsCellls",
+  sid: "krywsm"
+});
+exports.$needFillEmptyGraphsCellls = $needFillEmptyGraphsCellls;
 },{"effector":"node_modules/effector/effector.es.js","../../config":"src/config.js","./events":"src/models/game/events.js"}],"src/models/game/model.js":[function(require,module,exports) {
 "use strict";
 
@@ -38136,17 +38323,31 @@ var _events = require("./events");
 
 var _store = require("./store");
 
+var _effectorFileName = "/src/models/game/model.js";
+
 _store.$gameState.on(_events.play, function () {
   return _config.GAME_STATE.IS_PLAY;
 }).on(_events.stop, function () {
   return _config.GAME_STATE.IS_PAUSE;
 }).reset(_events.restart);
 
-_store.$indexesVisible.reset(_events.restart);
+_store.$needFillEmptyGraphsCellls.on(_events.fillEmptyGraphCells, function (state) {
+  return !state;
+}).reset(_events.restart);
 
-_store.$isEnabledCollisionDetect.reset(_events.restart);
+_store.$isEnabledCollisionDetect.on(_events.setCollisionState, function (state) {
+  return !state;
+}).reset(_events.restart);
 
-_store.$isLoggerEnabled.reset(_events.restart);
+_store.$isLoggerEnabled.on(_events.setLoggerState, function (state) {
+  return !state;
+}).reset(_events.restart);
+
+_store.$indexesVisible.on(_events.setIndexesVisible, function (state) {
+  return !state;
+}).reset(_events.restart);
+
+_store.$fps.reset(_events.restart);
 },{"../../config":"src/config.js","./events":"src/models/game/events.js","./store":"src/models/game/store.js"}],"src/models/game/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -38199,11 +38400,36 @@ exports.updateSettingForSnake = exports.removeSnake = exports.addSnake = void 0;
 
 var _effector = require("effector");
 
-var addSnake = (0, _effector.createEvent)('add snake to game');
+var _effectorFileName = "/src/models/snakes/events.js";
+var addSnake = (0, _effector.createEvent)("addSnake", {
+  loc: {
+    file: _effectorFileName,
+    line: 3,
+    column: 24
+  },
+  name: "addSnake",
+  sid: "-kzkvkz"
+});
 exports.addSnake = addSnake;
-var removeSnake = (0, _effector.createEvent)('remove snake from game');
+var removeSnake = (0, _effector.createEvent)("removeSnake", {
+  loc: {
+    file: _effectorFileName,
+    line: 4,
+    column: 27
+  },
+  name: "removeSnake",
+  sid: "-cquoqs"
+});
 exports.removeSnake = removeSnake;
-var updateSettingForSnake = (0, _effector.createEvent)('upadte setting for snake');
+var updateSettingForSnake = (0, _effector.createEvent)("updateSettingForSnake", {
+  loc: {
+    file: _effectorFileName,
+    line: 6,
+    column: 37
+  },
+  name: "updateSettingForSnake",
+  sid: "xcokl5"
+});
 exports.updateSettingForSnake = updateSettingForSnake;
 },{"effector":"node_modules/effector/effector.es.js"}],"src/collision.js":[function(require,module,exports) {
 "use strict";
@@ -38216,6 +38442,8 @@ exports.checkBounds = checkBounds;
 var _utils = require("./utils");
 
 var _config = require("./config");
+
+var _effectorFileName = "/src/collision.js";
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -38271,6 +38499,8 @@ var _collision = require("../collision");
 var _controll = require("../controll");
 
 var _config = require("../config");
+
+var _effectorFileName = "/src/updaters/ai.js";
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -38358,6 +38588,7 @@ var _keyboard = require("../keyboard");
 
 var _snake = require("../models/snake");
 
+var _effectorFileName = "/src/updaters/user.js";
 var gameInput = (0, _keyboard.keyboradFactory)();
 
 function user(self) {
@@ -38434,6 +38665,8 @@ var _utils = require("../../utils");
 
 var _config = require("../../config");
 
+var _effectorFileName = "/src/models/snakes/store.js";
+
 function buildSnakesByCount(count) {
   var snakes = [];
 
@@ -38449,7 +38682,15 @@ function buildSnakesByCount(count) {
   return snakes;
 }
 
-var $snakes = (0, _effector.createStore)(buildSnakesByCount(_config.snakeCount));
+var $snakes = (0, _effector.createStore)(buildSnakesByCount(_config.snakeCount), {
+  loc: {
+    file: _effectorFileName,
+    line: 24,
+    column: 23
+  },
+  name: "$snakes",
+  sid: "-2ny43"
+});
 exports.$snakes = $snakes;
 var $snakeIdsAsString = $snakes.map(function (snakes) {
   return snakes.map(function (snake) {
@@ -43162,6 +43403,8 @@ var _events = require("./events");
 
 var _store = require("./store");
 
+var _effectorFileName = "/src/models/snakes/model.js";
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -43215,19 +43458,41 @@ _store.$settingsForSnakes.on(_events.removeSnake, function (settings, id) {
 }).reset(_game.restart);
 
 (0, _effector.forward)({
-  from: _game.addUserToGame,
-  to: _events.addSnake.prepend(function () {
-    return {
-      snakeId: 'user',
-      isAi: false
-    };
-  })
+  ɔ: {
+    from: _game.addUserToGame,
+    to: _events.addSnake.prepend(function () {
+      return {
+        snakeId: 'user',
+        isAi: false
+      };
+    })
+  },
+  config: {
+    loc: {
+      file: _effectorFileName,
+      line: 56,
+      column: 0
+    },
+    name: "",
+    sid: "-41m4qs"
+  }
 });
 (0, _effector.forward)({
-  from: _game.removeUserFromGame,
-  to: _events.removeSnake.prepend(function () {
-    return 'user';
-  })
+  ɔ: {
+    from: _game.removeUserFromGame,
+    to: _events.removeSnake.prepend(function () {
+      return 'user';
+    })
+  },
+  config: {
+    loc: {
+      file: _effectorFileName,
+      line: 61,
+      column: 0
+    },
+    name: "",
+    sid: "-3nbhbe"
+  }
 });
 },{"effector":"node_modules/effector/effector.es.js","lodash-es/uniqBy":"node_modules/lodash-es/uniqBy.js","../../utils":"src/utils.js","../snake":"src/models/snake.js","../game":"src/models/game/index.js","../../updaters":"src/updaters/index.js","./events":"src/models/snakes/events.js","./store":"src/models/snakes/store.js"}],"src/models/snakes/index.js":[function(require,module,exports) {
 "use strict";
@@ -43280,6 +43545,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.Checkbox = exports.Radio = exports.Name = exports.Title = void 0;
 
 var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _effectorFileName = "/src/GUI/common.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43360,6 +43627,8 @@ exports.useSnakeSetings = useSnakeSetings;
 var _effectorReact = require("effector-react");
 
 var _snakes = require("../models/snakes");
+
+var _effectorFileName = "/src/GUI/use-snake.js";
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -43457,6 +43726,8 @@ var _snakes = require("../models/snakes");
 var _common = require("./common");
 
 var _useSnake = require("./use-snake");
+
+var _effectorFileName = "/src/GUI/score-board.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43558,6 +43829,7 @@ var _algorithms = require("../../algorithms");
 
 var _heuristic = require("../../algorithms/heuristic");
 
+var _effectorFileName = "/src/models/algorithms/store.js";
 var $heuristics = (0, _effector.createStore)([{
   id: 'manhattan',
   name: 'Manhattan',
@@ -43566,7 +43838,15 @@ var $heuristics = (0, _effector.createStore)([{
   id: 'chebyshev',
   name: 'Chebyshev',
   alg: _heuristic.chebyshevDistance
-}]);
+}], {
+  loc: {
+    file: _effectorFileName,
+    line: 14,
+    column: 27
+  },
+  name: "$heuristics",
+  sid: "ss9qwz"
+});
 exports.$heuristics = $heuristics;
 var $algorithms = (0, _effector.createStore)([{
   id: 'breadth',
@@ -43592,7 +43872,15 @@ var $algorithms = (0, _effector.createStore)([{
   name: 'A* algorighm (has heuristic)',
   activeHeuristic: 'manhattan',
   hasHeuristic: true
-}]);
+}], {
+  loc: {
+    file: _effectorFileName,
+    line: 27,
+    column: 27
+  },
+  name: "$algorithms",
+  sid: "-crxmii"
+});
 exports.$algorithms = $algorithms;
 },{"effector":"node_modules/effector/effector.es.js","../../algorithms":"src/algorithms/index.js","../../algorithms/heuristic":"src/algorithms/heuristic.js"}],"src/models/algorithms/index.js":[function(require,module,exports) {
 "use strict";
@@ -43621,6 +43909,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.Close = Close;
 
 var _react = _interopRequireDefault(require("react"));
+
+var _effectorFileName = "/src/GUI/icons/close.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43666,6 +43956,7 @@ Object.keys(_close).forEach(function (key) {
     }
   });
 });
+var _effectorFileName = "/src/GUI/icons/index.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43719,6 +44010,8 @@ var _game = require("../models/game");
 var _snakes = require("../models/snakes");
 
 var _icons = require("./icons");
+
+var _effectorFileName = "/src/GUI/settings.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43910,12 +44203,24 @@ function SettingsForSnake(_ref) {
 }
 
 var $state = (0, _effector.combine)({
-  isEnabledCollisionDetect: _game.$isEnabledCollisionDetect,
-  isUserInGame: _snakes.$isUserInGame,
-  indexesVisible: _game.$indexesVisible,
-  isLoggerEnabled: _game.$isLoggerEnabled,
-  snakesIterator: _snakes.$snakesIterator,
-  fps: _game.$fps
+  ɔ: [{
+    isEnabledCollisionDetect: _game.$isEnabledCollisionDetect,
+    isUserInGame: _snakes.$isUserInGame,
+    indexesVisible: _game.$indexesVisible,
+    isLoggerEnabled: _game.$isLoggerEnabled,
+    snakesIterator: _snakes.$snakesIterator,
+    fps: _game.$fps,
+    needFillEmptyGraphsCellls: _game.$needFillEmptyGraphsCellls
+  }],
+  config: {
+    loc: {
+      file: _effectorFileName,
+      line: 194,
+      column: 15
+    },
+    name: "$state",
+    sid: "-amcunn"
+  }
 });
 
 function Settings() {
@@ -43925,14 +44230,9 @@ function Settings() {
       indexesVisible = _useStore.indexesVisible,
       isLoggerEnabled = _useStore.isLoggerEnabled,
       snakesIterator = _useStore.snakesIterator,
-      fps = _useStore.fps;
+      fps = _useStore.fps,
+      needFillEmptyGraphsCellls = _useStore.needFillEmptyGraphsCellls;
 
-  var onSetCollision = (0, _react.useCallback)(function () {
-    (0, _game.setCollisionState)(!isEnabledCollisionDetect);
-  }, [isEnabledCollisionDetect]);
-  var onSetIndexesVisibleState = (0, _react.useCallback)(function () {
-    (0, _game.setIndexesVisible)(!indexesVisible);
-  }, [indexesVisible]);
   var handleChangeUserInGameState = (0, _react.useCallback)(function () {
     if (isUserInGame) {
       (0, _game.removeUserFromGame)();
@@ -43940,29 +44240,31 @@ function Settings() {
       (0, _game.addUserToGame)();
     }
   }, [isUserInGame]);
-  var toggleLogger = (0, _react.useCallback)(function () {
-    (0, _game.setLoggerState)(!isLoggerEnabled);
-  }, [isLoggerEnabled]);
   return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Common Settings"), _react.default.createElement(Wrapper, null, _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "collision",
     checked: isEnabledCollisionDetect,
-    onChange: onSetCollision
+    onChange: _game.setCollisionState
   }), _react.default.createElement(Name, {
     htmlFor: "collision"
   }, "handle collision state")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "indexesvisible",
     checked: indexesVisible,
-    onChange: onSetIndexesVisibleState
+    onChange: _game.setIndexesVisible
   }), _react.default.createElement(Name, {
     htmlFor: "indexesvisible"
   }, "visible indexes")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    id: "needFillEmptyGraphsCellls",
+    checked: needFillEmptyGraphsCellls,
+    onChange: _game.fillEmptyGraphCells
+  }), _react.default.createElement(Name, {
+    htmlFor: "needFillEmptyGraphsCellls"
+  }, "fill graph's empty cells")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "logger",
     checked: isLoggerEnabled,
-    onChange: toggleLogger
+    onChange: _game.setLoggerState
   }), _react.default.createElement(Name, {
     htmlFor: "logger"
   }, "show operations count in console")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(NumberInput, {
-    type: "number",
     max: 120,
     min: 1,
     step: 2,
@@ -43999,10 +44301,12 @@ var _scoreBoard = require("./score-board");
 
 var _settings = require("./settings");
 
+var _effectorFileName = "/src/GUI/right-panel.js";
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  padding: 20px;\n  background-color: rgba(0, 0, 0, 0.6);\n  color: #fff;\n  border-radius: 8px;\n  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);\n  width: 100%;\n  min-height: 100px;\n  max-height: 80vh;\n  overflow: auto;\n"]);
+  var data = _taggedTemplateLiteral(["\n  padding: 20px;\n  background-color: rgba(0, 0, 0, 1);\n  color: #fff;\n  border-radius: 8px;\n  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);\n  width: 100%;\n  min-height: 100px;\n  max-height: 80vh;\n  overflow: auto;\n  transition: 0.5s;\n  opacity: 0.6;\n\n  &:hover {\n    opacity: 1;\n  }\n"]);
 
   _templateObject = function _templateObject() {
     return data;
@@ -44029,6 +44333,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.ControllPanel = void 0;
 
 var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _effectorFileName = "/src/GUI/control-pannel.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -44073,6 +44379,8 @@ var _rightPanel = require("./right-panel");
 var _controlPannel = require("./control-pannel");
 
 var _config = require("../config");
+
+var _effectorFileName = "/src/GUI/side-bar.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -44158,6 +44466,8 @@ var _styledComponents = require("styled-components");
 
 var _sideBar = require("./side-bar");
 
+var _effectorFileName = "/src/GUI/index.js";
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _templateObject() {
@@ -44183,67 +44493,7 @@ var root = document.querySelector('#root');
 function renderGUI() {
   _reactDom.default.render(_react.default.createElement(App, null), root);
 }
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./side-bar":"src/GUI/side-bar.js"}],"src/models/graph/store.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.$graph = void 0;
-
-var _effector = require("effector");
-
-var _algorithms = require("../../algorithms");
-
-var _utils = require("../../utils");
-
-var _config = require("../../config");
-
-var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
-var $graph = (0, _effector.createStore)(new _algorithms.Graph(localSize));
-exports.$graph = $graph;
-},{"effector":"node_modules/effector/effector.es.js","../../algorithms":"src/algorithms/index.js","../../utils":"src/utils.js","../../config":"src/config.js"}],"src/models/graph/model.js":[function(require,module,exports) {
-"use strict";
-
-var _game = require("../game");
-
-var _store = require("./store");
-
-_store.$graph.on(_game.updateStates, function (_, _ref) {
-  var graph = _ref.graph;
-  return graph;
-}).reset(_game.restart);
-},{"../game":"src/models/game/index.js","./store":"src/models/graph/store.js"}],"src/models/graph/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _store = require("./store");
-
-Object.keys(_store).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _store[key];
-    }
-  });
-});
-
-var _model = require("./model");
-
-Object.keys(_model).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _model[key];
-    }
-  });
-});
-},{"./store":"src/models/graph/store.js","./model":"src/models/graph/model.js"}],"src/models/objects/store.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./side-bar":"src/GUI/side-bar.js"}],"src/models/objects/store.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44257,7 +44507,16 @@ var _utils = require("../../utils");
 
 var _config = require("../../config");
 
-var $foods = (0, _effector.createStore)((0, _utils.generateRandomFoodByCount)(_config.foodCount));
+var _effectorFileName = "/src/models/objects/store.js";
+var $foods = (0, _effector.createStore)((0, _utils.generateRandomFoodByCount)(_config.foodCount), {
+  loc: {
+    file: _effectorFileName,
+    line: 5,
+    column: 22
+  },
+  name: "$foods",
+  sid: "-erm9s6"
+});
 exports.$foods = $foods;
 },{"effector":"node_modules/effector/effector.es.js","../../utils":"src/utils.js","../../config":"src/config.js"}],"src/models/objects/events.js":[function(require,module,exports) {
 "use strict";
@@ -44269,7 +44528,16 @@ exports.generateFoods = void 0;
 
 var _effector = require("effector");
 
-var generateFoods = (0, _effector.createEvent)('generate food');
+var _effectorFileName = "/src/models/objects/events.js";
+var generateFoods = (0, _effector.createEvent)("generateFoods", {
+  loc: {
+    file: _effectorFileName,
+    line: 3,
+    column: 29
+  },
+  name: "generateFoods",
+  sid: "56wbgi"
+});
 exports.generateFoods = generateFoods;
 },{"effector":"node_modules/effector/effector.es.js"}],"src/models/objects/model.js":[function(require,module,exports) {
 "use strict";
@@ -44279,6 +44547,8 @@ var _uniqBy = _interopRequireDefault(require("lodash-es/uniqBy"));
 var _game = require("../game");
 
 var _store = require("./store");
+
+var _effectorFileName = "/src/models/objects/model.js";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -44338,7 +44608,124 @@ Object.keys(_model).forEach(function (key) {
     }
   });
 });
-},{"./store":"src/models/objects/store.js","./events":"src/models/objects/events.js","./model":"src/models/objects/model.js"}],"src/models/tick.js":[function(require,module,exports) {
+},{"./store":"src/models/objects/store.js","./events":"src/models/objects/events.js","./model":"src/models/objects/model.js"}],"src/models/graph/store.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.$graph = void 0;
+
+var _effector = require("effector");
+
+var _algorithms = require("../../algorithms");
+
+var _utils = require("../../utils");
+
+var _config = require("../../config");
+
+var _snakes = require("../snakes");
+
+var _objects = require("../objects");
+
+var _effectorFileName = "/src/models/graph/store.js";
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
+
+function markFoodOnGraph(_ref) {
+  var graph = _ref.graph,
+      foods = _ref.foods;
+  (0, _utils.setValuesToGraph)(graph, _toConsumableArray(foods.map(function (_ref2) {
+    var _ref3 = _slicedToArray(_ref2, 2),
+        position = _ref3[0],
+        id = _ref3[1];
+
+    return {
+      type: _config.PLACE_TYPE.FOOD,
+      value: id,
+      index: (0, _utils.getIndexByPosition)(position)
+    };
+  })));
+}
+
+function markSnakesOnGraph(_ref4) {
+  var snakes = _ref4.snakes,
+      graph = _ref4.graph;
+  snakes.forEach(function (snake) {
+    (0, _utils.setValuesToGraph)(graph, _toConsumableArray(snake.body.map(function (position) {
+      return {
+        type: _config.PLACE_TYPE.GAME_OBJECT,
+        index: (0, _utils.getIndexByPosition)(position),
+        value: snake.id
+      };
+    })));
+  });
+}
+
+var $graph = (0, _effector.combine)({
+  ɔ: [{
+    snakes: _snakes.$snakes,
+    foods: _objects.$foods
+  }],
+  config: {
+    loc: {
+      file: _effectorFileName,
+      line: 36,
+      column: 22
+    },
+    name: "$graph",
+    sid: "-s59t1p"
+  }
+}).map(function (_ref5, graph) {
+  var foods = _ref5.foods,
+      snakes = _ref5.snakes;
+  graph.clear();
+  markFoodOnGraph({
+    graph: graph,
+    foods: foods
+  });
+  markSnakesOnGraph({
+    graph: graph,
+    snakes: snakes
+  });
+  return _algorithms.Graph.extend(graph);
+}, new _algorithms.Graph(localSize));
+exports.$graph = $graph;
+},{"effector":"node_modules/effector/effector.es.js","../../algorithms":"src/algorithms/index.js","../../utils":"src/utils.js","../../config":"src/config.js","../snakes":"src/models/snakes/index.js","../objects":"src/models/objects/index.js"}],"src/models/graph/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _store = require("./store");
+
+Object.keys(_store).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _store[key];
+    }
+  });
+});
+},{"./store":"src/models/graph/store.js"}],"src/models/tick.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44352,6 +44739,14 @@ var _config = require("../config");
 
 var _game = require("./game");
 
+var _effectorFileName = "/src/models/tick.js";
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var $isPlay = _game.$gameState.map(function (s) {
   return s === _config.GAME_STATE.IS_PLAY;
 });
@@ -44360,7 +44755,15 @@ var $isPause = _game.$gameState.map(function (s) {
   return s === _config.GAME_STATE.IS_PAUSE;
 });
 
-var tickFx = (0, _effector.createEffect)().use(function (fps) {
+var tickFx = (0, _effector.createEffect)("tickFx", {
+  loc: {
+    file: _effectorFileName,
+    line: 18,
+    column: 15
+  },
+  name: "tickFx",
+  sid: "-u6v40r"
+}).use(function (fps) {
   return new Promise(function (rs) {
     setTimeout(rs, 1000 / fps);
   });
@@ -44370,9 +44773,49 @@ function createTick(_ref) {
   var $state = _ref.$state,
       runLogic = _ref.runLogic,
       runRender = _ref.runRender;
-  var $tick = (0, _effector.createStore)(0);
-  var render = (0, _effector.createEvent)();
-  var start = (0, _effector.createEvent)();
+  var $tick = (0, _effector.createStore)(0, {
+    loc: {
+      file: _effectorFileName,
+      line: 26,
+      column: 16
+    },
+    name: "$tick",
+    sid: "mllhw5"
+  });
+  var render = (0, _effector.createEvent)("render", {
+    loc: {
+      file: _effectorFileName,
+      line: 27,
+      column: 17
+    },
+    name: "render",
+    sid: "fc8jq6"
+  });
+  var start = (0, _effector.createEvent)("start", {
+    loc: {
+      file: _effectorFileName,
+      line: 28,
+      column: 16
+    },
+    name: "start",
+    sid: "da5kwi"
+  });
+  var $combinedState = (0, _effector.combine)({
+    ɔ: [$tick, $state, function (tick, state) {
+      return _objectSpread({
+        tick: tick
+      }, state);
+    }],
+    config: {
+      loc: {
+        file: _effectorFileName,
+        line: 30,
+        column: 25
+      },
+      name: "$combinedState",
+      sid: "nymq7r"
+    }
+  });
   var nextTickFx = (0, _effector.attach)({
     effect: tickFx,
     source: _game.$fps,
@@ -44380,24 +44823,90 @@ function createTick(_ref) {
       return fps;
     }
   });
-  var triggerTick = (0, _effector.guard)((0, _effector.merge)([nextTickFx.done, $isPlay]), {
-    filter: $isPlay
+  var triggerTick = (0, _effector.guard)({
+    ɔ: [(0, _effector.merge)([nextTickFx.done, _game.play]), {
+      filter: $isPlay
+    }],
+    config: {
+      loc: {
+        file: _effectorFileName,
+        line: 41,
+        column: 22
+      },
+      name: "triggerTick",
+      sid: "-htf8hf"
+    }
   });
-  var triggerRender = (0, _effector.guard)($state, {
-    filter: $isPause
+  var triggerRender = (0, _effector.guard)({
+    ɔ: [$state, {
+      filter: $isPause
+    }],
+    config: {
+      loc: {
+        file: _effectorFileName,
+        line: 43,
+        column: 24
+      },
+      name: "triggerRender",
+      sid: "67xps"
+    }
   });
   $tick.on(nextTickFx.done, function (previous) {
     return previous + 1;
-  });
-  (0, _effector.sample)($state, nextTickFx).watch(runLogic);
-  (0, _effector.sample)($state, render).watch(runRender);
+  }).reset(_game.restart);
+  (0, _effector.sample)({
+    ɔ: [$combinedState, nextTickFx],
+    config: {
+      loc: {
+        file: _effectorFileName,
+        line: 47,
+        column: 2
+      },
+      name: "",
+      sid: "-dzpcxg"
+    }
+  }).watch(runLogic);
+  (0, _effector.sample)({
+    ɔ: [$combinedState, render],
+    config: {
+      loc: {
+        file: _effectorFileName,
+        line: 48,
+        column: 2
+      },
+      name: "",
+      sid: "-dz5kc3"
+    }
+  }).watch(runRender);
   (0, _effector.forward)({
-    from: (0, _effector.merge)([start, triggerTick]),
-    to: nextTickFx
+    ɔ: {
+      from: (0, _effector.merge)([start, triggerTick]),
+      to: nextTickFx
+    },
+    config: {
+      loc: {
+        file: _effectorFileName,
+        line: 50,
+        column: 2
+      },
+      name: "",
+      sid: "-dmiaos"
+    }
   });
   (0, _effector.forward)({
-    from: (0, _effector.merge)([triggerRender, nextTickFx.done]),
-    to: render
+    ɔ: {
+      from: (0, _effector.merge)([triggerRender, nextTickFx.done]),
+      to: render
+    },
+    config: {
+      loc: {
+        file: _effectorFileName,
+        line: 55,
+        column: 2
+      },
+      name: "",
+      sid: "-djrbpz"
+    }
   });
   return {
     $tick: $tick,
@@ -44414,7 +44923,11 @@ exports.renderFoods = renderFoods;
 
 var _utils = require("../utils");
 
+var _config = require("../config");
+
 var _shapes = require("./shapes");
+
+var _effectorFileName = "/src/renderer/foods.js";
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -44424,20 +44937,25 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function renderFoods(context, foods) {
-  foods.forEach(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        position = _ref2[0],
-        id = _ref2[1];
+function renderFoods(_ref) {
+  var context = _ref.context,
+      foods = _ref.foods,
+      _ref$indexesVisible = _ref.indexesVisible,
+      indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
+  foods.forEach(function (_ref2) {
+    var _ref3 = _slicedToArray(_ref2, 1),
+        position = _ref3[0];
 
     (0, _shapes.drawSquare)(context, position, {
-      color: 'rgb(238, 68, 0)'
-    }); // if (getIndexesVisibleStore()) {
-    //   renderText(context, index, position)
-    // }
+      color: _config.colorScheme.foodColor
+    });
+
+    if (indexesVisible) {
+      (0, _shapes.renderText)(context, (0, _utils.getIndexByPosition)(position), position);
+    }
   });
 }
-},{"../utils":"src/utils.js","./shapes":"src/renderer/shapes.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"../utils":"src/utils.js","../config":"src/config.js","./shapes":"src/renderer/shapes.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -44543,9 +45061,11 @@ var _game = require("./models/game");
 
 var _foods = require("./renderer/foods");
 
+var _algorithms2 = require("./models/algorithms");
+
 require("reset-css");
 
-var _algorithms2 = require("./models/algorithms");
+var _effectorFileName = "/src/index.js";
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -44553,55 +45073,62 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
 var defaultSettings = (0, _snake.buildSettingsForSnake)();
-var $computedSnakes = (0, _effector.combine)(_snakes.$snakes, _algorithms2.$algorithms, _algorithms2.$heuristics, _snakes.$settingsForSnakes, function (snakes, algorithms, heuristics, settings) {
-  return snakes.map(function (snake) {
-    if (snake.isAi) {
-      var settingsForSnake = settings[snake.id] || defaultSettings;
-      var traverseAlgorithm = algorithms.find(function (algorithm) {
-        return algorithm.id === settingsForSnake.activeAlgorithm;
-      });
-      var heuristic = heuristics.find(function (it) {
-        return it.id === settingsForSnake.activeHeuristic;
-      });
-      return {
-        snake: snake,
-        settings: settingsForSnake,
-        algorithm: {
-          traverseAlgorithm: traverseAlgorithm === null || traverseAlgorithm === void 0 ? void 0 : traverseAlgorithm.alg,
-          heuristic: heuristic === null || heuristic === void 0 ? void 0 : heuristic.alg
-        }
-      };
-    }
+var $computedSnakes = (0, _effector.combine)({
+  ɔ: [_snakes.$snakes, _algorithms2.$algorithms, _algorithms2.$heuristics, _snakes.$settingsForSnakes, function (snakes, algorithms, heuristics, settings) {
+    return snakes.map(function (snake) {
+      if (snake.isAi) {
+        var settingsForSnake = settings[snake.id] || defaultSettings;
+        var traverseAlgorithm = algorithms.find(function (algorithm) {
+          return algorithm.id === settingsForSnake.activeAlgorithm;
+        });
+        var heuristic = heuristics.find(function (it) {
+          return it.id === settingsForSnake.activeHeuristic;
+        });
+        return {
+          snake: snake,
+          settings: settingsForSnake,
+          algorithm: {
+            traverseAlgorithm: traverseAlgorithm === null || traverseAlgorithm === void 0 ? void 0 : traverseAlgorithm.alg,
+            heuristic: heuristic === null || heuristic === void 0 ? void 0 : heuristic.alg
+          }
+        };
+      }
 
-    return {
-      snake: snake
-    };
-  });
+      return {
+        snake: snake
+      };
+    });
+  }],
+  config: {
+    loc: {
+      file: _effectorFileName,
+      line: 51,
+      column: 24
+    },
+    name: "$computedSnakes",
+    sid: "-qmhn8z"
+  }
 });
 var $state = (0, _effector.combine)({
-  isLoggerEnabled: _game.$isLoggerEnabled,
-  indexesVisible: _game.$indexesVisible,
-  graph: _graph.$graph,
-  foods: _objects.$foods,
-  computedSnakes: $computedSnakes,
-  isEnabledCollisionDetect: _game.$isEnabledCollisionDetect
+  ɔ: [{
+    isLoggerEnabled: _game.$isLoggerEnabled,
+    indexesVisible: _game.$indexesVisible,
+    graph: _graph.$graph,
+    foods: _objects.$foods,
+    computedSnakes: $computedSnakes,
+    isEnabledCollisionDetect: _game.$isEnabledCollisionDetect,
+    needFillEmptyGraphsCellls: _game.$needFillEmptyGraphsCellls
+  }],
+  config: {
+    loc: {
+      file: _effectorFileName,
+      line: 83,
+      column: 15
+    },
+    name: "$state",
+    sid: "-v2zj6l"
+  }
 });
 
 function main(canvas, context) {
@@ -44627,48 +45154,20 @@ function main(canvas, context) {
 
     var foods = nextState.foods;
 
-    function markFoodOnGraph() {
-      (0, _utils.setValuesToGraph)(graph, _toConsumableArray(foods.map(function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            position = _ref2[0],
-            id = _ref2[1];
-
-        var index = (0, _utils.getIndexByPosition)(position);
-        var vertex = graph.getVertex(index);
-
-        if (vertex.value.type === _config.PLACE_TYPE.EMPTY) {
-          return {
-            type: _config.PLACE_TYPE.FOOD,
-            value: id,
-            index: index
-          };
-        }
-
-        return undefined;
-      }).filter(Boolean)));
-    }
-
-    function markSnakesOnGraph() {
-      nextState.computedSnakes.forEach(function (_ref3) {
-        var snake = _ref3.snake;
-        (0, _utils.setValuesToGraph)(graph, _toConsumableArray(snake.body.map(function (position) {
-          return {
-            type: _config.PLACE_TYPE.GAME_OBJECT,
-            index: (0, _utils.getIndexByPosition)(position),
-            value: snake.id
-          };
-        })));
-      });
-    }
-
-    function handleEatFood(_ref4) {
-      var snake = _ref4.snake,
-          nextPosition = _ref4.nextPosition,
-          foodId = _ref4.foodId;
+    function handleEatFood(_ref) {
+      var snake = _ref.snake,
+          nextPosition = _ref.nextPosition,
+          foodId = _ref.foodId;
       var nextSnake = (0, _snake.addPeaceOfSnake)((0, _snake.setScore)(snake, snake.score + 1), nextPosition);
+      var position = (0, _utils.randomPosition)();
+      (0, _utils.setValuesToGraph)(graph, [{
+        type: _config.PLACE_TYPE.FOOD,
+        index: (0, _utils.getIndexByPosition)(position),
+        value: foodId
+      }]);
       foods = foods.map(function (food) {
         if (foodId === food[1]) {
-          return [(0, _utils.randomPosition)(), food[1]];
+          return [position, foodId];
         }
 
         return food;
@@ -44689,16 +45188,14 @@ function main(canvas, context) {
       }]);
     }
 
-    markFoodOnGraph();
-    markSnakesOnGraph();
-    nextState.computedSnakes.filter(function (_ref5) {
-      var snake = _ref5.snake;
+    nextState.computedSnakes.filter(function (_ref2) {
+      var snake = _ref2.snake;
       return !snake.isCrash;
-    }).forEach(function (_ref6) {
+    }).forEach(function (_ref3) {
       var _nextVertex$value;
 
-      var snake = _ref6.snake,
-          algorithm = _ref6.algorithm;
+      var snake = _ref3.snake,
+          algorithm = _ref3.algorithm;
 
       var _snake$updater = snake.updater(_objectSpread({
         withLogger: nextState.isLoggerEnabled,
@@ -44753,7 +45250,6 @@ function main(canvas, context) {
     });
     (0, _game.updateStates)({
       snakes: nextSnakes,
-      graph: graph,
       foods: foods
     });
   }
@@ -44761,12 +45257,29 @@ function main(canvas, context) {
   function runRender(nextState) {
     var computedSnakes = nextState.computedSnakes,
         foods = nextState.foods,
-        indexesVisible = nextState.indexesVisible;
+        indexesVisible = nextState.indexesVisible,
+        graph = nextState.graph,
+        needFillEmptyGraphsCellls = nextState.needFillEmptyGraphsCellls;
+
+    function fillEmptyCell() {
+      graph.getVertexes().filter(function (v) {
+        return v.value.type === _config.PLACE_TYPE.EMPTY;
+      }).forEach(function (v) {
+        (0, _renderer.drawSquare)(context, (0, _utils.getPositionByIndex)(v.index), {
+          color: _config.colorScheme.emptyCells
+        });
+      });
+    }
+
     clearGame();
-    (0, _foods.renderFoods)(context, foods);
-    computedSnakes.forEach(function (_ref7) {
-      var snake = _ref7.snake,
-          settings = _ref7.settings;
+    (0, _foods.renderFoods)({
+      context: context,
+      foods: foods,
+      indexesVisible: indexesVisible
+    });
+    computedSnakes.forEach(function (_ref4) {
+      var snake = _ref4.snake,
+          settings = _ref4.settings;
 
       if (snake.isAi) {
         var showAIPathToTarget = settings.showAIPathToTarget,
@@ -44792,6 +45305,11 @@ function main(canvas, context) {
         });
       }
     });
+
+    if (needFillEmptyGraphsCellls) {
+      fillEmptyCell();
+    }
+
     gridData.applyStyles();
     context.stroke(gridData.grid);
   }
@@ -44806,7 +45324,7 @@ function main(canvas, context) {
 var canvas = document.querySelector('canvas');
 var context = canvas.getContext('2d');
 main(canvas, context);
-},{"effector":"node_modules/effector/effector.es.js","./utils":"src/utils.js","./renderer":"src/renderer/index.js","./config":"src/config.js","./controll":"src/controll.js","./canvas":"src/canvas.js","./models/snake":"src/models/snake.js","./algorithms":"src/algorithms/index.js","./GUI":"src/GUI/index.js","./models/snakes":"src/models/snakes/index.js","./models/graph":"src/models/graph/index.js","./models/objects":"src/models/objects/index.js","./models/tick":"src/models/tick.js","./models/game":"src/models/game/index.js","./renderer/foods":"src/renderer/foods.js","reset-css":"node_modules/reset-css/reset.css","./models/algorithms":"src/models/algorithms/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","./utils":"src/utils.js","./renderer":"src/renderer/index.js","./config":"src/config.js","./controll":"src/controll.js","./canvas":"src/canvas.js","./models/snake":"src/models/snake.js","./algorithms":"src/algorithms/index.js","./GUI":"src/GUI/index.js","./models/snakes":"src/models/snakes/index.js","./models/graph":"src/models/graph/index.js","./models/objects":"src/models/objects/index.js","./models/tick":"src/models/tick.js","./models/game":"src/models/game/index.js","./renderer/foods":"src/renderer/foods.js","./models/algorithms":"src/models/algorithms/index.js","reset-css":"node_modules/reset-css/reset.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -44834,7 +45352,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51886" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49811" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
