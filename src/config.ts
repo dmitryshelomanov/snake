@@ -1,13 +1,13 @@
 import { KEYS } from './keyboard'
 
-export const cellSize = 15
+export const cellSize = 10
 export const pageWidth = window.innerWidth
 export const pageHeight = window.innerHeight
 export const fps = 30
 export const borderSize = 1
 export const boardLength = pageWidth * pageHeight
 export const foodCount = 50
-export const snakeCount = 3
+export const snakeCount = 10
 
 export const DIRECTIONS = {
   LEFT: KEYS.LEFT_ARROW,
