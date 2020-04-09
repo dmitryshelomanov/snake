@@ -30,11 +30,11 @@ export function dijkstra(
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
       const next = vertex.neigbors[i]
 
-      if (canTraverse(graph.getVertex(next), next) && canTraverse(next)) {
+      if (canTraverse(graph.getVertex(next) && !processed.has(next))) {
         const nextCost = costFar[currentChild[0]] + getCostByIndex(next)
         const nextCostIsLower = nextCost <= (costFar[next] || Infinity)
 
-        if (nextCostIsLower && !processed.has(next)) {
+        if (nextCostIsLower) {
           queue.add([next, nextCost])
           processed.set(next, true)
           costFar[next] = nextCost

@@ -1,6 +1,6 @@
 import { createEvent } from 'effector'
 
-export const addSnake = createEvent('add snake to game')
-export const removeSnake = createEvent('remove snake from game')
+export const addSnake = createEvent()
+export const removeSnake = createEvent()
 
-export const updateSettingForSnake = createEvent('upadte setting for snake')
+export const updateSettingForSnake = createEvent()

@@ -1,4 +1,10 @@
-import { cellSize, borderSize, pageHeight, pageWidth } from '../config'
+import {
+  cellSize,
+  borderSize,
+  pageHeight,
+  pageWidth,
+  colorScheme,
+} from '../config'
 import { getLocalSize, getGlobalSize } from '../utils'
 
 export function buildGrid(context) {
@@ -20,7 +26,7 @@ export function buildGrid(context) {
     grid,
     applyStyles: () => {
       context.lineWidth = borderSize
-      context.strokeStyle = 'rgba(0, 0, 0, 0.2)'
+      context.strokeStyle = colorScheme.borderColor
     },
   }
 }

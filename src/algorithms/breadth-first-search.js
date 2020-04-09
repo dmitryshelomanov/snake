@@ -127,7 +127,7 @@ export function breadthFirstSearch(
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
       const next = vertex.neigbors[i]
 
-      if (canTraverse(graph.getVertex(next), next) && !processed.has(next)) {
+      if (canTraverse(graph.getVertex(next)) && !processed.has(next)) {
         queue.push(next)
         processed.set(next, true)
         parent[next] = currentIndex

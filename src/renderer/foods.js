@@ -1,12 +1,13 @@
 import { getIndexByPosition } from '../utils'
-import { drawSquare } from './shapes'
+import { colorScheme } from '../config'
+import { drawSquare, renderText } from './shapes'
 
-export function renderFoods(context, foods) {
-  foods.forEach(([position, id]) => {
-    drawSquare(context, position, { color: 'rgb(238, 68, 0)' })
+export function renderFoods({ context, foods, indexesVisible = false }) {
+  foods.forEach(([position]) => {
+    drawSquare(context, position, { color: colorScheme.foodColor })
 
-    // if (getIndexesVisibleStore()) {
-    //   renderText(context, index, position)
-    // }
+    if (indexesVisible) {
+      renderText(context, getIndexByPosition(position), position)
+    }
   })
 }
