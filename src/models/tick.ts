@@ -8,6 +8,7 @@ import {
   merge,
   createEvent,
   combine,
+  Store,
 } from 'effector'
 import { GAME_STATE } from '../config'
 import { $gameState, $fps, restart, play } from './game'
@@ -15,21 +16,29 @@ import { $gameState, $fps, restart, play } from './game'
 const $isPlay = $gameState.map((s) => s === GAME_STATE.IS_PLAY)
 const $isPause = $gameState.map((s) => s === GAME_STATE.IS_PAUSE)
 
-const tickFx = createEffect().use(
+const tickFx = createEffect<number, void>().use(
   (fps) =>
     new Promise((rs) => {
       setTimeout(rs, 1000 / fps)
     })
 )
 
-export function createTick({ $state, runLogic, runRender }) {
+export function createTick<State>({
+  $state,
+  runLogic,
+  runRender,
+}: {
+  $state: Store<State>
+  runLogic: (arg0: { state: State; tick: number }) => void
+  runRender: (arg0: { state: State; tick: number }) => void
+}) {
   const $tick = createStore(0)
   const render = createEvent()
   const start = createEvent()
 
   const $combinedState = combine($tick, $state, (tick, state) => ({
     tick,
-    ...state,
+    state,
   }))
 
   const nextTickFx = attach({

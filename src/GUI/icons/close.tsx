@@ -1,6 +1,12 @@
 import React from 'react'
 
-export function Close({ className, color }) {
+export function Close({
+  className,
+  color,
+}: {
+  className?: string
+  color: string
+}) {
   return (
     <svg
       height="512px"

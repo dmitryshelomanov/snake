@@ -3,14 +3,21 @@ import PriorityQueue from 'fastpriorityqueue'
 import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
 import { createFirstEmptyCellSaver } from './utils'
+import { Vertex, Graph } from './graph'
+
+type Props = {
+  canTraverse: (arg0: Vertex) => boolean
+  getCostByIndex: (arg0: Vertex) => number
+  withLogger?: boolean
+}
 
 export function dijkstra(
-  startIndex,
-  endIndex,
-  graph,
-  { canTraverse, getCostByIndex, withLogger = false }
+  startIndex: number,
+  endIndex: number,
+  graph: Graph,
+  { canTraverse, getCostByIndex, withLogger = false }: Props
 ) {
-  const queue = new PriorityQueue((a, b) => a[1] < b[1])
+  const queue = new PriorityQueue<[number, number]>((a, b) => a[1] < b[1])
   const processed = new Map([[startIndex, true]])
   const parent = {}
   const costFar = {
@@ -23,30 +30,32 @@ export function dijkstra(
   queue.add([startIndex, 0])
 
   while (!isTraverse && !queue.isEmpty()) {
-    const currentChild = queue.poll()
-    const vertex = graph.getVertex(currentChild[0])
+    const [currentIndex] = queue.poll() || []
+    const vertex = graph.getVertex(currentIndex)
 
     // eslint-disable-next-line unicorn/no-for-loop
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
-      const next = vertex.neigbors[i]
+      const nextIndex = vertex.neigbors[i]
+      const nextVertex = graph.getVertex(nextIndex)
 
-      if (canTraverse(graph.getVertex(next) && !processed.has(next))) {
+      if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
+        // @ts-ignore
         const nextCost = costFar[currentChild[0]] + getCostByIndex(next)
-        const nextCostIsLower = nextCost <= (costFar[next] || Infinity)
+        const nextCostIsLower = nextCost <= (costFar[nextIndex] || Infinity)
 
         if (nextCostIsLower) {
-          queue.add([next, nextCost])
-          processed.set(next, true)
-          costFar[next] = nextCost
+          queue.add([nextIndex, nextCost])
+          processed.set(nextIndex, true)
+          costFar[nextIndex] = nextCost
           // eslint-disable-next-line prefer-destructuring
-          parent[next] = currentChild[0]
+          parent[nextIndex] = currentIndex
 
-          if (endIndex === next) {
+          if (endIndex === nextIndex) {
             isTraverse = true
             break
           }
 
-          saveCell(next)
+          saveCell(nextIndex)
           logger.increment()
         }
       }

@@ -4,10 +4,17 @@ import { getLocalSize, setValuesToGraph, getIndexByPosition } from '../../utils'
 import { pageWidth, pageHeight, PLACE_TYPE } from '../../config'
 import { $snakes } from '../snakes'
 import { $foods } from '../objects'
+import { Snake } from 'models/snake'
 
 const localSize = getLocalSize(pageWidth, pageHeight)
 
-function markFoodOnGraph({ graph, foods }) {
+function markFoodOnGraph({
+  graph,
+  foods,
+}: {
+  graph: Graph
+  foods: Array<Food>
+}) {
   setValuesToGraph(graph, [
     ...foods.map(([position, id]) => {
       return {
@@ -19,7 +26,13 @@ function markFoodOnGraph({ graph, foods }) {
   ])
 }
 
-function markSnakesOnGraph({ snakes, graph }) {
+function markSnakesOnGraph({
+  snakes,
+  graph,
+}: {
+  graph: Graph
+  snakes: Array<Snake>
+}) {
   snakes.forEach((snake) => {
     setValuesToGraph(graph, [
       ...snake.body.map((position) => {

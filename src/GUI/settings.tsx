@@ -77,7 +77,7 @@ export const NumberInput = styled.input.attrs({ type: 'number' })`
   font-weight: bold;
 `
 
-export function SettingsForSnake({ snakeId }) {
+export function SettingsForSnake({ snakeId }: { snakeId: string }) {
   const isCrash = useSnakeIsCrahedState(snakeId)
   const colors = useSnakeColorState(snakeId)
   const algorithms = useStore($algorithms)
@@ -116,8 +116,7 @@ export function SettingsForSnake({ snakeId }) {
             onChange={() => {
               updateSettingForSnake({
                 snakeId,
-                value: !showAIPathToTarget,
-                settingName: 'showAIPathToTarget',
+                settings: { showAIPathToTarget: !showAIPathToTarget },
               })
             }}
           />
@@ -133,8 +132,7 @@ export function SettingsForSnake({ snakeId }) {
             onChange={() => {
               updateSettingForSnake({
                 snakeId,
-                value: !showProcessedCells,
-                settingName: 'showProcessedCells',
+                settings: { showProcessedCells: !showProcessedCells },
               })
             }}
           />
@@ -148,8 +146,7 @@ export function SettingsForSnake({ snakeId }) {
             onChange={({ target }) => {
               updateSettingForSnake({
                 snakeId,
-                settingName: 'activeAlgorithm',
-                value: target.value,
+                settings: { activeAlgorithm: target.value },
               })
             }}
           >
@@ -163,14 +160,13 @@ export function SettingsForSnake({ snakeId }) {
               </option>
             ))}
           </Select>
-          {currentAlgorithm.hasHeuristic && (
+          {currentAlgorithm && currentAlgorithm.hasHeuristic && (
             <Select
               disabled={isCrash}
               onChange={({ target }) => {
                 updateSettingForSnake({
                   snakeId,
-                  settingName: 'activeHeuristic',
-                  value: target.value,
+                  settings: { activeHeuristic: target.value },
                 })
               }}
             >
