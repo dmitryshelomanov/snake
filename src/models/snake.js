@@ -91,7 +91,9 @@ export function setCrash(snake, isCrash) {
 }
 
 export function getColorsForSnake() {
-  const color = Color(colorsStub[Math.ceil(Math.random() * colorsStub.length)])
+  const color = Color(
+    colorsStub[Math.ceil(Math.random() * (colorsStub.length - 1))]
+  )
 
   return {
     head: color.toString(),

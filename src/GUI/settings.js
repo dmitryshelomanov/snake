@@ -20,6 +20,8 @@ import {
   setLoggerState,
   $fps,
   changeFps,
+  $needFillEmptyGraphsCellls,
+  fillEmptyGraphCells,
 } from '../models/game'
 import {
   $isUserInGame,
@@ -196,6 +198,7 @@ const $state = combine({
   isLoggerEnabled: $isLoggerEnabled,
   snakesIterator: $snakesIterator,
   fps: $fps,
+  needFillEmptyGraphsCellls: $needFillEmptyGraphsCellls,
 })
 
 export function Settings() {
@@ -206,15 +209,8 @@ export function Settings() {
     isLoggerEnabled,
     snakesIterator,
     fps,
+    needFillEmptyGraphsCellls,
   } = useStore($state)
-
-  const onSetCollision = useCallback(() => {
-    setCollisionState(!isEnabledCollisionDetect)
-  }, [isEnabledCollisionDetect])
-
-  const onSetIndexesVisibleState = useCallback(() => {
-    setIndexesVisible(!indexesVisible)
-  }, [indexesVisible])
 
   const handleChangeUserInGameState = useCallback(() => {
     if (isUserInGame) {
@@ -224,10 +220,6 @@ export function Settings() {
     }
   }, [isUserInGame])
 
-  const toggleLogger = useCallback(() => {
-    setLoggerState(!isLoggerEnabled)
-  }, [isLoggerEnabled])
-
   return (
     <>
       <Title>Common Settings</Title>
@@ -236,7 +228,7 @@ export function Settings() {
           <Checkbox
             id="collision"
             checked={isEnabledCollisionDetect}
-            onChange={onSetCollision}
+            onChange={setCollisionState}
           />
           <Name htmlFor="collision">handle collision state</Name>
         </SettingWrapper>
@@ -252,21 +244,30 @@ export function Settings() {
           <Checkbox
             id="indexesvisible"
             checked={indexesVisible}
-            onChange={onSetIndexesVisibleState}
+            onChange={setIndexesVisible}
           />
           <Name htmlFor="indexesvisible">visible indexes</Name>
         </SettingWrapper>
         <SettingWrapper>
           <Checkbox
+            id="needFillEmptyGraphsCellls"
+            checked={needFillEmptyGraphsCellls}
+            onChange={fillEmptyGraphCells}
+          />
+          <Name htmlFor="needFillEmptyGraphsCellls">
+            fill graph's empty cells
+          </Name>
+        </SettingWrapper>
+        <SettingWrapper>
+          <Checkbox
             id="logger"
             checked={isLoggerEnabled}
-            onChange={toggleLogger}
+            onChange={setLoggerState}
           />
           <Name htmlFor="logger">show operations count in console</Name>
         </SettingWrapper>
         <SettingWrapper>
           <NumberInput
-            type="number"
             max={120}
             min={1}
             step={2}

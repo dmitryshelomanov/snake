@@ -6,9 +6,16 @@ import {
   getIndexByPosition,
   randomPosition,
   setValuesToGraph,
+  getPositionByIndex,
 } from './utils'
-import { buildGrid, renderPath, renderProcessed, renderSnake } from './renderer'
-import { pageHeight, pageWidth, PLACE_TYPE } from './config'
+import {
+  buildGrid,
+  renderPath,
+  renderProcessed,
+  renderSnake,
+  drawSquare,
+} from './renderer'
+import { pageHeight, pageWidth, PLACE_TYPE, colorScheme } from './config'
 import { canvasInput } from './controll'
 import { convigureCanvas } from './canvas'
 import {
@@ -33,10 +40,11 @@ import {
   $indexesVisible,
   updateStates,
   $isEnabledCollisionDetect,
+  $needFillEmptyGraphsCellls,
 } from './models/game'
 import { renderFoods } from './renderer/foods'
-import 'reset-css'
 import { $algorithms, $heuristics } from './models/algorithms'
+import 'reset-css'
 
 const defaultSettings = buildSettingsForSnake()
 
@@ -79,6 +87,7 @@ const $state = combine({
   foods: $foods,
   computedSnakes: $computedSnakes,
   isEnabledCollisionDetect: $isEnabledCollisionDetect,
+  needFillEmptyGraphsCellls: $needFillEmptyGraphsCellls,
 })
 
 function main(canvas, context) {
@@ -101,50 +110,25 @@ function main(canvas, context) {
     const graph = Graph.extend(nextState.graph)
     let { foods } = nextState
 
-    function markFoodOnGraph() {
-      setValuesToGraph(graph, [
-        ...foods
-          .map(([position, id]) => {
-            const index = getIndexByPosition(position)
-            const vertex = graph.getVertex(index)
-
-            if (vertex.value.type === PLACE_TYPE.EMPTY) {
-              return {
-                type: PLACE_TYPE.FOOD,
-                value: id,
-                index,
-              }
-            }
-
-            return undefined
-          })
-          .filter(Boolean),
-      ])
-    }
-
-    function markSnakesOnGraph() {
-      nextState.computedSnakes.forEach(({ snake }) => {
-        setValuesToGraph(graph, [
-          ...snake.body.map((position) => {
-            return {
-              type: PLACE_TYPE.GAME_OBJECT,
-              index: getIndexByPosition(position),
-              value: snake.id,
-            }
-          }),
-        ])
-      })
-    }
-
     function handleEatFood({ snake, nextPosition, foodId }) {
       const nextSnake = addPeaceOfSnake(
         setScore(snake, snake.score + 1),
         nextPosition
       )
 
+      const position = randomPosition()
+
+      setValuesToGraph(graph, [
+        {
+          type: PLACE_TYPE.FOOD,
+          index: getIndexByPosition(position),
+          value: foodId,
+        },
+      ])
+
       foods = foods.map((food) => {
         if (foodId === food[1]) {
-          return [randomPosition(), food[1]]
+          return [position, foodId]
         }
 
         return food
@@ -169,9 +153,6 @@ function main(canvas, context) {
         },
       ])
     }
-
-    markFoodOnGraph()
-    markSnakesOnGraph()
 
     nextState.computedSnakes
       .filter(({ snake }) => !snake.isCrash)
@@ -229,15 +210,32 @@ function main(canvas, context) {
         nextSnakes.push(nextSnake)
       })
 
-    updateStates({ snakes: nextSnakes, graph, foods })
+    updateStates({ snakes: nextSnakes, foods })
   }
 
   function runRender(nextState) {
-    const { computedSnakes, foods, indexesVisible } = nextState
+    const {
+      computedSnakes,
+      foods,
+      indexesVisible,
+      graph,
+      needFillEmptyGraphsCellls,
+    } = nextState
+
+    function fillEmptyCell() {
+      graph
+        .getVertexes()
+        .filter((v) => v.value.type === PLACE_TYPE.EMPTY)
+        .forEach((v) => {
+          drawSquare(context, getPositionByIndex(v.index), {
+            color: colorScheme.emptyCells,
+          })
+        })
+    }
 
     clearGame()
 
-    renderFoods(context, foods)
+    renderFoods({ context, foods, indexesVisible })
 
     computedSnakes.forEach(({ snake, settings }) => {
       if (snake.isAi) {
@@ -256,6 +254,10 @@ function main(canvas, context) {
         renderSnake({ context, snake, indexesVisible })
       }
     })
+
+    if (needFillEmptyGraphsCellls) {
+      fillEmptyCell()
+    }
 
     gridData.applyStyles()
     context.stroke(gridData.grid)

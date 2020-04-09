@@ -24,7 +24,7 @@ export function depthFirstSearch(
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
       const next = vertex.neigbors[i]
 
-      if (canTraverse(graph.getVertex(next), next) && !processed.has(next)) {
+      if (canTraverse(graph.getVertex(next)) && !processed.has(next)) {
         parent[next] = currentIndex
         stack.unshift(next)
         processed.set(next, true)

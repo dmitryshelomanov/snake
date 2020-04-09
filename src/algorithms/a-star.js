@@ -37,7 +37,7 @@ export function aStar(
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
       const next = vertex.neigbors[i]
 
-      if (canTraverse(graph.getVertex(next), next)) {
+      if (canTraverse(graph.getVertex(next))) {
         const nextCost = costFar[currentChild[0]] + getCostByIndex(next)
         const nextCostIsLower = nextCost < (costFar[next] || Infinity)
 

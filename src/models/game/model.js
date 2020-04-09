@@ -1,10 +1,20 @@
 import { GAME_STATE } from '../../config'
-import { play, stop, restart } from './events'
+import {
+  play,
+  stop,
+  restart,
+  fillEmptyGraphCells,
+  setCollisionState,
+  setIndexesVisible,
+  setLoggerState,
+} from './events'
 import {
   $gameState,
   $indexesVisible,
   $isEnabledCollisionDetect,
   $isLoggerEnabled,
+  $needFillEmptyGraphsCellls,
+  $fps,
 } from './store'
 
 $gameState
@@ -12,8 +22,16 @@ $gameState
   .on(stop, () => GAME_STATE.IS_PAUSE)
   .reset(restart)
 
-$indexesVisible.reset(restart)
+$needFillEmptyGraphsCellls
+  .on(fillEmptyGraphCells, (state) => !state)
+  .reset(restart)
 
-$isEnabledCollisionDetect.reset(restart)
+$isEnabledCollisionDetect
+  .on(setCollisionState, (state) => !state)
+  .reset(restart)
 
-$isLoggerEnabled.reset(restart)
+$isLoggerEnabled.on(setLoggerState, (state) => !state).reset(restart)
+
+$indexesVisible.on(setIndexesVisible, (state) => !state).reset(restart)
+
+$fps.reset(restart)

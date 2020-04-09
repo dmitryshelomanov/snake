@@ -7,9 +7,10 @@ import {
   attach,
   merge,
   createEvent,
+  combine,
 } from 'effector'
 import { GAME_STATE } from '../config'
-import { $gameState, $fps } from './game'
+import { $gameState, $fps, restart, play } from './game'
 
 const $isPlay = $gameState.map((s) => s === GAME_STATE.IS_PLAY)
 const $isPause = $gameState.map((s) => s === GAME_STATE.IS_PAUSE)
@@ -26,22 +27,25 @@ export function createTick({ $state, runLogic, runRender }) {
   const render = createEvent()
   const start = createEvent()
 
+  const $combinedState = combine($tick, $state, (tick, state) => ({
+    tick,
+    ...state,
+  }))
+
   const nextTickFx = attach({
     effect: tickFx,
     source: $fps,
     mapParams: (_, fps) => fps,
   })
 
-  const triggerTick = guard(merge([nextTickFx.done, $isPlay]), {
-    filter: $isPlay,
-  })
+  const triggerTick = guard(merge([nextTickFx.done, play]), { filter: $isPlay })
 
   const triggerRender = guard($state, { filter: $isPause })
 
-  $tick.on(nextTickFx.done, (previous) => previous + 1)
+  $tick.on(nextTickFx.done, (previous) => previous + 1).reset(restart)
 
-  sample($state, nextTickFx).watch(runLogic)
-  sample($state, render).watch(runRender)
+  sample($combinedState, nextTickFx).watch(runLogic)
+  sample($combinedState, render).watch(runRender)
 
   forward({
     from: merge([start, triggerTick]),

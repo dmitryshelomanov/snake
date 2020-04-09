@@ -3,7 +3,7 @@ import { KEYS } from './keyboard'
 export const cellSize = 15
 export const pageWidth = window.innerWidth
 export const pageHeight = window.innerHeight
-export const fps = 60
+export const fps = 30
 export const borderSize = 1
 export const boardLength = pageWidth * pageHeight
 export const foodCount = 50
@@ -26,4 +26,10 @@ export const PLACE_TYPE = {
   GAME_OBJECT: 'game_object',
   BRICK: 'brick',
   FOOD: 'food',
+}
+
+export const colorScheme = {
+  emptyCells: '#0080007d',
+  borderColor: 'rgba(0, 0, 0, 0.2)',
+  foodColor: 'rgb(238, 68, 0)',
 }
