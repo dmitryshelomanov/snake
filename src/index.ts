@@ -28,6 +28,8 @@ import {
   buildSettingsForSnake,
   tailSnake,
   headSnake,
+  Snake,
+  SnakeSettings,
 } from './models/snake'
 import { Graph } from './algorithms'
 import { renderGUI } from './GUI'
@@ -44,9 +46,29 @@ import {
 } from './models/game'
 import { renderFoods } from './renderer/foods'
 import { $algorithms, $heuristics } from './models/algorithms'
+import { TraverseAlgorithm, Heuristic } from './updaters/ai'
 import 'reset-css'
 
 const defaultSettings = buildSettingsForSnake()
+
+type ComputedSnake = {
+  snake: Snake,
+  settings: { [key: string]: SnakeSettings },
+  algorithm: {
+    traverseAlgorithm: TraverseAlgorithm | void,
+    heuristic: Heuristic | void,
+  },
+}
+
+type State = {
+  isLoggerEnabled: boolean,
+  indexesVisible: boolean,
+  graph: Graph,
+  foods: Array<Food>,
+  computedSnakes: Array<ComputedSnake>,
+  isEnabledCollisionDetect: boolean,
+  needFillEmptyGraphsCellls: boolean,
+}
 
 const $computedSnakes = combine(
   $snakes,
@@ -90,7 +112,7 @@ const $state = combine({
   needFillEmptyGraphsCellls: $needFillEmptyGraphsCellls,
 })
 
-function main(canvas, context) {
+function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
   renderGUI()
   canvasInput.registerClickEventToCanvas(canvas)
   canvasInput.callEventRegistars()
@@ -99,18 +121,18 @@ function main(canvas, context) {
   const localSize = getLocalSize(pageWidth, pageHeight)
   const globalSize = getGlobalSize(localSize.w, localSize.h)
 
-  convigureCanvas(canvas, localSize, globalSize)
+  convigureCanvas(canvas, globalSize)
 
   function clearGame() {
     context.clearRect(0, 0, globalSize.w, globalSize.h)
   }
 
-  function runLogic(nextState) {
-    const nextSnakes = []
+  function runLogic({ state: nextState }: { state: State, tick: number }) {
+    const nextSnakes: Array<Snake> = []
     const graph = Graph.extend(nextState.graph)
     let { foods } = nextState
 
-    function handleEatFood({ snake, nextPosition, foodId }) {
+    function handleEatFood({ snake, nextPosition, foodId }: { snake: Snake, nextPosition: Coords, foodId: string }) {
       const nextSnake = addPeaceOfSnake(
         setScore(snake, snake.score + 1),
         nextPosition
@@ -137,7 +159,7 @@ function main(canvas, context) {
       return nextSnake
     }
 
-    function reCreateSnakeInGraph(prevSnake, nextSnake) {
+    function reCreateSnakeInGraph(prevSnake: Snake, nextSnake: Snake) {
       const tail = tailSnake(prevSnake)
       const head = headSnake(nextSnake)
 
@@ -145,6 +167,7 @@ function main(canvas, context) {
         {
           type: PLACE_TYPE.EMPTY,
           index: getIndexByPosition(tail),
+          value: "",
         },
         {
           type: PLACE_TYPE.GAME_OBJECT,
@@ -157,6 +180,7 @@ function main(canvas, context) {
     nextState.computedSnakes
       .filter(({ snake }) => !snake.isCrash)
       .forEach(({ snake, algorithm }) => {
+        // @ts-ignore
         const { nextDirection, nextPosition, meta } = snake.updater({
           withLogger: nextState.isLoggerEnabled,
           isEnabledCollisionDetect: nextState.isEnabledCollisionDetect,
@@ -178,30 +202,32 @@ function main(canvas, context) {
           nextSnake = setMeta(snake, meta)
         }
 
-        switch (nextVertex?.value?.type) {
-          case PLACE_TYPE.FOOD: {
-            nextSnake = handleEatFood({
-              snake: nextSnake,
-              nextPosition,
-              foodId: nextVertex.value.foodId,
-            })
-            break
-          }
-
-          case PLACE_TYPE.GAME_OBJECT: {
-            if (nextState.isEnabledCollisionDetect) {
-              nextSnake = setCrash(nextSnake, true)
-
+        if (nextVertex) {
+          switch (nextVertex.value.type) {
+            case PLACE_TYPE.FOOD: {
+              nextSnake = handleEatFood({
+                snake: nextSnake,
+                nextPosition,
+                foodId: nextVertex.value.foodId,
+              })
               break
             }
-          }
-
-          // eslint-disable-next-line no-fallthrough
-          default: {
-            nextSnake = setDirection(
-              updateBody(nextSnake, nextPosition),
-              nextDirection
-            )
+  
+            case PLACE_TYPE.GAME_OBJECT: {
+              if (nextState.isEnabledCollisionDetect) {
+                nextSnake = setCrash(nextSnake, true)
+  
+                break
+              }
+            }
+  
+            // eslint-disable-next-line no-fallthrough
+            default: {
+              nextSnake = setDirection(
+                updateBody(nextSnake, nextPosition),
+                nextDirection
+              )
+            }
           }
         }
 
@@ -213,7 +239,7 @@ function main(canvas, context) {
     updateStates({ snakes: nextSnakes, foods })
   }
 
-  function runRender(nextState) {
+  function runRender({ state: nextState }: { state: State, tick: number }) {
     const {
       computedSnakes,
       foods,
@@ -227,7 +253,9 @@ function main(canvas, context) {
         .getVertexes()
         .filter((v) => v.value.type === PLACE_TYPE.EMPTY)
         .forEach((v) => {
-          drawSquare(context, getPositionByIndex(v.index), {
+          drawSquare({
+            context,
+            position: getPositionByIndex(v.index),
             color: colorScheme.emptyCells,
           })
         })
@@ -244,11 +272,13 @@ function main(canvas, context) {
         renderSnake({ context, snake, indexesVisible })
 
         if (showProcessedCells) {
-          renderProcessed(context, snake.meta.processed, snake.colors.processed)
+          // @ts-ignore
+          renderProcessed({context, processed: snake.meta.processed, color: snake.colors.processed})
         }
 
         if (showAIPathToTarget) {
-          renderPath(context, snake.meta.path, snake.colors.head)
+          // @ts-ignore
+          renderPath({ context, path: snake.meta.path, color: snake.colors.head })
         }
       } else {
         renderSnake({ context, snake, indexesVisible })
@@ -264,6 +294,7 @@ function main(canvas, context) {
   }
 
   createTick({
+    // @ts-ignore
     $state,
     runLogic,
     runRender,
@@ -271,6 +302,10 @@ function main(canvas, context) {
 }
 
 const canvas = document.querySelector('canvas')
-const context = canvas.getContext('2d')
 
-main(canvas, context)
+if (canvas) {
+  const context = canvas.getContext('2d')
+
+  // @ts-ignore
+  main(canvas, context)
+}

@@ -1,18 +1,24 @@
-import { createStore } from 'effector'
+import { createStore, Store } from 'effector'
 import { updaters } from '../../updaters'
-import { buildSettingsForSnake, Snake, getColorsForSnake } from '../snake'
+import {
+  buildSettingsForSnake,
+  getColorsForSnake,
+  buildSnake,
+  SnakeSettings,
+} from '../snake'
 import { randomPosition } from '../../utils'
 import { snakeCount } from '../../config'
 
-function buildSnakesByCount(count) {
+function buildSnakesByCount(count: number) {
   const snakes = []
 
   for (let i = 1; i <= count; i++) {
     snakes.push(
-      Snake.build(randomPosition(), {
+      buildSnake(randomPosition(), {
         colors: getColorsForSnake(),
         id: `ai-${i}`,
         isAi: true,
+        // @ts-ignore
         updater: updaters.ai,
       })
     )
@@ -33,7 +39,9 @@ export const $snakesIterator = $snakeIdsAsString.map(
   []
 )
 
-export const $settingsForSnakes = $snakesIterator.map(
+export const $settingsForSnakes: Store<{
+  [key: string]: SnakeSettings
+}> = $snakesIterator.map(
   (ids, settings) =>
     ids.reduce((nextSettiings, id) => {
       if (!settings[id]) {

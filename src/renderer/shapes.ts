@@ -4,11 +4,15 @@ import {
   getDifferenceBetweenPositions,
 } from '../utils'
 
-export function drawSquare(
-  context,
+export function drawSquare({
+  color = 'rgb(152, 251, 152)',
   position,
-  { color = 'rgb(152, 251, 152)' }
-) {
+  context,
+}: {
+  color?: string
+  position: Coords
+  context: CanvasRenderingContext2D
+}) {
   const [x, y] = convertLocalPositionToGlobal(position)
   const size = cellSize - borderSize * 2
 
@@ -16,7 +20,15 @@ export function drawSquare(
   context.fillRect(x + borderSize * 2, y + borderSize * 2, size, size)
 }
 
-export function renderText(context, text, position) {
+export function renderText({
+  text,
+  position,
+  context,
+}: {
+  text: string
+  position: Coords
+  context: CanvasRenderingContext2D
+}) {
   const { width } = context.measureText(text)
   const [x, y] = convertLocalPositionToGlobal(position)
 
@@ -26,7 +38,7 @@ export function renderText(context, text, position) {
   context.fillText(text, x + (cellSize - width) / 2, y + cellSize / 2)
 }
 
-function getNextPositionIfIsNear(pos1, pos2) {
+function getNextPositionIfIsNear(pos1: Coords, pos2: Coords) {
   const diff = getDifferenceBetweenPositions(pos1, pos2)
 
   if (diff !== 1) {
@@ -36,7 +48,15 @@ function getNextPositionIfIsNear(pos1, pos2) {
   return pos2
 }
 
-export function renderPath(context, paths = [], color = 'rgb(255, 255, 0)') {
+export function renderPath({
+  context,
+  paths = [],
+  color = 'rgb(255, 255, 0)',
+}: {
+  context: CanvasRenderingContext2D
+  paths: Array<Coords>
+  color?: string
+}) {
   for (let i = 0; i < paths.length - 1; i++) {
     const [x, y] = convertLocalPositionToGlobal(paths[i])
     const [x1, y1] = convertLocalPositionToGlobal(
@@ -52,8 +72,16 @@ export function renderPath(context, paths = [], color = 'rgb(255, 255, 0)') {
   }
 }
 
-export function renderProcessed(context, processed, color) {
-  for (const element of processed) {
-    drawSquare(context, element, { color })
-  }
+export function renderProcessed({
+  context,
+  processed = [],
+  color = 'rgb(255, 255, 0)',
+}: {
+  context: CanvasRenderingContext2D
+  processed: Array<Coords> | void
+  color?: string
+}) {
+  processed.forEach((position) => {
+    drawSquare({ color, context, position })
+  })
 }

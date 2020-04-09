@@ -7,7 +7,7 @@ import {
 } from '../config'
 import { getLocalSize, getGlobalSize } from '../utils'
 
-export function buildGrid(context) {
+export function buildGrid(context: CanvasRenderingContext2D) {
   const grid = new Path2D()
   const localSize = getLocalSize(pageWidth, pageHeight)
   const globalSize = getGlobalSize(localSize.w, localSize.h)

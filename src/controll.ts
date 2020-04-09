@@ -1,7 +1,10 @@
 import { DIRECTIONS, cellSize } from './config'
 import { getIndexByPosition } from './utils'
 
-export function getNextPositionByDirection([x, y], direction) {
+export function getNextPositionByDirection(
+  [x, y]: Coords,
+  direction: number
+): Coords {
   switch (direction) {
     case DIRECTIONS.LEFT:
       return [x - 1, y]
@@ -16,7 +19,10 @@ export function getNextPositionByDirection([x, y], direction) {
   }
 }
 
-export function getDirectionByPosition(currentPosition, nextPosition) {
+export function getDirectionByPosition(
+  currentPosition: Coords,
+  nextPosition: Coords
+) {
   if (
     currentPosition[0] < nextPosition[0] &&
     currentPosition[1] === nextPosition[1]
@@ -49,13 +55,17 @@ export function getDirectionByPosition(currentPosition, nextPosition) {
 }
 
 export class CanvasInput {
+  events: Array<{ type: string; eventListener: (index: number) => void }>
+  eventRegistar: Array<() => void>
+  isMouseDown: boolean
+
   constructor() {
-    this.events = [] /* :Arrray<{type: string, eventListener: (index) => void }> */
-    this.eventRegistar = [] /* :Arrray<() => void> */
+    this.events = []
+    this.eventRegistar = []
     this.isMouseDown = false
   }
 
-  registerEventRegistar(eventBuilder /* :() => void */) {
+  registerEventRegistar(eventBuilder: () => void) {
     this.eventRegistar.push(eventBuilder)
   }
 
@@ -63,11 +73,11 @@ export class CanvasInput {
     this.eventRegistar.forEach((builder) => builder())
   }
 
-  registerClickEventToCanvas(canvas) {
-    function getTargetIndex(event) {
+  registerClickEventToCanvas(canvas: HTMLCanvasElement) {
+    function getTargetIndex(event: MouseEvent) {
       const x = event.pageX - canvas.offsetLeft
       const y = event.pageY - canvas.offsetTop
-      const targetPosition = [
+      const targetPosition: Coords = [
         Math.floor((x + (cellSize % x) / cellSize) / cellSize),
         Math.floor((y + (cellSize % y) / cellSize) / cellSize),
       ]
@@ -100,11 +110,11 @@ export class CanvasInput {
     })
   }
 
-  addMouseDownEvent(eventListener) {
+  addMouseDownEvent(eventListener: (index: number) => void) {
     this.events.push({ type: 'mousedown', eventListener })
   }
 
-  addMouseMoveEvent(eventListener) {
+  addMouseMoveEvent(eventListener: (index: number) => void) {
     this.events.push({ type: 'mousemove', eventListener })
   }
 }

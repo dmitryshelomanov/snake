@@ -20,24 +20,69 @@ const colorsStub = [
   '#607d8b',
 ]
 
-export class Snake {
-  static build(headPosition, { colors, id, isAi, updater, body }) {
-    return {
-      id,
-      body: body || [headPosition, [headPosition[0] + 1, headPosition[1]]],
-      isCrash: false,
-      direction: DIRECTIONS.RIGHT,
-      weight: 1,
-      score: 0,
-      colors,
-      isAi,
-      updater,
-      meta: isAi ? { processed: [], path: [] } : undefined,
-    }
+export type SnakeColors = {
+  head: string
+  tail: string
+  processed: string
+}
+
+export type SnakeMeta = { processed: Array<number>; path: Array<number> }
+
+export type Updater = () => {
+  nextPosition: Coords
+  nextDirection: number
+  meta?: SnakeMeta
+}
+
+export type Snake = {
+  id: string
+  body: Array<Coords>
+  isCrash: boolean
+  direction: number
+  score: number
+  colors: SnakeColors
+  isAi: boolean
+  updater: Updater
+  meta: SnakeMeta | void
+}
+
+export function buildSnake(
+  headPosition: Coords,
+  {
+    colors,
+    id,
+    isAi,
+    updater,
+    body,
+  }: {
+    colors: SnakeColors
+    id: string
+    isAi: boolean
+    updater: Updater
+    body: Array<Coords>
+  }
+): Snake {
+  return {
+    id,
+    body: body || [headPosition, [headPosition[0] + 1, headPosition[1]]],
+    isCrash: false,
+    direction: DIRECTIONS.RIGHT,
+    score: 0,
+    colors,
+    isAi,
+    updater,
+    meta: isAi ? { processed: [], path: [] } : undefined,
   }
 }
 
-export function updateBody(snake, nextPosition) {
+export type SnakeSettings = {
+  showProcessedCells: boolean
+  showAIPathToTarget: boolean
+  activeAlgorithm: string
+  activeHeuristic: string
+}
+
+export function updateBody(snake: Snake, nextPosition: Coords) {
   const [_, ...rest] = snake.body
 
   if (nextPosition) {
@@ -50,40 +95,40 @@ export function updateBody(snake, nextPosition) {
   return snake
 }
 
-export function headSnake(snake) {
+export function headSnake(snake: Snake) {
   return snake.body[snake.body.length - 1]
 }
 
-export function tailSnake(snake) {
+export function tailSnake(snake: Snake) {
   return snake.body[0]
 }
 
-export function addPeaceOfSnake(snake, peaceOfSnake) {
+export function addPeaceOfSnake(snake: Snake, peaceOfSnake: Coords) {
   return { ...snake, body: [...snake.body, peaceOfSnake] }
 }
 
-export function setDirection(snake, direction) {
+export function setDirection(snake: Snake, direction: number) {
   return {
     ...snake,
     direction,
   }
 }
 
-export function setMeta(snake, meta) {
+export function setMeta(snake: Snake, meta: SnakeMeta) {
   return {
     ...snake,
     meta,
   }
 }
 
-export function setScore(snake, score) {
+export function setScore(snake: Snake, score: number) {
   return {
     ...snake,
     score,
   }
 }
 
-export function setCrash(snake, isCrash) {
+export function setCrash(snake: Snake, isCrash: boolean) {
   return {
     ...snake,
     isCrash,
@@ -102,7 +147,7 @@ export function getColorsForSnake() {
   }
 }
 
-export function buildSettingsForSnake() {
+export function buildSettingsForSnake(): SnakeSettings {
   return {
     showProcessedCells: false,
     showAIPathToTarget: false,

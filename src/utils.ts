@@ -1,10 +1,11 @@
 import { cellSize, pageHeight, pageWidth, PLACE_TYPE } from './config'
+import { Graph, VertexValue } from 'algorithms'
 
 /**
   cellSize = 20
   getLocalSize(500, 500) // => { w: 25, h: 25 }
 */
-export function getLocalSize(w, h) {
+export function getLocalSize(w: number, h: number) {
   return {
     w: Math.floor(w / cellSize),
     h: Math.floor(h / cellSize),
@@ -15,7 +16,7 @@ export function getLocalSize(w, h) {
   cellSize = 20
   getLocalSize(20, 20) // => { w: 400, h: 400 }
 */
-export function getGlobalSize(w, h) {
+export function getGlobalSize(w: number, h: number) {
   return {
     w: Math.floor(w * cellSize),
     h: Math.floor(h * cellSize),
@@ -28,7 +29,7 @@ export function getGlobalSize(w, h) {
   cellSize = 20
   convertGlobalPositionToLocal([localX, localY]) // => [100, 200]
 */
-export function convertLocalPositionToGlobal([x, y]) {
+export function convertLocalPositionToGlobal([x, y]: Coords): Coords {
   return [x * cellSize, y * cellSize]
 }
 
@@ -38,27 +39,27 @@ export function convertLocalPositionToGlobal([x, y]) {
   cellSize = 20
   convertGlobalPositionToLocal([x, y]) // => [5, 10]
 */
-export function convertGlobalPositionToLocal([x, y]) {
+export function convertGlobalPositionToLocal([x, y]: Coords): Coords {
   return [x / cellSize, y / cellSize]
 }
 
-export function randomPosition() {
+export function randomPosition(): Coords {
   const { w, h } = getLocalSize(pageWidth, pageHeight)
 
-  function intNumber(n) {
+  function intNumber(n: number) {
     return Math.floor(Math.random() * n)
   }
 
   return [intNumber(w), intNumber(h)]
 }
 
-export function getIndexByPosition([x, y]) {
+export function getIndexByPosition([x, y]: Coords): number {
   const { w } = getLocalSize(pageWidth, pageHeight)
 
   return y * w + x
 }
 
-export function getPositionByIndex(index) {
+export function getPositionByIndex(index: number): Coords {
   const { w } = getLocalSize(pageWidth, pageHeight)
   const y = Math.floor(index / w)
   const x = index - y * w
@@ -66,11 +67,11 @@ export function getPositionByIndex(index) {
   return [x, y]
 }
 
-export function randomId() {
+export function randomId(): string {
   return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString()
 }
 
-export function createOperationLogger(name) {
+export function createOperationLogger(name: string) {
   let operation = 0
 
   return {
@@ -83,8 +84,8 @@ export function createOperationLogger(name) {
   }
 }
 
-export function generateRandomFoodByCount(count) {
-  const foods = []
+export function generateRandomFoodByCount(count: number): Array<Food> {
+  const foods: Array<Food> = []
 
   for (let i = 0; i < count; i++) {
     foods.push([randomPosition(), randomId()])
@@ -93,12 +94,18 @@ export function generateRandomFoodByCount(count) {
   return foods
 }
 
-export function getDifferenceBetweenPositions([x, y], [x1, y1]) {
+export function getDifferenceBetweenPositions(
+  [x, y]: Coords,
+  [x1, y1]: Coords
+) {
   return Math.abs(x1 + y1 - (x + y))
 }
 
-export function setValuesToGraph(graph, values = []) {
-  values.forEach(({ index, type, value }) => {
+export function setValuesToGraph(
+  graph: Graph,
+  values: Array<{ index: number; type: PLACE_TYPE; value: string }>
+) {
+  values.forEach(({ type, value, index }) => {
     switch (type) {
       case PLACE_TYPE.FOOD: {
         graph.setValueByIndex(index, {

@@ -2,6 +2,7 @@
 import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
 import { createFirstEmptyCellSaver } from './utils'
+import { Vertex, Graph } from './graph'
 
 /*
   Note:
@@ -106,11 +107,16 @@ import { createFirstEmptyCellSaver } from './utils'
       за счет которой могут отсеять не нужные направления (./greedy.js, ./a-star.js)
 */
 
+type Props = {
+  canTraverse: (arg0: Vertex | void) => boolean
+  withLogger?: boolean
+}
+
 export function breadthFirstSearch(
-  startIndex,
-  endIndex,
-  graph,
-  { canTraverse, withLogger = false }
+  startIndex: number,
+  endIndex: number,
+  graph: Graph,
+  { canTraverse, withLogger = false }: Props
 ) {
   const queue = [startIndex]
   const processed = new Map([[startIndex, true]])
@@ -125,19 +131,20 @@ export function breadthFirstSearch(
 
     // eslint-disable-next-line unicorn/no-for-loop
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
-      const next = vertex.neigbors[i]
+      const nextIndex = vertex.neigbors[i]
+      const nextVertex = graph.getVertex(nextIndex)
 
-      if (canTraverse(graph.getVertex(next)) && !processed.has(next)) {
-        queue.push(next)
-        processed.set(next, true)
-        parent[next] = currentIndex
+      if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
+        queue.push(nextIndex)
+        processed.set(nextIndex, true)
+        parent[nextIndex] = currentIndex
 
-        if (endIndex === next) {
+        if (endIndex === nextIndex) {
           isTraverse = true
           break
         }
 
-        saveCell(next)
+        saveCell(nextIndex)
         logger.increment()
       }
     }

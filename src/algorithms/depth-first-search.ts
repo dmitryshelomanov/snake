@@ -2,12 +2,18 @@
 import { createOperationLogger } from '../utils'
 import { restorePath } from './restore-path'
 import { createFirstEmptyCellSaver } from './utils'
+import { Vertex, Graph } from './graph'
+
+type Props = {
+  canTraverse: (arg0: Vertex) => boolean
+  withLogger?: boolean
+}
 
 export function depthFirstSearch(
-  startIndex,
-  endIndex,
-  graph,
-  { canTraverse, withLogger = false }
+  startIndex: number,
+  endIndex: number,
+  graph: Graph,
+  { canTraverse, withLogger = false }: Props
 ) {
   const stack = [startIndex]
   const processed = new Map([[startIndex, true]])
@@ -22,19 +28,20 @@ export function depthFirstSearch(
 
     // eslint-disable-next-line unicorn/no-for-loop
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
-      const next = vertex.neigbors[i]
+      const nextIndexx = vertex.neigbors[i]
+      const nextVertex = graph.getVertex(nextIndexx)
 
-      if (canTraverse(graph.getVertex(next)) && !processed.has(next)) {
-        parent[next] = currentIndex
-        stack.unshift(next)
-        processed.set(next, true)
+      if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndexx)) {
+        parent[nextIndexx] = currentIndex
+        stack.unshift(nextIndexx)
+        processed.set(nextIndexx, true)
 
-        if (endIndex === next) {
+        if (endIndex === nextIndexx) {
           isTraverse = true
           break
         }
 
-        saveCell(next)
+        saveCell(nextIndexx)
         logger.increment()
       }
     }

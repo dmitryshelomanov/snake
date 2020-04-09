@@ -1,11 +1,11 @@
 export function createFirstEmptyCellSaver() {
-  let cell
+  let cell: number
 
   return {
-    getCell: () => {
+    getCell: (): Array<number> => {
       return [cell].filter(Boolean)
     },
-    saveCell: (nextCell) => {
+    saveCell: (nextCell: number) => {
       if (!cell) {
         cell = nextCell
       }
