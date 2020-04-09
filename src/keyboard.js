@@ -10,8 +10,6 @@ export function keyboradFactory() {
   let pressedKeys = {}
 
   document.addEventListener('keydown', (event) => {
-    event.preventDefault()
-
     pressedKeys = {}
 
     if (Object.values(KEYS).includes(event.keyCode)) {

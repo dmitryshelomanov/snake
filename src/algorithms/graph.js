@@ -31,6 +31,7 @@ export class Graph {
               this.getRightNeigbour(index),
             ].filter((i) => typeof i !== 'undefined'),
             value: { type: PLACE_TYPE.EMPTY },
+            index,
           }))
     this.graph = typeof graph !== 'undefined' ? graph : this.emptyGraph.slice()
   }
@@ -95,5 +96,13 @@ export class Graph {
     if (this.graph[index]) {
       this.graph[index] = { ...this.graph[index], value }
     }
+  }
+
+  getVertexes() {
+    return this.graph
+  }
+
+  clear() {
+    this.graph = this.emptyGraph.slice()
   }
 }

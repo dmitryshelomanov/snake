@@ -1,19 +1,21 @@
 import { createEvent } from 'effector'
 
-export const play = createEvent('play game')
-export const stop = createEvent('stop game')
-export const restart = createEvent('restart game')
+export const play = createEvent()
+export const stop = createEvent()
+export const restart = createEvent()
 
-export const addUserToGame = createEvent('add user to game')
-export const removeUserFromGame = createEvent('remove user from game')
+export const addUserToGame = createEvent()
+export const removeUserFromGame = createEvent()
 
-export const setCollisionState = createEvent('set collision state')
+export const setCollisionState = createEvent()
 
-export const setIndexesVisible = createEvent('set visible indexes')
+export const setIndexesVisible = createEvent()
 
-export const setLoggerState = createEvent('on toggle logger')
+export const setLoggerState = createEvent()
 
 // update all states per one update
-export const updateStates = createEvent('update states')
+export const updateStates = createEvent()
 
-export const changeFps = createEvent('change fps')
+export const changeFps = createEvent()
+
+export const fillEmptyGraphCells = createEvent()
