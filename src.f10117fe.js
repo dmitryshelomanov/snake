@@ -1875,7 +1875,7 @@ exports.colorScheme = exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIO
 var _keyboard = require("./keyboard");
 
 var _effectorFileName = "/src/config.ts";
-var cellSize = 15;
+var cellSize = 10;
 exports.cellSize = cellSize;
 var pageWidth = window.innerWidth;
 exports.pageWidth = pageWidth;
@@ -1889,7 +1889,7 @@ var boardLength = pageWidth * pageHeight;
 exports.boardLength = boardLength;
 var foodCount = 50;
 exports.foodCount = foodCount;
-var snakeCount = 3;
+var snakeCount = 10;
 exports.snakeCount = snakeCount;
 var DIRECTIONS = {
   LEFT: _keyboard.KEYS.LEFT_ARROW,
@@ -43636,11 +43636,9 @@ function useSnakeSetings(snakeId) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ScoreItem = ScoreItem;
-exports.ScoreBoard = ScoreBoard;
-exports.Counter = exports.DroppedOutBlock = exports.Score = exports.Wrapper = void 0;
+exports.ScoreBoard = exports.ScoreItem = exports.Counter = exports.DroppedOutBlock = exports.Score = exports.Wrapper = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _effectorReact = require("effector-react");
 
@@ -43655,6 +43653,8 @@ var _useSnake = require("./use-snake");
 var _effectorFileName = "/src/GUI/score-board.tsx";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 function _templateObject4() {
   var data = _taggedTemplateLiteral(["\n  font-sixe: 12px;\n"]);
@@ -43717,8 +43717,7 @@ exports.DroppedOutBlock = DroppedOutBlock;
 var Counter = _styledComponents.default.p(_templateObject4());
 
 exports.Counter = Counter;
-
-function ScoreItem(_ref) {
+var ScoreItem = (0, _react.memo)(function (_ref) {
   var snakeId = _ref.snakeId;
   var score = (0, _useSnake.useSnakeScoreState)(snakeId);
   var isCrash = (0, _useSnake.useSnakeIsCrahedState)(snakeId);
@@ -43729,9 +43728,9 @@ function ScoreItem(_ref) {
   }, _react.default.createElement(DroppedOutBlock, {
     hidden: !isCrash
   }, "Dropped out !"), _react.default.createElement(_common.Name, null, snakeId), _react.default.createElement(Counter, null, score));
-}
-
-function ScoreBoard() {
+});
+exports.ScoreItem = ScoreItem;
+var ScoreBoard = (0, _react.memo)(function () {
   var snakesIds = (0, _effectorReact.useStore)(_snakes.$snakesIterator);
   return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Score board"), _react.default.createElement(Wrapper, null, snakesIds.map(function (snakeId) {
     return _react.default.createElement(ScoreItem, {
@@ -43739,7 +43738,8 @@ function ScoreBoard() {
       key: snakeId
     });
   })));
-}
+});
+exports.ScoreBoard = ScoreBoard;
 },{"react":"node_modules/react/index.js","effector-react":"node_modules/effector-react/effector-react.es.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","../models/snakes":"src/models/snakes/index.ts","./common":"src/GUI/common.tsx","./use-snake":"src/GUI/use-snake.tsx"}],"src/models/algorithms/store.ts":[function(require,module,exports) {
 "use strict";
 
@@ -44268,7 +44268,7 @@ var _effectorFileName = "/src/GUI/control-pannel.tsx";
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: flex-start;\n  align-items: center;\n  padding: 20px;\n  background-color: rgba(0, 0, 0, 0.6);\n  color: #fff;\n  border-radius: 8px;\n  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);\n  width: 100%;\n  min-height: 50px;\n  margin-top: 15px;\n\n  > button {\n    margin: auto;\n  }\n"]);
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: flex-start;\n  align-items: center;\n  padding: 20px;\n  background-color: rgba(0, 0, 0, 0.6);\n  color: #fff;\n  border-radius: 8px;\n  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);\n  width: 100%;\n  min-height: 50px;\n  margin-top: 15px;\n  flex-wrap: wrap;\n  justify-content: flex-start;\n\n  > button {\n    margin-right: 15px;\n    margin-bottom: 15px;\n  }\n"]);
 
   _templateObject = function _templateObject() {
     return data;
@@ -44291,7 +44291,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.SideBar = SideBar;
 exports.SideBarInner = exports.SideBarWrapper = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _effectorReact = require("effector-react");
 
@@ -44312,6 +44312,16 @@ var _config = require("../config");
 var _effectorFileName = "/src/GUI/side-bar.tsx";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _templateObject3() {
   var data = _taggedTemplateLiteral(["\n  border: none;\n  background: rgba(255, 255, 255, 0.7);\n  border-radius: 5px;\n  font-size: 90%;\n  cursor: pointer;\n  padding: 8px 15px;\n  transition: 0.5s;\n  outline: none;\n\n  &:hover {\n    background: #fff;\n  }\n\n  &:disabled {\n    background: #fff;\n    cursor: not-allowed;\n  }\n"]);
@@ -44356,26 +44366,36 @@ exports.SideBarInner = SideBarInner;
 var Button = _styledComponents.default.button(_templateObject3());
 
 function SideBar() {
+  var _useState = (0, _react.useState)(true),
+      _useState2 = _slicedToArray(_useState, 2),
+      isVisibleBoard = _useState2[0],
+      setVisibleState = _useState2[1];
+
   var gameState = (0, _effectorReact.useStore)(_game.$gameState);
   var snakesIterator = (0, _effectorReact.useStore)(_snakes.$snakesIterator);
   var isPlay = gameState === _config.GAME_STATE.IS_PLAY;
   var playOrPause = isPlay ? _game.stop : _game.play;
   var text = isPlay ? 'pause' : 'play';
-
-  function addSnakeToGame() {
+  var addSnakeToGame = (0, _react.useCallback)(function () {
     (0, _snakes.addSnake)({
       snakeId: "ai-".concat(snakesIterator.length + 1),
       isAi: true
     });
-  }
-
-  return _react.default.createElement(_reactDraggable.default, null, _react.default.createElement(SideBarWrapper, null, _react.default.createElement(SideBarInner, null, _react.default.createElement(_rightPanel.RightPanel, null), _react.default.createElement(_controlPannel.ControllPanel, null, _react.default.createElement(Button, {
+  }, [snakesIterator]);
+  var toggleBoardVisibleState = (0, _react.useCallback)(function () {
+    setVisibleState(function (prev) {
+      return !prev;
+    });
+  }, []);
+  return _react.default.createElement(_reactDraggable.default, null, _react.default.createElement(SideBarWrapper, null, _react.default.createElement(SideBarInner, null, isVisibleBoard && _react.default.createElement(_rightPanel.RightPanel, null), _react.default.createElement(_controlPannel.ControllPanel, null, _react.default.createElement(Button, {
     onClick: playOrPause
   }, text), _react.default.createElement(Button, {
     onClick: _game.restart
   }, "restart"), _react.default.createElement(Button, {
     onClick: addSnakeToGame
-  }, "add snake")))));
+  }, "add snake"), _react.default.createElement(Button, {
+    onClick: toggleBoardVisibleState
+  }, isVisibleBoard ? 'hide board' : 'show board')))));
 }
 },{"react":"node_modules/react/index.js","effector-react":"node_modules/effector-react/effector-react.es.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","react-draggable":"node_modules/react-draggable/dist/react-draggable.js","../models/game":"src/models/game/index.ts","../models/snakes":"src/models/snakes/index.ts","./right-panel":"src/GUI/right-panel.tsx","./control-pannel":"src/GUI/control-pannel.tsx","../config":"src/config.ts"}],"src/GUI/index.tsx":[function(require,module,exports) {
 "use strict";
@@ -45294,7 +45314,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55917" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59753" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
