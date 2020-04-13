@@ -1,31 +1,26 @@
 /* eslint-disable no-loop-func */
 import PriorityQueue from 'fastpriorityqueue'
 import { createOperationLogger } from '../utils'
-import { restorePath } from './restore-path'
-import { createFirstEmptyCellSaver } from './utils'
+import { restorePathFromMap } from './restore-path'
 import { Vertex, Graph } from './graph'
 
-type Props = {
-  canTraverse: (arg0: Vertex) => boolean
-  getCostByIndex: (arg0: Vertex) => number
-  withLogger?: boolean
-}
-
-export function dijkstra(
-  startIndex: number,
-  endIndex: number,
-  graph: Graph,
-  { canTraverse, getCostByIndex, withLogger = false }: Props
-) {
+export function dijkstra({
+  startIndex,
+  endIndex,
+  graph,
+  canTraverse,
+  getCostByIndex,
+  withLogger = false,
+}: TraverseAlgorithmProps<Graph, Vertex>): TraverseAlgorithmResult {
   const queue = new PriorityQueue<[number, number]>((a, b) => a[1] < b[1])
   const processed = new Map([[startIndex, true]])
-  const parent = {}
-  const costFar = {
-    [startIndex]: true,
-  }
+  const parent = new Map()
+  const costFar = new Map([[startIndex, 0]])
+
   let isTraverse = false
+  let path: Array<number> = []
+
   const logger = createOperationLogger('dijkstra')
-  const { getCell, saveCell } = createFirstEmptyCellSaver()
 
   queue.add([startIndex, 0])
 
@@ -40,26 +35,28 @@ export function dijkstra(
 
       if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
         // @ts-ignore
-        const nextCost = costFar[currentChild[0]] + getCostByIndex(next)
+        const nextCost = costFar.get(currentIndex) + getCostByIndex(nextIndex)
         const nextCostIsLower = nextCost <= (costFar[nextIndex] || Infinity)
 
         if (nextCostIsLower) {
           queue.add([nextIndex, nextCost])
           processed.set(nextIndex, true)
-          costFar[nextIndex] = nextCost
-          // eslint-disable-next-line prefer-destructuring
-          parent[nextIndex] = currentIndex
+          costFar.set(nextIndex, nextCost)
+          parent.set(nextIndex, currentIndex)
 
           if (endIndex === nextIndex) {
             isTraverse = true
             break
           }
 
-          saveCell(nextIndex)
           logger.increment()
         }
       }
     }
+  }
+
+  if (isTraverse) {
+    path = restorePathFromMap({ end: endIndex, start: startIndex, parent })
   }
 
   if (withLogger) {
@@ -67,7 +64,7 @@ export function dijkstra(
   }
 
   return {
-    path: isTraverse ? restorePath(endIndex, startIndex, parent) : getCell(),
+    path,
     processed: [...processed.keys()],
   }
 }

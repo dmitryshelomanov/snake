@@ -1,38 +1,27 @@
 /* eslint-disable no-loop-func */
 import PriorityQueue from 'fastpriorityqueue'
 import { createOperationLogger, getPositionByIndex } from '../utils'
-import { restorePath } from './restore-path'
+import { restorePathFromMap } from './restore-path'
 import { manhattanDistance } from './heuristic'
-import { createFirstEmptyCellSaver } from './utils'
 import { Graph, Vertex } from './graph'
 
-type Props = {
-  canTraverse: (arg0: Vertex) => boolean
-  getCostByIndex: (arg0: Vertex) => number
-  withLogger?: boolean
-  heuristic: (arg0: Coords, arg1: Coords) => number
-}
-
-export function aStar(
-  startIndex: number,
-  endIndex: number,
-  graph: Graph,
-  {
-    canTraverse,
-    getCostByIndex,
-    withLogger = false,
-    heuristic = manhattanDistance,
-  }: Props
-) {
+export function aStar({
+  startIndex,
+  endIndex,
+  graph,
+  canTraverse,
+  getCostByIndex,
+  withLogger = false,
+  heuristic = manhattanDistance,
+}: TraverseAlgorithmProps<Graph, Vertex>): TraverseAlgorithmResult {
   const goal = getPositionByIndex(endIndex)
   const queue = new PriorityQueue<[number, number]>((a, b) => a[1] < b[1])
   const processed = new Map([[startIndex, true]])
-  const parent = {}
-  const costFar = {
-    [startIndex]: 0,
-  }
+  const parent = new Map()
+  const costFar = new Map([[startIndex, 0]])
   let isTraverse = false
-  const { getCell, saveCell } = createFirstEmptyCellSaver()
+  let path: Array<number> = []
+
   const logger = createOperationLogger('aStar')
 
   queue.add([startIndex, 0])
@@ -48,29 +37,32 @@ export function aStar(
 
       if (nextVertex && canTraverse(nextVertex)) {
         // @ts-ignore
-        const nextCost = costFar[currentIndex] + getCostByIndex(nextVertex)
-        const nextCostIsLower = nextCost < (costFar[nextIndex] || Infinity)
+        const nextCost = costFar.get(currentIndex) + getCostByIndex(nextVertex)
+        const nextCostIsLower = nextCost < (costFar.get(nextIndex) || Infinity)
 
         if (nextCostIsLower && !processed.has(nextIndex)) {
           queue.add([
             nextIndex,
-            nextCost + heuristic(goal, getPositionByIndex(nextIndex)),
+            nextCost +
+              heuristic({ p1: goal, p: getPositionByIndex(nextIndex) }),
           ])
           processed.set(nextIndex, true)
-          costFar[nextIndex] = nextCost
-          // eslint-disable-next-line prefer-destructuring
-          parent[nextIndex] = currentIndex
+          costFar.set(nextIndex, nextCost)
+          parent.set(nextIndex, currentIndex)
 
           if (endIndex === nextIndex) {
             isTraverse = true
             break
           }
 
-          saveCell(nextIndex)
           logger.increment()
         }
       }
     }
+  }
+
+  if (isTraverse) {
+    path = restorePathFromMap({ end: endIndex, start: startIndex, parent })
   }
 
   if (withLogger) {
@@ -78,7 +70,7 @@ export function aStar(
   }
 
   return {
-    path: isTraverse ? restorePath(endIndex, startIndex, parent) : getCell(),
+    path,
     processed: [...processed.keys()],
   }
 }

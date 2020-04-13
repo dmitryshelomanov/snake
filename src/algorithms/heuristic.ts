@@ -6,10 +6,16 @@
 */
 
 // reference http://lightcone.ru/manhattan/
-export function manhattanDistance([x, y]: Coords, [x1, y1]: Coords): number {
-  return Math.abs(x - x1) + Math.abs(y - y1)
+export function manhattanDistance({
+  p: [x, y],
+  p1: [x1, y1],
+}: HeuristicProps): number {
+  return Math.abs(x1 - x) + Math.abs(y1 - y)
 }
 
-export function chebyshevDistance([x, y]: Coords, [x1, y1]: Coords): number {
-  return Math.max(x - x1, y - y1)
+export function chebyshevDistance({
+  p: [x, y],
+  p1: [x1, y1],
+}: HeuristicProps): number {
+  return Math.max(x1 - x, y1 - y)
 }
