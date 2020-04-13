@@ -1,26 +1,23 @@
 /* eslint-disable no-loop-func */
 import { createOperationLogger } from '../utils'
-import { restorePath } from './restore-path'
-import { createFirstEmptyCellSaver } from './utils'
+import { restorePathFromMap } from './restore-path'
 import { Vertex, Graph } from './graph'
 
-type Props = {
-  canTraverse: (arg0: Vertex) => boolean
-  withLogger?: boolean
-}
-
-export function depthFirstSearch(
-  startIndex: number,
-  endIndex: number,
-  graph: Graph,
-  { canTraverse, withLogger = false }: Props
-) {
+export function depthFirstSearch({
+  startIndex,
+  endIndex,
+  graph,
+  canTraverse,
+  withLogger = false,
+}: TraverseAlgorithmProps<Graph, Vertex>): TraverseAlgorithmResult {
   const stack = [startIndex]
   const processed = new Map([[startIndex, true]])
-  const parent = {}
+  const parent = new Map()
+
+  let path: Array<number> = []
   let isTraverse = false
+
   const logger = createOperationLogger('depthFirstSearch')
-  const { getCell, saveCell } = createFirstEmptyCellSaver()
 
   while (!isTraverse && stack.length > 0) {
     const currentIndex = stack.shift()
@@ -28,23 +25,26 @@ export function depthFirstSearch(
 
     // eslint-disable-next-line unicorn/no-for-loop
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
-      const nextIndexx = vertex.neigbors[i]
-      const nextVertex = graph.getVertex(nextIndexx)
+      const nextIndex = vertex.neigbors[i]
+      const nextVertex = graph.getVertex(nextIndex)
 
-      if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndexx)) {
-        parent[nextIndexx] = currentIndex
-        stack.unshift(nextIndexx)
-        processed.set(nextIndexx, true)
+      if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
+        parent[nextIndex] = currentIndex
+        stack.unshift(nextIndex)
+        processed.set(nextIndex, true)
 
-        if (endIndex === nextIndexx) {
+        if (endIndex === nextIndex) {
           isTraverse = true
           break
         }
 
-        saveCell(nextIndexx)
         logger.increment()
       }
     }
+  }
+
+  if (isTraverse) {
+    path = restorePathFromMap({ end: endIndex, start: startIndex, parent })
   }
 
   if (withLogger) {
@@ -52,7 +52,7 @@ export function depthFirstSearch(
   }
 
   return {
-    path: isTraverse ? restorePath(endIndex, startIndex, parent) : getCell(),
+    path,
     processed: [...processed.keys()],
   }
 }

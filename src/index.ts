@@ -31,7 +31,7 @@ import {
   Snake,
   SnakeSettings,
 } from './models/snake'
-import { Graph } from './algorithms'
+import { Graph, Vertex } from './algorithms'
 import { renderGUI } from './GUI'
 import { $snakes, $settingsForSnakes } from './models/snakes'
 import { $graph } from './models/graph'
@@ -46,7 +46,6 @@ import {
 } from './models/game'
 import { renderFoods } from './renderer/foods'
 import { $algorithms, $heuristics } from './models/algorithms'
-import { TraverseAlgorithm, Heuristic } from './updaters/ai'
 import 'reset-css'
 
 const defaultSettings = buildSettingsForSnake()
@@ -55,8 +54,8 @@ type ComputedSnake = {
   snake: Snake,
   settings: { [key: string]: SnakeSettings },
   algorithm: {
-    traverseAlgorithm: TraverseAlgorithm | void,
-    heuristic: Heuristic | void,
+    traverseAlgorithm: TraverseAlgorithmFunction<Graph, Vertex> | void,
+    heuristic: HeuristicFunction | void,
   },
 }
 
@@ -273,7 +272,7 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
 
         if (showProcessedCells) {
           // @ts-ignore
-          renderProcessed({context, processed: snake.meta.processed, color: snake.colors.processed})
+          renderProcessed({ context, processed: snake.meta.processed, color: snake.colors.processed })
         }
 
         if (showAIPathToTarget) {

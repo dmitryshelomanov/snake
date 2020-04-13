@@ -1,4 +1,5 @@
 import Color from 'color'
+import random from 'lodash-es/random'
 import { DIRECTIONS } from '../config'
 
 const colorsStub = [
@@ -136,9 +137,7 @@ export function setCrash(snake: Snake, isCrash: boolean) {
 }
 
 export function getColorsForSnake() {
-  const color = Color(
-    colorsStub[Math.ceil(Math.random() * (colorsStub.length - 1))]
-  )
+  const color = Color(colorsStub[random(0, colorsStub.length - 1)])
 
   return {
     head: color.toString(),
@@ -149,8 +148,8 @@ export function getColorsForSnake() {
 
 export function buildSettingsForSnake(): SnakeSettings {
   return {
-    showProcessedCells: false,
-    showAIPathToTarget: false,
+    showProcessedCells: true,
+    showAIPathToTarget: true,
     activeAlgorithm: 'aStar',
     activeHeuristic: 'manhattan',
   }
