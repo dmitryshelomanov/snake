@@ -1,7 +1,7 @@
 import { getLocalSize } from './utils'
 import { pageHeight, pageWidth } from './config'
 
-export function checkBounds([x, y]: Coords) {
+export function checkBounds([x, y]: Coords): Coords {
   const { w, h } = getLocalSize(pageWidth, pageHeight)
 
   if (w < x) {

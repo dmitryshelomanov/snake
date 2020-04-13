@@ -50,17 +50,17 @@ function getNextPositionIfIsNear(pos1: Coords, pos2: Coords) {
 
 export function renderPath({
   context,
-  paths = [],
+  path = [],
   color = 'rgb(255, 255, 0)',
 }: {
   context: CanvasRenderingContext2D
-  paths: Array<Coords>
+  path: Array<Coords>
   color?: string
 }) {
-  for (let i = 0; i < paths.length - 1; i++) {
-    const [x, y] = convertLocalPositionToGlobal(paths[i])
+  for (let i = 0; i < path.length - 1; i++) {
+    const [x, y] = convertLocalPositionToGlobal(path[i])
     const [x1, y1] = convertLocalPositionToGlobal(
-      getNextPositionIfIsNear(paths[i], paths[i + 1])
+      getNextPositionIfIsNear(path[i], path[i + 1])
     )
 
     context.beginPath()

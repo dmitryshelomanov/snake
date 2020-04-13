@@ -1,3 +1,4 @@
+import random from 'lodash-es/random'
 import { manhattanDistance } from '../algorithms/heuristic'
 import {
   getIndexByPosition,
@@ -10,9 +11,7 @@ import { getNextPositionByDirection, getDirectionByPosition } from '../controll'
 import { PLACE_TYPE } from '../config'
 import { Graph, Vertex } from 'algorithms'
 
-const INDEX = -1
-
-function getNearestFood({
+function getNearestFoodIndex({
   foods,
   graph,
   currentPosition,
@@ -20,8 +19,8 @@ function getNearestFood({
   foods: Array<Food>
   graph: Graph
   currentPosition: Coords
-}) {
-  return (
+}): number | void {
+  const food =
     foods
       .filter(
         ([position]) =>
@@ -31,36 +30,70 @@ function getNearestFood({
       )
       .sort(
         (a, b) =>
-          manhattanDistance(a[0], currentPosition) -
-          manhattanDistance(b[0], currentPosition)
+          manhattanDistance({ p1: a[0], p: currentPosition }) -
+          manhattanDistance({ p1: b[0], p: currentPosition })
       )[0] || foods[0]
-  )
+
+  return food ? getIndexByPosition(food[0]) : undefined
 }
 
-export type TraverseAlgorithm = (
-  startIndex: number,
-  endIndex: number,
-  graph: Graph,
-  config: {
-    canTraverse: (arg0: Vertex) => boolean
-    getCostByIndex: (arg0: Vertex) => number
-    withLogger: boolean
-    heuristic: (arg0: Coords, arg1: Coords) => number
+function getNextPositionForAISnake({
+  snake,
+  path,
+  graph,
+  canTraverse,
+}: {
+  snake: Snake
+  path: Array<Coords>
+  graph: Graph
+  canTraverse: (arg0: Vertex) => boolean
+}): Coords {
+  if (path.length === 0) {
+    const head = headSnake(snake)
+    const idx = getIndexByPosition(head)
+    const vertex = graph.getVertex(idx)
+    let nextPosByDirection = checkBounds(
+      getNextPositionByDirection(head, snake.direction)
+    )
+
+    if (vertex) {
+      const availableVertexes = vertex.neigbors.filter((i) => {
+        const v = graph.getVertex(i)
+
+        return v ? canTraverse(v) : false
+      })
+
+      if (availableVertexes[0]) {
+        nextPosByDirection = getPositionByIndex(availableVertexes[0])
+      }
+    }
+
+    return nextPosByDirection
   }
-) => {
-  path: Array<number>
-  processed: Array<number>
+
+  return path[0]
 }
 
-export type Heuristic = (arg0: Coords, arg1: Coords) => number
+function canTraverse(isEnabledCollisionDetect: boolean) {
+  return (vertex: Vertex) => {
+    return isEnabledCollisionDetect
+      ? vertex.value.type === PLACE_TYPE.EMPTY ||
+          vertex.value.type === PLACE_TYPE.FOOD
+      : true
+  }
+}
+
+function getCostByIndex() {
+  return 1
+}
 
 type Props = {
   snake: Snake
   state: { graph: Graph; foods: Array<Food> }
   withLogger: boolean
-  heuristic: (arg0: Coords, arg1: Coords) => number
+  heuristic: HeuristicFunction
   isEnabledCollisionDetect: boolean
-  traverseAlgorithm: TraverseAlgorithm
+  traverseAlgorithm: TraverseAlgorithmFunction<Graph, Vertex>
 }
 
 export function ai({
@@ -73,36 +106,33 @@ export function ai({
 }: Props) {
   const { graph, foods } = state
   const currentPosition = headSnake(snake)
-  const nearestFood = getNearestFood({ foods, currentPosition, graph })
+  const targetIndex = getNearestFoodIndex({ foods, currentPosition, graph })
+  let path: Array<number> = []
+  let processed: Array<number> = []
 
-  function canTraverse(vertex: Vertex) {
-    return isEnabledCollisionDetect
-      ? vertex.value.type === PLACE_TYPE.EMPTY ||
-          vertex.value.type === PLACE_TYPE.FOOD
-      : true
-  }
-
-  function getCostByIndex() {
-    return 1
-  }
-
-  const result = traverseAlgorithm(
-    getIndexByPosition(currentPosition),
-    nearestFood ? getIndexByPosition(nearestFood[0]) : INDEX,
-    graph,
-    {
-      canTraverse,
+  if (targetIndex !== undefined) {
+    const result = traverseAlgorithm({
+      startIndex: getIndexByPosition(currentPosition),
+      endIndex: targetIndex,
+      graph,
+      canTraverse: canTraverse(isEnabledCollisionDetect),
       getCostByIndex,
       heuristic,
       withLogger,
-    }
-  )
+    })
 
-  const pathPositions = result.path.map(getPositionByIndex)
-  const processedPositions = result.processed.map(getPositionByIndex)
-  const nextPosition =
-    pathPositions[0] ||
-    checkBounds(getNextPositionByDirection(headSnake(snake), snake.direction))
+    processed = result.processed
+    path = result.path
+  }
+
+  const pathPositions = path.map(getPositionByIndex)
+  const processedPositions = processed.map(getPositionByIndex)
+  const nextPosition = getNextPositionForAISnake({
+    snake,
+    path: pathPositions,
+    graph,
+    canTraverse: canTraverse(isEnabledCollisionDetect),
+  })
   const nextDirection = getDirectionByPosition(headSnake(snake), nextPosition)
   const diff = getDifferenceBetweenPositions(headSnake(snake), nextPosition)
 

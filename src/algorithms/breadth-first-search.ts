@@ -1,7 +1,6 @@
 /* eslint-disable no-loop-func */
 import { createOperationLogger } from '../utils'
-import { restorePath } from './restore-path'
-import { createFirstEmptyCellSaver } from './utils'
+import { restorePathFromMap } from './restore-path'
 import { Vertex, Graph } from './graph'
 
 /*
@@ -107,23 +106,21 @@ import { Vertex, Graph } from './graph'
       за счет которой могут отсеять не нужные направления (./greedy.js, ./a-star.js)
 */
 
-type Props = {
-  canTraverse: (arg0: Vertex | void) => boolean
-  withLogger?: boolean
-}
-
-export function breadthFirstSearch(
-  startIndex: number,
-  endIndex: number,
-  graph: Graph,
-  { canTraverse, withLogger = false }: Props
-) {
+export function breadthFirstSearch({
+  startIndex,
+  endIndex,
+  graph,
+  canTraverse,
+  withLogger = false,
+}: TraverseAlgorithmProps<Graph, Vertex>): TraverseAlgorithmResult {
   const queue = [startIndex]
   const processed = new Map([[startIndex, true]])
-  const parent = {}
+  const parent = new Map()
+
+  let path: Array<number> = []
   let isTraverse = false
+
   const logger = createOperationLogger('breadthFirstSearch')
-  const { getCell, saveCell } = createFirstEmptyCellSaver()
 
   while (!isTraverse && queue.length > 0) {
     const currentIndex = queue.shift()
@@ -137,17 +134,20 @@ export function breadthFirstSearch(
       if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
         queue.push(nextIndex)
         processed.set(nextIndex, true)
-        parent[nextIndex] = currentIndex
+        parent.set(nextIndex, currentIndex)
 
         if (endIndex === nextIndex) {
           isTraverse = true
           break
         }
 
-        saveCell(nextIndex)
         logger.increment()
       }
     }
+  }
+
+  if (isTraverse) {
+    path = restorePathFromMap({ end: endIndex, start: startIndex, parent })
   }
 
   if (withLogger) {
@@ -155,7 +155,7 @@ export function breadthFirstSearch(
   }
 
   return {
-    path: isTraverse ? restorePath(endIndex, startIndex, parent) : getCell(),
+    path,
     processed: [...processed.keys()],
   }
 }
