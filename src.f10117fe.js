@@ -1841,13 +1841,15 @@ exports.KEYS = void 0;
 var _effectorFileName = "/src/keyboard.ts";
 
 /* eslint-disable unicorn/prefer-event-key */
-var KEYS = {
-  LEFT_ARROW: 65,
-  RIGHT_ARROW: 68,
-  TOP_ARROW: 87,
-  DOWN_ARROW: 83
-};
+var KEYS;
 exports.KEYS = KEYS;
+
+(function (KEYS) {
+  KEYS[KEYS["LEFT_ARROW"] = 65] = "LEFT_ARROW";
+  KEYS[KEYS["RIGHT_ARROW"] = 68] = "RIGHT_ARROW";
+  KEYS[KEYS["TOP_ARROW"] = 87] = "TOP_ARROW";
+  KEYS[KEYS["DOWN_ARROW"] = 83] = "DOWN_ARROW";
+})(KEYS || (exports.KEYS = KEYS = {}));
 
 function keyboradFactory() {
   var pressedKeys = {};
@@ -1881,7 +1883,7 @@ var pageWidth = window.innerWidth;
 exports.pageWidth = pageWidth;
 var pageHeight = window.innerHeight;
 exports.pageHeight = pageHeight;
-var fps = 30;
+var fps = 60;
 exports.fps = fps;
 var borderSize = 1;
 exports.borderSize = borderSize;
@@ -1889,15 +1891,18 @@ var boardLength = pageWidth * pageHeight;
 exports.boardLength = boardLength;
 var foodCount = 50;
 exports.foodCount = foodCount;
-var snakeCount = 10;
+var snakeCount = 1;
 exports.snakeCount = snakeCount;
-var DIRECTIONS = {
-  LEFT: _keyboard.KEYS.LEFT_ARROW,
-  RIGHT: _keyboard.KEYS.RIGHT_ARROW,
-  TOP: _keyboard.KEYS.TOP_ARROW,
-  DOWN: _keyboard.KEYS.DOWN_ARROW
-};
+var DIRECTIONS;
 exports.DIRECTIONS = DIRECTIONS;
+
+(function (DIRECTIONS) {
+  DIRECTIONS[DIRECTIONS["LEFT"] = _keyboard.KEYS.LEFT_ARROW] = "LEFT";
+  DIRECTIONS[DIRECTIONS["RIGHT"] = _keyboard.KEYS.RIGHT_ARROW] = "RIGHT";
+  DIRECTIONS[DIRECTIONS["TOP"] = _keyboard.KEYS.TOP_ARROW] = "TOP";
+  DIRECTIONS[DIRECTIONS["DOWN"] = _keyboard.KEYS.DOWN_ARROW] = "DOWN";
+})(DIRECTIONS || (exports.DIRECTIONS = DIRECTIONS = {}));
+
 var GAME_STATE;
 exports.GAME_STATE = GAME_STATE;
 
@@ -2218,18 +2223,18 @@ function getNextPositionIfIsNear(pos1, pos2) {
 
 function renderPath(_ref3) {
   var context = _ref3.context,
-      _ref3$paths = _ref3.paths,
-      paths = _ref3$paths === void 0 ? [] : _ref3$paths,
+      _ref3$path = _ref3.path,
+      path = _ref3$path === void 0 ? [] : _ref3$path,
       _ref3$color = _ref3.color,
       color = _ref3$color === void 0 ? 'rgb(255, 255, 0)' : _ref3$color;
 
-  for (var i = 0; i < paths.length - 1; i++) {
-    var _convertLocalPosition5 = (0, _utils.convertLocalPositionToGlobal)(paths[i]),
+  for (var i = 0; i < path.length - 1; i++) {
+    var _convertLocalPosition5 = (0, _utils.convertLocalPositionToGlobal)(path[i]),
         _convertLocalPosition6 = _slicedToArray(_convertLocalPosition5, 2),
         x = _convertLocalPosition6[0],
         y = _convertLocalPosition6[1];
 
-    var _convertLocalPosition7 = (0, _utils.convertLocalPositionToGlobal)(getNextPositionIfIsNear(paths[i], paths[i + 1])),
+    var _convertLocalPosition7 = (0, _utils.convertLocalPositionToGlobal)(getNextPositionIfIsNear(path[i], path[i + 1])),
         _convertLocalPosition8 = _slicedToArray(_convertLocalPosition7, 2),
         x1 = _convertLocalPosition8[0],
         y1 = _convertLocalPosition8[1];
@@ -4495,7 +4500,823 @@ function zeroArray(arr, length) {
 
 module.exports = Color;
 
-},{"color-string":"node_modules/color-string/index.js","color-convert":"node_modules/color-convert/index.js"}],"src/models/snake.ts":[function(require,module,exports) {
+},{"color-string":"node_modules/color-string/index.js","color-convert":"node_modules/color-convert/index.js"}],"node_modules/lodash-es/_baseRandom.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeFloor = Math.floor,
+    nativeRandom = Math.random;
+/**
+ * The base implementation of `_.random` without support for returning
+ * floating-point numbers.
+ *
+ * @private
+ * @param {number} lower The lower bound.
+ * @param {number} upper The upper bound.
+ * @returns {number} Returns the random number.
+ */
+
+function baseRandom(lower, upper) {
+  return lower + nativeFloor(nativeRandom() * (upper - lower + 1));
+}
+
+var _default = baseRandom;
+exports.default = _default;
+},{}],"node_modules/lodash-es/eq.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Performs a
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * comparison between two values to determine if they are equivalent.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ * var other = { 'a': 1 };
+ *
+ * _.eq(object, object);
+ * // => true
+ *
+ * _.eq(object, other);
+ * // => false
+ *
+ * _.eq('a', 'a');
+ * // => true
+ *
+ * _.eq('a', Object('a'));
+ * // => false
+ *
+ * _.eq(NaN, NaN);
+ * // => true
+ */
+function eq(value, other) {
+  return value === other || value !== value && other !== other;
+}
+
+var _default = eq;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_freeGlobal.js":[function(require,module,exports) {
+var global = arguments[3];
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+var _default = freeGlobal;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_root.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _freeGlobal = _interopRequireDefault(require("./_freeGlobal.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+/** Used as a reference to the global object. */
+
+var root = _freeGlobal.default || freeSelf || Function('return this')();
+var _default = root;
+exports.default = _default;
+},{"./_freeGlobal.js":"node_modules/lodash-es/_freeGlobal.js"}],"node_modules/lodash-es/_Symbol.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _root = _interopRequireDefault(require("./_root.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Built-in value references. */
+var Symbol = _root.default.Symbol;
+var _default = Symbol;
+exports.default = _default;
+},{"./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_getRawTag.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Symbol = _interopRequireDefault(require("./_Symbol.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/** Used to check objects for own properties. */
+
+var hasOwnProperty = objectProto.hasOwnProperty;
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+
+var nativeObjectToString = objectProto.toString;
+/** Built-in value references. */
+
+var symToStringTag = _Symbol.default ? _Symbol.default.toStringTag : undefined;
+/**
+ * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the raw `toStringTag`.
+ */
+
+function getRawTag(value) {
+  var isOwn = hasOwnProperty.call(value, symToStringTag),
+      tag = value[symToStringTag];
+
+  try {
+    value[symToStringTag] = undefined;
+    var unmasked = true;
+  } catch (e) {}
+
+  var result = nativeObjectToString.call(value);
+
+  if (unmasked) {
+    if (isOwn) {
+      value[symToStringTag] = tag;
+    } else {
+      delete value[symToStringTag];
+    }
+  }
+
+  return result;
+}
+
+var _default = getRawTag;
+exports.default = _default;
+},{"./_Symbol.js":"node_modules/lodash-es/_Symbol.js"}],"node_modules/lodash-es/_objectToString.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+
+var nativeObjectToString = objectProto.toString;
+/**
+ * Converts `value` to a string using `Object.prototype.toString`.
+ *
+ * @private
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ */
+
+function objectToString(value) {
+  return nativeObjectToString.call(value);
+}
+
+var _default = objectToString;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_baseGetTag.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Symbol = _interopRequireDefault(require("./_Symbol.js"));
+
+var _getRawTag = _interopRequireDefault(require("./_getRawTag.js"));
+
+var _objectToString = _interopRequireDefault(require("./_objectToString.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var nullTag = '[object Null]',
+    undefinedTag = '[object Undefined]';
+/** Built-in value references. */
+
+var symToStringTag = _Symbol.default ? _Symbol.default.toStringTag : undefined;
+/**
+ * The base implementation of `getTag` without fallbacks for buggy environments.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+
+function baseGetTag(value) {
+  if (value == null) {
+    return value === undefined ? undefinedTag : nullTag;
+  }
+
+  return symToStringTag && symToStringTag in Object(value) ? (0, _getRawTag.default)(value) : (0, _objectToString.default)(value);
+}
+
+var _default = baseGetTag;
+exports.default = _default;
+},{"./_Symbol.js":"node_modules/lodash-es/_Symbol.js","./_getRawTag.js":"node_modules/lodash-es/_getRawTag.js","./_objectToString.js":"node_modules/lodash-es/_objectToString.js"}],"node_modules/lodash-es/isObject.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return value != null && (type == 'object' || type == 'function');
+}
+
+var _default = isObject;
+exports.default = _default;
+},{}],"node_modules/lodash-es/isFunction.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
+
+var _isObject = _interopRequireDefault(require("./isObject.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var asyncTag = '[object AsyncFunction]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    proxyTag = '[object Proxy]';
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+
+function isFunction(value) {
+  if (!(0, _isObject.default)(value)) {
+    return false;
+  } // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 9 which returns 'object' for typed arrays and other constructors.
+
+
+  var tag = (0, _baseGetTag.default)(value);
+  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+}
+
+var _default = isFunction;
+exports.default = _default;
+},{"./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./isObject.js":"node_modules/lodash-es/isObject.js"}],"node_modules/lodash-es/isLength.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+var _default = isLength;
+exports.default = _default;
+},{}],"node_modules/lodash-es/isArrayLike.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isFunction = _interopRequireDefault(require("./isFunction.js"));
+
+var _isLength = _interopRequireDefault(require("./isLength.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && (0, _isLength.default)(value.length) && !(0, _isFunction.default)(value);
+}
+
+var _default = isArrayLike;
+exports.default = _default;
+},{"./isFunction.js":"node_modules/lodash-es/isFunction.js","./isLength.js":"node_modules/lodash-es/isLength.js"}],"node_modules/lodash-es/_isIndex.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+/** Used to detect unsigned integer values. */
+
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+
+function isIndex(value, length) {
+  var type = typeof value;
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return !!length && (type == 'number' || type != 'symbol' && reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
+}
+
+var _default = isIndex;
+exports.default = _default;
+},{}],"node_modules/lodash-es/_isIterateeCall.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _eq = _interopRequireDefault(require("./eq.js"));
+
+var _isArrayLike = _interopRequireDefault(require("./isArrayLike.js"));
+
+var _isIndex = _interopRequireDefault(require("./_isIndex.js"));
+
+var _isObject = _interopRequireDefault(require("./isObject.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks if the given arguments are from an iteratee call.
+ *
+ * @private
+ * @param {*} value The potential iteratee value argument.
+ * @param {*} index The potential iteratee index or key argument.
+ * @param {*} object The potential iteratee object argument.
+ * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
+ *  else `false`.
+ */
+function isIterateeCall(value, index, object) {
+  if (!(0, _isObject.default)(object)) {
+    return false;
+  }
+
+  var type = typeof index;
+
+  if (type == 'number' ? (0, _isArrayLike.default)(object) && (0, _isIndex.default)(index, object.length) : type == 'string' && index in object) {
+    return (0, _eq.default)(object[index], value);
+  }
+
+  return false;
+}
+
+var _default = isIterateeCall;
+exports.default = _default;
+},{"./eq.js":"node_modules/lodash-es/eq.js","./isArrayLike.js":"node_modules/lodash-es/isArrayLike.js","./_isIndex.js":"node_modules/lodash-es/_isIndex.js","./isObject.js":"node_modules/lodash-es/isObject.js"}],"node_modules/lodash-es/isObjectLike.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return value != null && typeof value == 'object';
+}
+
+var _default = isObjectLike;
+exports.default = _default;
+},{}],"node_modules/lodash-es/isSymbol.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
+
+var _isObjectLike = _interopRequireDefault(require("./isObjectLike.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+
+function isSymbol(value) {
+  return typeof value == 'symbol' || (0, _isObjectLike.default)(value) && (0, _baseGetTag.default)(value) == symbolTag;
+}
+
+var _default = isSymbol;
+exports.default = _default;
+},{"./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./isObjectLike.js":"node_modules/lodash-es/isObjectLike.js"}],"node_modules/lodash-es/toNumber.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _isObject = _interopRequireDefault(require("./isObject.js"));
+
+var _isSymbol = _interopRequireDefault(require("./isSymbol.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used as references for various `Number` constants. */
+var NAN = 0 / 0;
+/** Used to match leading and trailing whitespace. */
+
+var reTrim = /^\s+|\s+$/g;
+/** Used to detect bad signed hexadecimal string values. */
+
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+/** Used to detect binary string values. */
+
+var reIsBinary = /^0b[01]+$/i;
+/** Used to detect octal string values. */
+
+var reIsOctal = /^0o[0-7]+$/i;
+/** Built-in method references without a dependency on `root`. */
+
+var freeParseInt = parseInt;
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+
+  if ((0, _isSymbol.default)(value)) {
+    return NAN;
+  }
+
+  if ((0, _isObject.default)(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = (0, _isObject.default)(other) ? other + '' : other;
+  }
+
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
+}
+
+var _default = toNumber;
+exports.default = _default;
+},{"./isObject.js":"node_modules/lodash-es/isObject.js","./isSymbol.js":"node_modules/lodash-es/isSymbol.js"}],"node_modules/lodash-es/toFinite.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _toNumber = _interopRequireDefault(require("./toNumber.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308;
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+
+  value = (0, _toNumber.default)(value);
+
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = value < 0 ? -1 : 1;
+    return sign * MAX_INTEGER;
+  }
+
+  return value === value ? value : 0;
+}
+
+var _default = toFinite;
+exports.default = _default;
+},{"./toNumber.js":"node_modules/lodash-es/toNumber.js"}],"node_modules/lodash-es/random.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _baseRandom = _interopRequireDefault(require("./_baseRandom.js"));
+
+var _isIterateeCall = _interopRequireDefault(require("./_isIterateeCall.js"));
+
+var _toFinite = _interopRequireDefault(require("./toFinite.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseFloat = parseFloat;
+/* Built-in method references for those with the same name as other `lodash` methods. */
+
+var nativeMin = Math.min,
+    nativeRandom = Math.random;
+/**
+ * Produces a random number between the inclusive `lower` and `upper` bounds.
+ * If only one argument is provided a number between `0` and the given number
+ * is returned. If `floating` is `true`, or either `lower` or `upper` are
+ * floats, a floating-point number is returned instead of an integer.
+ *
+ * **Note:** JavaScript follows the IEEE-754 standard for resolving
+ * floating-point values which can produce unexpected results.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.7.0
+ * @category Number
+ * @param {number} [lower=0] The lower bound.
+ * @param {number} [upper=1] The upper bound.
+ * @param {boolean} [floating] Specify returning a floating-point number.
+ * @returns {number} Returns the random number.
+ * @example
+ *
+ * _.random(0, 5);
+ * // => an integer between 0 and 5
+ *
+ * _.random(5);
+ * // => also an integer between 0 and 5
+ *
+ * _.random(5, true);
+ * // => a floating-point number between 0 and 5
+ *
+ * _.random(1.2, 5.2);
+ * // => a floating-point number between 1.2 and 5.2
+ */
+
+function random(lower, upper, floating) {
+  if (floating && typeof floating != 'boolean' && (0, _isIterateeCall.default)(lower, upper, floating)) {
+    upper = floating = undefined;
+  }
+
+  if (floating === undefined) {
+    if (typeof upper == 'boolean') {
+      floating = upper;
+      upper = undefined;
+    } else if (typeof lower == 'boolean') {
+      floating = lower;
+      lower = undefined;
+    }
+  }
+
+  if (lower === undefined && upper === undefined) {
+    lower = 0;
+    upper = 1;
+  } else {
+    lower = (0, _toFinite.default)(lower);
+
+    if (upper === undefined) {
+      upper = lower;
+      lower = 0;
+    } else {
+      upper = (0, _toFinite.default)(upper);
+    }
+  }
+
+  if (lower > upper) {
+    var temp = lower;
+    lower = upper;
+    upper = temp;
+  }
+
+  if (floating || lower % 1 || upper % 1) {
+    var rand = nativeRandom();
+    return nativeMin(lower + rand * (upper - lower + freeParseFloat('1e-' + ((rand + '').length - 1))), upper);
+  }
+
+  return (0, _baseRandom.default)(lower, upper);
+}
+
+var _default = random;
+exports.default = _default;
+},{"./_baseRandom.js":"node_modules/lodash-es/_baseRandom.js","./_isIterateeCall.js":"node_modules/lodash-es/_isIterateeCall.js","./toFinite.js":"node_modules/lodash-es/toFinite.js"}],"src/models/snake.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4514,6 +5335,8 @@ exports.getColorsForSnake = getColorsForSnake;
 exports.buildSettingsForSnake = buildSettingsForSnake;
 
 var _color = _interopRequireDefault(require("color"));
+
+var _random = _interopRequireDefault(require("lodash-es/random"));
 
 var _config = require("../config");
 
@@ -4612,7 +5435,7 @@ function setCrash(snake, isCrash) {
 }
 
 function getColorsForSnake() {
-  var color = (0, _color.default)(colorsStub[Math.ceil(Math.random() * (colorsStub.length - 1))]);
+  var color = (0, _color.default)(colorsStub[(0, _random.default)(0, colorsStub.length - 1)]);
   return {
     head: color.toString(),
     tail: color.alpha(0.7).toString(),
@@ -4622,13 +5445,13 @@ function getColorsForSnake() {
 
 function buildSettingsForSnake() {
   return {
-    showProcessedCells: false,
-    showAIPathToTarget: false,
+    showProcessedCells: true,
+    showAIPathToTarget: true,
     activeAlgorithm: 'aStar',
     activeHeuristic: 'manhattan'
   };
 }
-},{"color":"node_modules/color/index.js","../config":"src/config.ts"}],"src/algorithms/graph.ts":[function(require,module,exports) {
+},{"color":"node_modules/color/index.js","lodash-es/random":"node_modules/lodash-es/random.js","../config":"src/config.ts"}],"src/algorithms/graph.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4781,6 +5604,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.restorePath = restorePath;
+exports.restorePathFromMap = restorePathFromMap;
 var _effectorFileName = "/src/algorithms/restore-path.ts";
 
 function restorePath(end, start, parent) {
@@ -4794,27 +5618,20 @@ function restorePath(end, start, parent) {
 
   return path;
 }
-},{}],"src/algorithms/utils.ts":[function(require,module,exports) {
-"use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createFirstEmptyCellSaver = createFirstEmptyCellSaver;
-var _effectorFileName = "/src/algorithms/utils.ts";
+function restorePathFromMap(_ref) {
+  var end = _ref.end,
+      start = _ref.start,
+      parent = _ref.parent;
+  var path = [end];
+  var goal = parent.get(end);
 
-function createFirstEmptyCellSaver() {
-  var cell;
-  return {
-    getCell: function getCell() {
-      return [cell].filter(Boolean);
-    },
-    saveCell: function saveCell(nextCell) {
-      if (!cell) {
-        cell = nextCell;
-      }
-    }
-  };
+  while (goal !== undefined && goal !== start) {
+    path.unshift(goal);
+    goal = parent.get(goal);
+  }
+
+  return path;
 }
 },{}],"src/algorithms/breadth-first-search.ts":[function(require,module,exports) {
 "use strict";
@@ -4828,8 +5645,6 @@ var _utils = require("../utils");
 
 var _restorePath = require("./restore-path");
 
-var _utils2 = require("./utils");
-
 var _effectorFileName = "/src/algorithms/breadth-first-search.ts";
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -4840,19 +5655,121 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
+/*
+  Note:
+
+  Поиск происходит равномерно во всех направлениях, алгоритм  не знает как ускорится
+    он просто перебирает по уровням (если искомая точка существует, он 100% найдет крратчайший путь к нее)
+    разумеется кратчайший по веершинам (!)
+
+  Пример гррафа (для простоты понимания это будет привычный граф - не одномерный массив)
+    найти кратчайший путь из A в G
+    если посмоттреть на граф, то видно что кратчайший путь это A-E-F-G -через 2 вершины
+
+  A~~~~B~~~~C
+  ~ ~       ~
+  ~   ~     ~
+  D~~~~E~~~~F~~~~G
+
+  Как работает алгоритм
+    Дано
+      queue: очередь
+      procesed: мапа с верршинами которые прошли
+      isTraverse: флаг говорящий что мы нашли то что искали (простая оптимизация)
+      parent: мапа хранит то, из какой точки пришли (понадобится для восстановления пути)
+
+    задаем точку старта и искомую (A,G)
+      алгоритм исполтзует простую очередь и добавляет в нее соседей
+      помещаем точку А в очередь
+      queue: [A]
+
+    Старт происходит если очередь не пуста
+      забираем вершину и начинаем работать над ней (для всех верщин процедура одинакова)
+      ищем соседей и добавляем в очередь, так же помечаем вершину как пройденную
+      queue: []
+      processed: [A]
+
+      проход по соседям
+        3 соседа на данномм этапе,  соответственно 3 этапа
+          1) queue: [B]
+             parent: {B: A}
+             processed: [A, B]
+          2) queue: [B, E]
+             parent: {B: A, E: A}
+             processed: [A, B, E]
+          3) queue: [B, E, D]
+             parent: {B: A, E: A, D: A}
+             processed: [A, B, E, D]
+
+          Из соседей у вершины А нету искомой точки - работа происходит дальше
+          На очереди точка B - ее соседи это А и C
+          проходить по ним в том же алгоритме
+            1) A - помечена как пройдена. Пропускаем
+            3) queue: [E, D, C]
+               parent: {B: A, E: A, D: A, C: B}
+               processed: [A, B, E, D, C]
+
+          Из соседей у вершины B нету искомой точки - работа происходит дальше
+          На очереди точка E - ее соседи это D,A,F
+          проходить по ним в том же алгоритме
+            1) D - помечена как пройдена. Пропускаем
+            2) A - помечена как пройдена. Пропускаем
+            3) queue: [D, C, F]
+               parent: {B: A, E: A, D: A, C: B, F: E}
+               processed: [A, B, E, D, C, F]
+
+          Из соседей у вершины E нету искомой точки - работа происходит дальше
+          На очереди точка D - ее соседи это A,E
+          проходить по ним в том же алгоритме
+            1) A - помечена как пройдена. Пропускаем
+            2) E - помечена как пройдена. Пропускаем
+                queue: [C, F]
+
+          Из соседей у вершины D нету искомой точки - работа происходит дальше
+          Все соседи у данной вершины помечены как пройденные
+          На очереди точка C - ее соседи это B,F
+          проходить по ним в том же алгоритме
+            1) B - помечена как пройдена. Пропускаем
+            2) F - помечена как пройдена. Пропускаем
+                queue: [F]
+
+          Из соседей у вершины C нету искомой точки - работа происходит дальше
+          Все соседи у данной вершины помечены как пройденные
+          На очереди точка F - ее соседи это E,C,G
+          проходить по ним в том же алгоритме
+            1) E - помечена как пройдена. Пропускаем
+            2) C - помечена как пройдена. Пропускаем
+            3) F - найденная вершина
+                queue: [G]
+                parent: {B: A, E: A, D: A, C: B, F: E, G: F}
+                processed: [A, B, E, D, C, F, G]
+                isTraverse: true
+
+    Теперь все вершины пройдены и мы можем восстановить путь по parent (как я писал выше, для чего эта переменная)
+      найденный путь - (G-F-E-A).reverse()
+      цепочка восстанавливается от искомой точки, путь как пройти от искомой к начальной
+
+    Вывод:
+        Данный алгоритм полезен если нужно найти кратчайшее расстояние по вершинам
+      но если появится вес у ребра (к примеру учивать дистанцию),  данный алгоритм не поможет
+      для этого существует алгоритм Дейкстры (./dijkstra.js) - который тоже тут рассмотрет и можно
+      увидеть визуализацию
+        Так же есть варианты этого алгоритма, но которые учитывают эвристику,
+      за счет которой могут отсеять не нужные направления (./greedy.js, ./a-star.js)
+*/
+function breadthFirstSearch(_ref) {
+  var startIndex = _ref.startIndex,
+      endIndex = _ref.endIndex,
+      graph = _ref.graph,
+      canTraverse = _ref.canTraverse,
       _ref$withLogger = _ref.withLogger,
       withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
   var queue = [startIndex];
   var processed = new Map([[startIndex, true]]);
-  var parent = {};
+  var parent = new Map();
+  var path = [];
   var isTraverse = false;
   var logger = (0, _utils.createOperationLogger)('breadthFirstSearch');
-
-  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
-      getCell = _createFirstEmptyCell.getCell,
-      saveCell = _createFirstEmptyCell.saveCell;
 
   while (!isTraverse && queue.length > 0) {
     var currentIndex = queue.shift();
@@ -4865,17 +5782,24 @@ function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
       if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
         queue.push(nextIndex);
         processed.set(nextIndex, true);
-        parent[nextIndex] = currentIndex;
+        parent.set(nextIndex, currentIndex);
 
         if (endIndex === nextIndex) {
           isTraverse = true;
           break;
         }
 
-        saveCell(nextIndex);
         logger.increment();
       }
     }
+  }
+
+  if (isTraverse) {
+    path = (0, _restorePath.restorePathFromMap)({
+      end: endIndex,
+      start: startIndex,
+      parent: parent
+    });
   }
 
   if (withLogger) {
@@ -4883,11 +5807,11 @@ function breadthFirstSearch(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
+    path: path,
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts","./utils":"src/algorithms/utils.ts"}],"src/algorithms/depth-first-search.ts":[function(require,module,exports) {
+},{"../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts"}],"src/algorithms/depth-first-search.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4899,8 +5823,6 @@ var _utils = require("../utils");
 
 var _restorePath = require("./restore-path");
 
-var _utils2 = require("./utils");
-
 var _effectorFileName = "/src/algorithms/depth-first-search.ts";
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -4911,42 +5833,49 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function depthFirstSearch(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
+function depthFirstSearch(_ref) {
+  var startIndex = _ref.startIndex,
+      endIndex = _ref.endIndex,
+      graph = _ref.graph,
+      canTraverse = _ref.canTraverse,
       _ref$withLogger = _ref.withLogger,
       withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
   var stack = [startIndex];
   var processed = new Map([[startIndex, true]]);
-  var parent = {};
+  var parent = new Map();
+  var path = [];
   var isTraverse = false;
   var logger = (0, _utils.createOperationLogger)('depthFirstSearch');
-
-  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
-      getCell = _createFirstEmptyCell.getCell,
-      saveCell = _createFirstEmptyCell.saveCell;
 
   while (!isTraverse && stack.length > 0) {
     var currentIndex = stack.shift();
     var vertex = graph.getVertex(currentIndex); // eslint-disable-next-line unicorn/no-for-loop
 
     for (var i = 0; vertex && i < vertex.neigbors.length; i++) {
-      var nextIndexx = vertex.neigbors[i];
-      var nextVertex = graph.getVertex(nextIndexx);
+      var nextIndex = vertex.neigbors[i];
+      var nextVertex = graph.getVertex(nextIndex);
 
-      if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndexx)) {
-        parent[nextIndexx] = currentIndex;
-        stack.unshift(nextIndexx);
-        processed.set(nextIndexx, true);
+      if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
+        parent[nextIndex] = currentIndex;
+        stack.unshift(nextIndex);
+        processed.set(nextIndex, true);
 
-        if (endIndex === nextIndexx) {
+        if (endIndex === nextIndex) {
           isTraverse = true;
           break;
         }
 
-        saveCell(nextIndexx);
         logger.increment();
       }
     }
+  }
+
+  if (isTraverse) {
+    path = (0, _restorePath.restorePathFromMap)({
+      end: endIndex,
+      start: startIndex,
+      parent: parent
+    });
   }
 
   if (withLogger) {
@@ -4954,11 +5883,11 @@ function depthFirstSearch(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
+    path: path,
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts","./utils":"src/algorithms/utils.ts"}],"node_modules/fastpriorityqueue/FastPriorityQueue.js":[function(require,module,exports) {
+},{"../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts"}],"node_modules/fastpriorityqueue/FastPriorityQueue.js":[function(require,module,exports) {
 /**
  * FastPriorityQueue.js : a fast heap-based priority queue  in JavaScript.
  * (c) the authors
@@ -5292,8 +6221,6 @@ var _utils = require("../utils");
 
 var _restorePath = require("./restore-path");
 
-var _utils2 = require("./utils");
-
 var _effectorFileName = "/src/algorithms/dijkstra.ts";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -5314,10 +6241,11 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function dijkstra(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
+function dijkstra(_ref) {
+  var startIndex = _ref.startIndex,
+      endIndex = _ref.endIndex,
+      graph = _ref.graph,
+      canTraverse = _ref.canTraverse,
       getCostByIndex = _ref.getCostByIndex,
       _ref$withLogger = _ref.withLogger,
       withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
@@ -5325,17 +6253,11 @@ function dijkstra(startIndex, endIndex, graph, _ref) {
     return a[1] < b[1];
   });
   var processed = new Map([[startIndex, true]]);
-  var parent = {};
-
-  var costFar = _defineProperty({}, startIndex, true);
-
+  var parent = new Map();
+  var costFar = new Map([[startIndex, 0]]);
   var isTraverse = false;
+  var path = [];
   var logger = (0, _utils.createOperationLogger)('dijkstra');
-
-  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
-      getCell = _createFirstEmptyCell.getCell,
-      saveCell = _createFirstEmptyCell.saveCell;
-
   queue.add([startIndex, 0]);
 
   while (!isTraverse && !queue.isEmpty()) {
@@ -5351,26 +6273,32 @@ function dijkstra(startIndex, endIndex, graph, _ref) {
 
       if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
         // @ts-ignore
-        var nextCost = costFar[currentChild[0]] + getCostByIndex(next);
+        var nextCost = costFar.get(currentIndex) + getCostByIndex(nextIndex);
         var nextCostIsLower = nextCost <= (costFar[nextIndex] || Infinity);
 
         if (nextCostIsLower) {
           queue.add([nextIndex, nextCost]);
           processed.set(nextIndex, true);
-          costFar[nextIndex] = nextCost; // eslint-disable-next-line prefer-destructuring
-
-          parent[nextIndex] = currentIndex;
+          costFar.set(nextIndex, nextCost);
+          parent.set(nextIndex, currentIndex);
 
           if (endIndex === nextIndex) {
             isTraverse = true;
             break;
           }
 
-          saveCell(nextIndex);
           logger.increment();
         }
       }
     }
+  }
+
+  if (isTraverse) {
+    path = (0, _restorePath.restorePathFromMap)({
+      end: endIndex,
+      start: startIndex,
+      parent: parent
+    });
   }
 
   if (withLogger) {
@@ -5378,11 +6306,11 @@ function dijkstra(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
+    path: path,
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts","./utils":"src/algorithms/utils.ts"}],"src/algorithms/heuristic.ts":[function(require,module,exports) {
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts"}],"src/algorithms/heuristic.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5407,28 +6335,26 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
   (конкретно тут выбрать следующую позицию которая приблизит к цели)
 */
 // reference http://lightcone.ru/manhattan/
-function manhattanDistance(_ref, _ref2) {
-  var _ref3 = _slicedToArray(_ref, 2),
-      x = _ref3[0],
-      y = _ref3[1];
+function manhattanDistance(_ref) {
+  var _ref$p = _slicedToArray(_ref.p, 2),
+      x = _ref$p[0],
+      y = _ref$p[1],
+      _ref$p2 = _slicedToArray(_ref.p1, 2),
+      x1 = _ref$p2[0],
+      y1 = _ref$p2[1];
 
-  var _ref4 = _slicedToArray(_ref2, 2),
-      x1 = _ref4[0],
-      y1 = _ref4[1];
-
-  return Math.abs(x - x1) + Math.abs(y - y1);
+  return Math.abs(x1 - x) + Math.abs(y1 - y);
 }
 
-function chebyshevDistance(_ref5, _ref6) {
-  var _ref7 = _slicedToArray(_ref5, 2),
-      x = _ref7[0],
-      y = _ref7[1];
+function chebyshevDistance(_ref2) {
+  var _ref2$p = _slicedToArray(_ref2.p, 2),
+      x = _ref2$p[0],
+      y = _ref2$p[1],
+      _ref2$p2 = _slicedToArray(_ref2.p1, 2),
+      x1 = _ref2$p2[0],
+      y1 = _ref2$p2[1];
 
-  var _ref8 = _slicedToArray(_ref6, 2),
-      x1 = _ref8[0],
-      y1 = _ref8[1];
-
-  return Math.max(x - x1, y - y1);
+  return Math.max(x1 - x, y1 - y);
 }
 },{}],"src/algorithms/greedy.ts":[function(require,module,exports) {
 "use strict";
@@ -5445,8 +6371,6 @@ var _utils = require("../utils");
 var _restorePath = require("./restore-path");
 
 var _heuristic = require("./heuristic");
-
-var _utils2 = require("./utils");
 
 var _effectorFileName = "/src/algorithms/greedy.ts";
 
@@ -5468,25 +6392,24 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function greedy(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
-      _ref$heuristic = _ref.heuristic,
-      heuristic = _ref$heuristic === void 0 ? _heuristic.manhattanDistance : _ref$heuristic,
+function greedy(_ref) {
+  var startIndex = _ref.startIndex,
+      endIndex = _ref.endIndex,
+      graph = _ref.graph,
+      canTraverse = _ref.canTraverse,
       _ref$withLogger = _ref.withLogger,
-      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger;
+      withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger,
+      _ref$heuristic = _ref.heuristic,
+      heuristic = _ref$heuristic === void 0 ? _heuristic.manhattanDistance : _ref$heuristic;
   var queue = new _fastpriorityqueue.default(function (a, b) {
     return a[1] < b[1];
   });
   var processed = new Map([[startIndex, true]]);
-  var parent = {};
+  var parent = new Map();
   var goal = (0, _utils.getPositionByIndex)(endIndex);
   var isTraverse = false;
+  var path = [];
   var logger = (0, _utils.createOperationLogger)('greedy');
-
-  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
-      getCell = _createFirstEmptyCell.getCell,
-      saveCell = _createFirstEmptyCell.saveCell;
-
   queue.add([startIndex, 0]);
 
   while (!isTraverse && !queue.isEmpty()) {
@@ -5501,21 +6424,30 @@ function greedy(startIndex, endIndex, graph, _ref) {
       var nextVertex = graph.getVertex(nextIndex);
 
       if (nextVertex && canTraverse(nextVertex) && !processed.has(nextIndex)) {
-        var nextCost = heuristic(goal, (0, _utils.getPositionByIndex)(nextIndex));
+        var nextCost = heuristic({
+          p1: goal,
+          p: (0, _utils.getPositionByIndex)(nextIndex)
+        });
         queue.add([nextIndex, nextCost]);
-        processed.set(nextIndex, true); // eslint-disable-next-line prefer-destructuring
-
-        parent[nextIndex] = currentIndex;
+        processed.set(nextIndex, true);
+        parent.set(nextIndex, currentIndex);
 
         if (endIndex === nextIndex) {
           isTraverse = true;
           break;
         }
 
-        saveCell(nextIndex);
         logger.increment();
       }
     }
+  }
+
+  if (isTraverse) {
+    path = (0, _restorePath.restorePathFromMap)({
+      end: endIndex,
+      start: startIndex,
+      parent: parent
+    });
   }
 
   if (withLogger) {
@@ -5523,11 +6455,11 @@ function greedy(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
+    path: path,
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts","./heuristic":"src/algorithms/heuristic.ts","./utils":"src/algorithms/utils.ts"}],"src/algorithms/a-star.ts":[function(require,module,exports) {
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts","./heuristic":"src/algorithms/heuristic.ts"}],"src/algorithms/a-star.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5542,8 +6474,6 @@ var _utils = require("../utils");
 var _restorePath = require("./restore-path");
 
 var _heuristic = require("./heuristic");
-
-var _utils2 = require("./utils");
 
 var _effectorFileName = "/src/algorithms/a-star.ts";
 
@@ -5565,10 +6495,11 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function aStar(startIndex, endIndex, graph, _ref) {
-  var canTraverse = _ref.canTraverse,
+function aStar(_ref) {
+  var startIndex = _ref.startIndex,
+      endIndex = _ref.endIndex,
+      graph = _ref.graph,
+      canTraverse = _ref.canTraverse,
       getCostByIndex = _ref.getCostByIndex,
       _ref$withLogger = _ref.withLogger,
       withLogger = _ref$withLogger === void 0 ? false : _ref$withLogger,
@@ -5579,16 +6510,10 @@ function aStar(startIndex, endIndex, graph, _ref) {
     return a[1] < b[1];
   });
   var processed = new Map([[startIndex, true]]);
-  var parent = {};
-
-  var costFar = _defineProperty({}, startIndex, 0);
-
+  var parent = new Map();
+  var costFar = new Map([[startIndex, 0]]);
   var isTraverse = false;
-
-  var _createFirstEmptyCell = (0, _utils2.createFirstEmptyCellSaver)(),
-      getCell = _createFirstEmptyCell.getCell,
-      saveCell = _createFirstEmptyCell.saveCell;
-
+  var path = [];
   var logger = (0, _utils.createOperationLogger)('aStar');
   queue.add([startIndex, 0]);
 
@@ -5605,26 +6530,35 @@ function aStar(startIndex, endIndex, graph, _ref) {
 
       if (nextVertex && canTraverse(nextVertex)) {
         // @ts-ignore
-        var nextCost = costFar[currentIndex] + getCostByIndex(nextVertex);
-        var nextCostIsLower = nextCost < (costFar[nextIndex] || Infinity);
+        var nextCost = costFar.get(currentIndex) + getCostByIndex(nextVertex);
+        var nextCostIsLower = nextCost < (costFar.get(nextIndex) || Infinity);
 
         if (nextCostIsLower && !processed.has(nextIndex)) {
-          queue.add([nextIndex, nextCost + heuristic(goal, (0, _utils.getPositionByIndex)(nextIndex))]);
+          queue.add([nextIndex, nextCost + heuristic({
+            p1: goal,
+            p: (0, _utils.getPositionByIndex)(nextIndex)
+          })]);
           processed.set(nextIndex, true);
-          costFar[nextIndex] = nextCost; // eslint-disable-next-line prefer-destructuring
-
-          parent[nextIndex] = currentIndex;
+          costFar.set(nextIndex, nextCost);
+          parent.set(nextIndex, currentIndex);
 
           if (endIndex === nextIndex) {
             isTraverse = true;
             break;
           }
 
-          saveCell(nextIndex);
           logger.increment();
         }
       }
     }
+  }
+
+  if (isTraverse) {
+    path = (0, _restorePath.restorePathFromMap)({
+      end: endIndex,
+      start: startIndex,
+      parent: parent
+    });
   }
 
   if (withLogger) {
@@ -5632,11 +6566,11 @@ function aStar(startIndex, endIndex, graph, _ref) {
   }
 
   return {
-    path: isTraverse ? (0, _restorePath.restorePath)(endIndex, startIndex, parent) : getCell(),
+    path: path,
     processed: _toConsumableArray(processed.keys())
   };
 }
-},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts","./heuristic":"src/algorithms/heuristic.ts","./utils":"src/algorithms/utils.ts"}],"src/algorithms/index.ts":[function(require,module,exports) {
+},{"fastpriorityqueue":"node_modules/fastpriorityqueue/FastPriorityQueue.js","../utils":"src/utils.ts","./restore-path":"src/algorithms/restore-path.ts","./heuristic":"src/algorithms/heuristic.ts"}],"src/algorithms/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38164,7 +39098,7 @@ exports.fillEmptyGraphCells = fillEmptyGraphCells;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$needFillEmptyGraphsCellls = exports.$fps = exports.$isLoggerEnabled = exports.$indexesVisible = exports.$isEnabledCollisionDetect = exports.$gameState = void 0;
+exports.$maxPeerfomanceIsEnabled = exports.$needFillEmptyGraphsCellls = exports.$fps = exports.$isLoggerEnabled = exports.$indexesVisible = exports.$isEnabledCollisionDetect = exports.$gameState = void 0;
 
 var _effector = require("effector");
 
@@ -38233,6 +39167,16 @@ var $needFillEmptyGraphsCellls = (0, _effector.createStore)(false, {
   sid: "-lb6tqv"
 });
 exports.$needFillEmptyGraphsCellls = $needFillEmptyGraphsCellls;
+var $maxPeerfomanceIsEnabled = (0, _effector.createStore)(false, {
+  loc: {
+    file: _effectorFileName,
+    line: 10,
+    column: 40
+  },
+  name: "$maxPeerfomanceIsEnabled",
+  sid: "-di8fqp"
+});
+exports.$maxPeerfomanceIsEnabled = $maxPeerfomanceIsEnabled;
 },{"effector":"node_modules/effector/effector.es.js","../../config":"src/config.ts","./events":"src/models/game/events.ts"}],"src/models/game/model.ts":[function(require,module,exports) {
 "use strict";
 
@@ -38429,13 +39373,11 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-var INDEX = -1;
-
-function getNearestFood(_ref) {
+function getNearestFoodIndex(_ref) {
   var foods = _ref.foods,
       graph = _ref.graph,
       currentPosition = _ref.currentPosition;
-  return foods.filter(function (_ref2) {
+  var food = foods.filter(function (_ref2) {
     var _ref3 = _slicedToArray(_ref2, 1),
         position = _ref3[0];
 
@@ -38443,43 +39385,96 @@ function getNearestFood(_ref) {
       graph.getVertex((0, _utils.getIndexByPosition)(position)).value.type === _config.PLACE_TYPE.FOOD
     );
   }).sort(function (a, b) {
-    return (0, _heuristic.manhattanDistance)(a[0], currentPosition) - (0, _heuristic.manhattanDistance)(b[0], currentPosition);
+    return (0, _heuristic.manhattanDistance)({
+      p1: a[0],
+      p: currentPosition
+    }) - (0, _heuristic.manhattanDistance)({
+      p1: b[0],
+      p: currentPosition
+    });
   })[0] || foods[0];
+  return food ? (0, _utils.getIndexByPosition)(food[0]) : undefined;
 }
 
-function ai(_ref4) {
+function getNextPositionForAISnake(_ref4) {
   var snake = _ref4.snake,
-      state = _ref4.state,
-      traverseAlgorithm = _ref4.traverseAlgorithm,
-      heuristic = _ref4.heuristic,
-      withLogger = _ref4.withLogger,
-      isEnabledCollisionDetect = _ref4.isEnabledCollisionDetect;
+      path = _ref4.path,
+      graph = _ref4.graph,
+      canTraverse = _ref4.canTraverse;
+
+  if (path.length === 0) {
+    var head = (0, _snake.headSnake)(snake);
+    var idx = (0, _utils.getIndexByPosition)(head);
+    var vertex = graph.getVertex(idx);
+    var nextPosByDirection = (0, _collision.checkBounds)((0, _controll.getNextPositionByDirection)(head, snake.direction));
+
+    if (vertex) {
+      var availableVertexes = vertex.neigbors.filter(function (i) {
+        var v = graph.getVertex(i);
+        return v ? canTraverse(v) : false;
+      });
+
+      if (availableVertexes[0]) {
+        nextPosByDirection = (0, _utils.getPositionByIndex)(availableVertexes[0]);
+      }
+    }
+
+    return nextPosByDirection;
+  }
+
+  return path[0];
+}
+
+function canTraverse(isEnabledCollisionDetect) {
+  return function (vertex) {
+    return isEnabledCollisionDetect ? vertex.value.type === _config.PLACE_TYPE.EMPTY || vertex.value.type === _config.PLACE_TYPE.FOOD : true;
+  };
+}
+
+function getCostByIndex() {
+  return 1;
+}
+
+function ai(_ref5) {
+  var snake = _ref5.snake,
+      state = _ref5.state,
+      traverseAlgorithm = _ref5.traverseAlgorithm,
+      heuristic = _ref5.heuristic,
+      withLogger = _ref5.withLogger,
+      isEnabledCollisionDetect = _ref5.isEnabledCollisionDetect;
   var graph = state.graph,
       foods = state.foods;
   var currentPosition = (0, _snake.headSnake)(snake);
-  var nearestFood = getNearestFood({
+  var targetIndex = getNearestFoodIndex({
     foods: foods,
     currentPosition: currentPosition,
     graph: graph
   });
+  var path = [];
+  var processed = [];
 
-  function canTraverse(vertex) {
-    return isEnabledCollisionDetect ? vertex.value.type === _config.PLACE_TYPE.EMPTY || vertex.value.type === _config.PLACE_TYPE.FOOD : true;
+  if (targetIndex !== undefined) {
+    var result = traverseAlgorithm({
+      startIndex: (0, _utils.getIndexByPosition)(currentPosition),
+      endIndex: targetIndex,
+      graph: graph,
+      canTraverse: canTraverse(isEnabledCollisionDetect),
+      getCostByIndex: getCostByIndex,
+      heuristic: heuristic,
+      withLogger: withLogger
+    });
+    processed = result.processed;
+    path = result.path;
   }
 
-  function getCostByIndex() {
-    return 1;
-  }
-
-  var result = traverseAlgorithm((0, _utils.getIndexByPosition)(currentPosition), nearestFood ? (0, _utils.getIndexByPosition)(nearestFood[0]) : INDEX, graph, {
-    canTraverse: canTraverse,
-    getCostByIndex: getCostByIndex,
-    heuristic: heuristic,
-    withLogger: withLogger
+  var pathPositions = path.map(_utils.getPositionByIndex);
+  var processedPositions = processed.map(_utils.getPositionByIndex);
+  var nextPosition = getNextPositionForAISnake({
+    snake: snake,
+    path: pathPositions,
+    graph: graph,
+    canTraverse: canTraverse(isEnabledCollisionDetect)
   });
-  var pathPositions = result.path.map(_utils.getPositionByIndex);
-  var processedPositions = result.processed.map(_utils.getPositionByIndex);
-  var nextPosition = pathPositions[0] || (0, _collision.checkBounds)((0, _controll.getNextPositionByDirection)((0, _snake.headSnake)(snake), snake.direction));
   var nextDirection = (0, _controll.getDirectionByPosition)((0, _snake.headSnake)(snake), nextPosition);
   var diff = (0, _utils.getDifferenceBetweenPositions)((0, _snake.headSnake)(snake), nextPosition);
   return {
@@ -38653,52 +39648,6 @@ function listCacheClear() {
 }
 
 var _default = listCacheClear;
-exports.default = _default;
-},{}],"node_modules/lodash-es/eq.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/**
- * Performs a
- * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * comparison between two values to determine if they are equivalent.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to compare.
- * @param {*} other The other value to compare.
- * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
- * @example
- *
- * var object = { 'a': 1 };
- * var other = { 'a': 1 };
- *
- * _.eq(object, object);
- * // => true
- *
- * _.eq(object, other);
- * // => false
- *
- * _.eq('a', 'a');
- * // => true
- *
- * _.eq('a', Object('a'));
- * // => false
- *
- * _.eq(NaN, NaN);
- * // => true
- */
-function eq(value, other) {
-  return value === other || value !== value && other !== other;
-}
-
-var _default = eq;
 exports.default = _default;
 },{}],"node_modules/lodash-es/_assocIndexOf.js":[function(require,module,exports) {
 "use strict";
@@ -39021,275 +39970,7 @@ function stackHas(key) {
 
 var _default = stackHas;
 exports.default = _default;
-},{}],"node_modules/lodash-es/_freeGlobal.js":[function(require,module,exports) {
-var global = arguments[3];
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/** Detect free variable `global` from Node.js. */
-var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-var _default = freeGlobal;
-exports.default = _default;
-},{}],"node_modules/lodash-es/_root.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _freeGlobal = _interopRequireDefault(require("./_freeGlobal.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/** Detect free variable `self`. */
-var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-/** Used as a reference to the global object. */
-
-var root = _freeGlobal.default || freeSelf || Function('return this')();
-var _default = root;
-exports.default = _default;
-},{"./_freeGlobal.js":"node_modules/lodash-es/_freeGlobal.js"}],"node_modules/lodash-es/_Symbol.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _root = _interopRequireDefault(require("./_root.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/** Built-in value references. */
-var Symbol = _root.default.Symbol;
-var _default = Symbol;
-exports.default = _default;
-},{"./_root.js":"node_modules/lodash-es/_root.js"}],"node_modules/lodash-es/_getRawTag.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _Symbol = _interopRequireDefault(require("./_Symbol.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-/** Used to check objects for own properties. */
-
-var hasOwnProperty = objectProto.hasOwnProperty;
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-
-var nativeObjectToString = objectProto.toString;
-/** Built-in value references. */
-
-var symToStringTag = _Symbol.default ? _Symbol.default.toStringTag : undefined;
-/**
- * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the raw `toStringTag`.
- */
-
-function getRawTag(value) {
-  var isOwn = hasOwnProperty.call(value, symToStringTag),
-      tag = value[symToStringTag];
-
-  try {
-    value[symToStringTag] = undefined;
-    var unmasked = true;
-  } catch (e) {}
-
-  var result = nativeObjectToString.call(value);
-
-  if (unmasked) {
-    if (isOwn) {
-      value[symToStringTag] = tag;
-    } else {
-      delete value[symToStringTag];
-    }
-  }
-
-  return result;
-}
-
-var _default = getRawTag;
-exports.default = _default;
-},{"./_Symbol.js":"node_modules/lodash-es/_Symbol.js"}],"node_modules/lodash-es/_objectToString.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-
-var nativeObjectToString = objectProto.toString;
-/**
- * Converts `value` to a string using `Object.prototype.toString`.
- *
- * @private
- * @param {*} value The value to convert.
- * @returns {string} Returns the converted string.
- */
-
-function objectToString(value) {
-  return nativeObjectToString.call(value);
-}
-
-var _default = objectToString;
-exports.default = _default;
-},{}],"node_modules/lodash-es/_baseGetTag.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _Symbol = _interopRequireDefault(require("./_Symbol.js"));
-
-var _getRawTag = _interopRequireDefault(require("./_getRawTag.js"));
-
-var _objectToString = _interopRequireDefault(require("./_objectToString.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/** `Object#toString` result references. */
-var nullTag = '[object Null]',
-    undefinedTag = '[object Undefined]';
-/** Built-in value references. */
-
-var symToStringTag = _Symbol.default ? _Symbol.default.toStringTag : undefined;
-/**
- * The base implementation of `getTag` without fallbacks for buggy environments.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */
-
-function baseGetTag(value) {
-  if (value == null) {
-    return value === undefined ? undefinedTag : nullTag;
-  }
-
-  return symToStringTag && symToStringTag in Object(value) ? (0, _getRawTag.default)(value) : (0, _objectToString.default)(value);
-}
-
-var _default = baseGetTag;
-exports.default = _default;
-},{"./_Symbol.js":"node_modules/lodash-es/_Symbol.js","./_getRawTag.js":"node_modules/lodash-es/_getRawTag.js","./_objectToString.js":"node_modules/lodash-es/_objectToString.js"}],"node_modules/lodash-es/isObject.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/**
- * Checks if `value` is the
- * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
- * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an object, else `false`.
- * @example
- *
- * _.isObject({});
- * // => true
- *
- * _.isObject([1, 2, 3]);
- * // => true
- *
- * _.isObject(_.noop);
- * // => true
- *
- * _.isObject(null);
- * // => false
- */
-function isObject(value) {
-  var type = typeof value;
-  return value != null && (type == 'object' || type == 'function');
-}
-
-var _default = isObject;
-exports.default = _default;
-},{}],"node_modules/lodash-es/isFunction.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
-
-var _isObject = _interopRequireDefault(require("./isObject.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/** `Object#toString` result references. */
-var asyncTag = '[object AsyncFunction]',
-    funcTag = '[object Function]',
-    genTag = '[object GeneratorFunction]',
-    proxyTag = '[object Proxy]';
-/**
- * Checks if `value` is classified as a `Function` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a function, else `false`.
- * @example
- *
- * _.isFunction(_);
- * // => true
- *
- * _.isFunction(/abc/);
- * // => false
- */
-
-function isFunction(value) {
-  if (!(0, _isObject.default)(value)) {
-    return false;
-  } // The use of `Object#toString` avoids issues with the `typeof` operator
-  // in Safari 9 which returns 'object' for typed arrays and other constructors.
-
-
-  var tag = (0, _baseGetTag.default)(value);
-  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
-}
-
-var _default = isFunction;
-exports.default = _default;
-},{"./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./isObject.js":"node_modules/lodash-es/isObject.js"}],"node_modules/lodash-es/_coreJsData.js":[function(require,module,exports) {
+},{}],"node_modules/lodash-es/_coreJsData.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40740,44 +41421,6 @@ function baseTimes(n, iteratee) {
 
 var _default = baseTimes;
 exports.default = _default;
-},{}],"node_modules/lodash-es/isObjectLike.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */
-function isObjectLike(value) {
-  return value != null && typeof value == 'object';
-}
-
-var _default = isObjectLike;
-exports.default = _default;
 },{}],"node_modules/lodash-es/_baseIsArguments.js":[function(require,module,exports) {
 "use strict";
 
@@ -40933,80 +41576,7 @@ var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
 var isBuffer = nativeIsBuffer || _stubFalse.default;
 var _default = isBuffer;
 exports.default = _default;
-},{"./_root.js":"node_modules/lodash-es/_root.js","./stubFalse.js":"node_modules/lodash-es/stubFalse.js"}],"node_modules/lodash-es/_isIndex.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
-/** Used to detect unsigned integer values. */
-
-var reIsUint = /^(?:0|[1-9]\d*)$/;
-/**
- * Checks if `value` is a valid array-like index.
- *
- * @private
- * @param {*} value The value to check.
- * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
- * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
- */
-
-function isIndex(value, length) {
-  var type = typeof value;
-  length = length == null ? MAX_SAFE_INTEGER : length;
-  return !!length && (type == 'number' || type != 'symbol' && reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
-}
-
-var _default = isIndex;
-exports.default = _default;
-},{}],"node_modules/lodash-es/isLength.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
-/**
- * Checks if `value` is a valid array-like length.
- *
- * **Note:** This method is loosely based on
- * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
- * @example
- *
- * _.isLength(3);
- * // => true
- *
- * _.isLength(Number.MIN_VALUE);
- * // => false
- *
- * _.isLength(Infinity);
- * // => false
- *
- * _.isLength('3');
- * // => false
- */
-
-function isLength(value) {
-  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-}
-
-var _default = isLength;
-exports.default = _default;
-},{}],"node_modules/lodash-es/_baseIsTypedArray.js":[function(require,module,exports) {
+},{"./_root.js":"node_modules/lodash-es/_root.js","./stubFalse.js":"node_modules/lodash-es/stubFalse.js"}],"node_modules/lodash-es/_baseIsTypedArray.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41340,52 +41910,7 @@ function baseKeys(object) {
 
 var _default = baseKeys;
 exports.default = _default;
-},{"./_isPrototype.js":"node_modules/lodash-es/_isPrototype.js","./_nativeKeys.js":"node_modules/lodash-es/_nativeKeys.js"}],"node_modules/lodash-es/isArrayLike.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _isFunction = _interopRequireDefault(require("./isFunction.js"));
-
-var _isLength = _interopRequireDefault(require("./isLength.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Checks if `value` is array-like. A value is considered array-like if it's
- * not a function and has a `value.length` that's an integer greater than or
- * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
- * @example
- *
- * _.isArrayLike([1, 2, 3]);
- * // => true
- *
- * _.isArrayLike(document.body.children);
- * // => true
- *
- * _.isArrayLike('abc');
- * // => true
- *
- * _.isArrayLike(_.noop);
- * // => false
- */
-function isArrayLike(value) {
-  return value != null && (0, _isLength.default)(value.length) && !(0, _isFunction.default)(value);
-}
-
-var _default = isArrayLike;
-exports.default = _default;
-},{"./isFunction.js":"node_modules/lodash-es/isFunction.js","./isLength.js":"node_modules/lodash-es/isLength.js"}],"node_modules/lodash-es/keys.js":[function(require,module,exports) {
+},{"./_isPrototype.js":"node_modules/lodash-es/_isPrototype.js","./_nativeKeys.js":"node_modules/lodash-es/_nativeKeys.js"}],"node_modules/lodash-es/keys.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42062,47 +42587,7 @@ function baseMatches(source) {
 
 var _default = baseMatches;
 exports.default = _default;
-},{"./_baseIsMatch.js":"node_modules/lodash-es/_baseIsMatch.js","./_getMatchData.js":"node_modules/lodash-es/_getMatchData.js","./_matchesStrictComparable.js":"node_modules/lodash-es/_matchesStrictComparable.js"}],"node_modules/lodash-es/isSymbol.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _baseGetTag = _interopRequireDefault(require("./_baseGetTag.js"));
-
-var _isObjectLike = _interopRequireDefault(require("./isObjectLike.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/** `Object#toString` result references. */
-var symbolTag = '[object Symbol]';
-/**
- * Checks if `value` is classified as a `Symbol` primitive or object.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
- * @example
- *
- * _.isSymbol(Symbol.iterator);
- * // => true
- *
- * _.isSymbol('abc');
- * // => false
- */
-
-function isSymbol(value) {
-  return typeof value == 'symbol' || (0, _isObjectLike.default)(value) && (0, _baseGetTag.default)(value) == symbolTag;
-}
-
-var _default = isSymbol;
-exports.default = _default;
-},{"./_baseGetTag.js":"node_modules/lodash-es/_baseGetTag.js","./isObjectLike.js":"node_modules/lodash-es/isObjectLike.js"}],"node_modules/lodash-es/_isKey.js":[function(require,module,exports) {
+},{"./_baseIsMatch.js":"node_modules/lodash-es/_baseIsMatch.js","./_getMatchData.js":"node_modules/lodash-es/_getMatchData.js","./_matchesStrictComparable.js":"node_modules/lodash-es/_matchesStrictComparable.js"}],"node_modules/lodash-es/_isKey.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43906,15 +44391,14 @@ function Icon(_ref) {
     onClick: onClick
   }, icon);
 }
-},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./close":"src/GUI/icons/close.tsx"}],"src/GUI/settings.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./close":"src/GUI/icons/close.tsx"}],"src/GUI/settings/item.tsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SettingsForSnake = SettingsForSnake;
-exports.Settings = Settings;
-exports.NumberInput = exports.TitlesWrapper = exports.Select = exports.Name = exports.SettingWrapper = exports.Wrapper = void 0;
+exports.TitlesWrapper = exports.Select = exports.Name = exports.SettingWrapper = exports.Wrapper = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -43922,35 +44406,21 @@ var _styledComponents = _interopRequireDefault(require("styled-components"));
 
 var _effectorReact = require("effector-react");
 
-var _effector = require("effector");
+var _common = require("../common");
 
-var _common = require("./common");
+var _algorithms = require("../../models/algorithms");
 
-var _algorithms = require("../models/algorithms");
+var _useSnake = require("../use-snake");
 
-var _useSnake = require("./use-snake");
+var _snakes = require("../../models/snakes");
 
-var _game = require("../models/game");
+var _icons = require("../icons");
 
-var _snakes = require("../models/snakes");
-
-var _icons = require("./icons");
-
-var _effectorFileName = "/src/GUI/settings.tsx";
+var _effectorFileName = "/src/GUI/settings/item.tsx";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
-
-function _templateObject6() {
-  var data = _taggedTemplateLiteral(["\n  border-radius: 0;\n  width: 50px;\n  margin-right: 15px;\n  font-weight: bold;\n"]);
-
-  _templateObject6 = function _templateObject6() {
-    return data;
-  };
-
-  return data;
-}
 
 function _templateObject5() {
   var data = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n\n  & p {\n    cursor: pointer;\n    user-select: none;\n  }\n"]);
@@ -44027,12 +44497,6 @@ exports.Select = Select;
 var TitlesWrapper = _styledComponents.default.div(_templateObject5());
 
 exports.TitlesWrapper = TitlesWrapper;
-
-var NumberInput = _styledComponents.default.input.attrs({
-  type: 'number'
-})(_templateObject6());
-
-exports.NumberInput = NumberInput;
 
 function SettingsForSnake(_ref) {
   var snakeId = _ref.snakeId;
@@ -44130,7 +44594,54 @@ function SettingsForSnake(_ref) {
     }, heuristic.name);
   })))));
 }
+},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","effector-react":"node_modules/effector-react/effector-react.es.js","../common":"src/GUI/common.tsx","../../models/algorithms":"src/models/algorithms/index.ts","../use-snake":"src/GUI/use-snake.tsx","../../models/snakes":"src/models/snakes/index.ts","../icons":"src/GUI/icons/index.tsx"}],"src/GUI/settings/list.tsx":[function(require,module,exports) {
+"use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Settings = Settings;
+exports.NumberInput = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _effectorReact = require("effector-react");
+
+var _effector = require("effector");
+
+var _game = require("../../models/game");
+
+var _snakes = require("../../models/snakes");
+
+var _common = require("../common");
+
+var _item = require("./item");
+
+var _effectorFileName = "/src/GUI/settings/list.tsx";
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  border-radius: 0;\n  width: 50px;\n  margin-right: 15px;\n  font-weight: bold;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var NumberInput = _styledComponents.default.input.attrs({
+  type: 'number'
+})(_templateObject());
+
+exports.NumberInput = NumberInput;
 var $state = (0, _effector.combine)({
   ɔ: [{
     isEnabledCollisionDetect: _game.$isEnabledCollisionDetect,
@@ -44144,11 +44655,11 @@ var $state = (0, _effector.combine)({
   config: {
     loc: {
       file: _effectorFileName,
-      line: 98,
+      line: 15,
       column: 15
     },
     name: "$state",
-    sid: "1mym0y"
+    sid: "fcijfw"
   }
 });
 
@@ -44169,51 +44680,81 @@ function Settings() {
       (0, _game.addUserToGame)();
     }
   }, [isUserInGame]);
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Common Settings"), _react.default.createElement(Wrapper, null, _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Common Settings"), _react.default.createElement(_item.Wrapper, null, _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "collision",
     checked: isEnabledCollisionDetect,
     onChange: _game.setCollisionState
-  }), _react.default.createElement(Name, {
+  }), _react.default.createElement(_item.Name, {
     htmlFor: "collision"
-  }, "handle collision state")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+  }, "handle collision state")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "indexesvisible",
     checked: indexesVisible,
     onChange: _game.setIndexesVisible
-  }), _react.default.createElement(Name, {
+  }), _react.default.createElement(_item.Name, {
     htmlFor: "indexesvisible"
-  }, "visible indexes")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+  }, "visible indexes")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "needFillEmptyGraphsCellls",
     checked: needFillEmptyGraphsCellls,
     onChange: _game.fillEmptyGraphCells
-  }), _react.default.createElement(Name, {
+  }), _react.default.createElement(_item.Name, {
     htmlFor: "needFillEmptyGraphsCellls"
-  }, "fill graph's empty cells")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+  }, "fill graph's empty cells")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "logger",
     checked: isLoggerEnabled,
     onChange: _game.setLoggerState
-  }), _react.default.createElement(Name, {
+  }), _react.default.createElement(_item.Name, {
     htmlFor: "logger"
-  }, "show operations count in console")), _react.default.createElement(SettingWrapper, null, _react.default.createElement(NumberInput, {
+  }, "show operations count in console")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(NumberInput, {
     max: 120,
     min: 1,
     step: 2,
     value: fps,
-    onChange: function onChange(_ref4) {
-      var target = _ref4.target;
+    onChange: function onChange(_ref) {
+      var target = _ref.target;
       (0, _game.changeFps)(Number.parseInt(target.value));
     }
-  }), _react.default.createElement(Name, {
+  }), _react.default.createElement(_item.Name, {
     htmlFor: "logger"
   }, "FPS"))), snakesIterator.filter(function (id) {
     return id !== 'user' && id !== '';
   }).map(function (id) {
-    return _react.default.createElement(SettingsForSnake, {
+    return _react.default.createElement(_item.SettingsForSnake, {
       snakeId: id,
       key: id
     });
   }));
 }
-},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","effector-react":"node_modules/effector-react/effector-react.es.js","effector":"node_modules/effector/effector.es.js","./common":"src/GUI/common.tsx","../models/algorithms":"src/models/algorithms/index.ts","./use-snake":"src/GUI/use-snake.tsx","../models/game":"src/models/game/index.ts","../models/snakes":"src/models/snakes/index.ts","./icons":"src/GUI/icons/index.tsx"}],"src/GUI/right-panel.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","effector-react":"node_modules/effector-react/effector-react.es.js","effector":"node_modules/effector/effector.es.js","../../models/game":"src/models/game/index.ts","../../models/snakes":"src/models/snakes/index.ts","../common":"src/GUI/common.tsx","./item":"src/GUI/settings/item.tsx"}],"src/GUI/settings/index.tsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _item = require("./item");
+
+Object.keys(_item).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _item[key];
+    }
+  });
+});
+
+var _list = require("./list");
+
+Object.keys(_list).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _list[key];
+    }
+  });
+});
+},{"./item":"src/GUI/settings/item.tsx","./list":"src/GUI/settings/list.tsx"}],"src/GUI/right-panel.tsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44253,7 +44794,7 @@ exports.Wrapper = Wrapper;
 function RightPanel() {
   return _react.default.createElement(Wrapper, null, _react.default.createElement(_scoreBoard.ScoreBoard, null), _react.default.createElement(_settings.Settings, null));
 }
-},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./score-board":"src/GUI/score-board.tsx","./settings":"src/GUI/settings.tsx"}],"src/GUI/control-pannel.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./score-board":"src/GUI/score-board.tsx","./settings":"src/GUI/settings/index.tsx"}],"src/GUI/control-pannel.tsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45314,7 +45855,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59753" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56207" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
