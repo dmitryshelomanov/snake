@@ -12,7 +12,7 @@ export function drawSquare({
   color?: string
   position: Coords
   context: CanvasRenderingContext2D
-}) {
+}): void {
   const [x, y] = convertLocalPositionToGlobal(position)
   const size = cellSize - borderSize * 2
 
@@ -28,7 +28,7 @@ export function renderText({
   text: string
   position: Coords
   context: CanvasRenderingContext2D
-}) {
+}): void {
   const { width } = context.measureText(text)
   const [x, y] = convertLocalPositionToGlobal(position)
 
@@ -38,7 +38,7 @@ export function renderText({
   context.fillText(text, x + (cellSize - width) / 2, y + cellSize / 2)
 }
 
-function getNextPositionIfIsNear(pos1: Coords, pos2: Coords) {
+function getNextPositionIfIsNear(pos1: Coords, pos2: Coords): Coords {
   const diff = getDifferenceBetweenPositions(pos1, pos2)
 
   if (diff !== 1) {
@@ -56,7 +56,7 @@ export function renderPath({
   context: CanvasRenderingContext2D
   path: Array<Coords>
   color?: string
-}) {
+}): void {
   for (let i = 0; i < path.length - 1; i++) {
     const [x, y] = convertLocalPositionToGlobal(path[i])
     const [x1, y1] = convertLocalPositionToGlobal(
@@ -80,7 +80,7 @@ export function renderProcessed({
   context: CanvasRenderingContext2D
   processed: Array<Coords> | void
   color?: string
-}) {
+}): void {
   processed.forEach((position) => {
     drawSquare({ color, context, position })
   })

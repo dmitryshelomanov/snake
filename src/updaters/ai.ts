@@ -1,4 +1,4 @@
-import random from 'lodash-es/random'
+/* eslint-disable prefer-destructuring */
 import { manhattanDistance } from '../algorithms/heuristic'
 import {
   getIndexByPosition,
@@ -8,8 +8,8 @@ import {
 import { headSnake, Snake } from '../models/snake'
 import { checkBounds } from '../collision'
 import { getNextPositionByDirection, getDirectionByPosition } from '../controll'
-import { PLACE_TYPE } from '../config'
-import { Graph, Vertex } from 'algorithms'
+import { PLACE_TYPE, DIRECTIONS } from '../config'
+import { Graph, Vertex } from '../algorithms'
 
 function getNearestFoodIndex({
   foods,
@@ -74,8 +74,8 @@ function getNextPositionForAISnake({
   return path[0]
 }
 
-function canTraverse(isEnabledCollisionDetect: boolean) {
-  return (vertex: Vertex) => {
+function canTraverseBuilder(isEnabledCollisionDetect: boolean) {
+  return (vertex: Vertex): boolean => {
     return isEnabledCollisionDetect
       ? vertex.value.type === PLACE_TYPE.EMPTY ||
           vertex.value.type === PLACE_TYPE.FOOD
@@ -83,7 +83,7 @@ function canTraverse(isEnabledCollisionDetect: boolean) {
   }
 }
 
-function getCostByIndex() {
+function getCostByIndex(): number {
   return 1
 }
 
@@ -103,7 +103,11 @@ export function ai({
   heuristic,
   withLogger,
   isEnabledCollisionDetect,
-}: Props) {
+}: Props): {
+  nextPosition: Coords
+  nextDirection: DIRECTIONS
+  meta: { processed: Array<Coords>; path: Array<Coords> }
+} {
   const { graph, foods } = state
   const currentPosition = headSnake(snake)
   const targetIndex = getNearestFoodIndex({ foods, currentPosition, graph })
@@ -115,7 +119,7 @@ export function ai({
       startIndex: getIndexByPosition(currentPosition),
       endIndex: targetIndex,
       graph,
-      canTraverse: canTraverse(isEnabledCollisionDetect),
+      canTraverse: canTraverseBuilder(isEnabledCollisionDetect),
       getCostByIndex,
       heuristic,
       withLogger,
@@ -131,7 +135,7 @@ export function ai({
     snake,
     path: pathPositions,
     graph,
-    canTraverse: canTraverse(isEnabledCollisionDetect),
+    canTraverse: canTraverseBuilder(isEnabledCollisionDetect),
   })
   const nextDirection = getDirectionByPosition(headSnake(snake), nextPosition)
   const diff = getDifferenceBetweenPositions(headSnake(snake), nextPosition)

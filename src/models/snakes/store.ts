@@ -5,11 +5,12 @@ import {
   getColorsForSnake,
   buildSnake,
   SnakeSettings,
+  Snake,
 } from '../snake'
 import { randomPosition } from '../../utils'
 import { snakeCount } from '../../config'
 
-function buildSnakesByCount(count: number) {
+function buildSnakesByCount(count: number): Array<Snake> {
   const snakes = []
 
   for (let i = 1; i <= count; i++) {

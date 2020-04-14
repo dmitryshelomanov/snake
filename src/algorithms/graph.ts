@@ -15,9 +15,9 @@
 import { PLACE_TYPE } from '../config'
 
 export type VertexValue =
-| { type: PLACE_TYPE.EMPTY }
-| { type: PLACE_TYPE.GAME_OBJECT; snakeId: string }
-| { type: PLACE_TYPE.FOOD; foodId: string }
+  | { type: PLACE_TYPE.EMPTY }
+  | { type: PLACE_TYPE.GAME_OBJECT; snakeId: string }
+  | { type: PLACE_TYPE.FOOD; foodId: string }
 
 export type Vertex = {
   neigbors: Array<number>

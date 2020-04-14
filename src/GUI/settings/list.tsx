@@ -68,14 +68,14 @@ export function Settings() {
           />
           <Name htmlFor="collision">handle collision state</Name>
         </SettingWrapper>
-        {/* <SettingWrapper>
+        <SettingWrapper>
           <Checkbox
             id="withUser"
             checked={isUserInGame}
             onChange={handleChangeUserInGameState}
           />
           <Name htmlFor="withUser">add user (you) to game</Name>
-        </SettingWrapper> */}
+        </SettingWrapper>
         <SettingWrapper>
           <Checkbox
             id="indexesvisible"

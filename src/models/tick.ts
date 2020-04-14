@@ -9,6 +9,7 @@ import {
   createEvent,
   combine,
   Store,
+  Event,
 } from 'effector'
 import { GAME_STATE } from '../config'
 import { $gameState, $fps, restart, play } from './game'
@@ -23,15 +24,19 @@ const tickFx = createEffect<number, void>().use(
     })
 )
 
+type Props<State> = {
+  $state: Store<State>
+  runLogic: (arg0: { state: State; tick: number }) => void
+  runRender: (arg0: { state: State; tick: number }) => void
+}
+
+type TickResult = { $tick: Store<number>; start: Event<void> }
+
 export function createTick<State>({
   $state,
   runLogic,
   runRender,
-}: {
-  $state: Store<State>
-  runLogic: (arg0: { state: State; tick: number }) => void
-  runRender: (arg0: { state: State; tick: number }) => void
-}) {
+}: Props<State>): TickResult {
   const $tick = createStore(0)
   const render = createEvent()
   const start = createEvent()

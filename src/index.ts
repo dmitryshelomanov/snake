@@ -111,7 +111,7 @@ const $state = combine({
   needFillEmptyGraphsCellls: $needFillEmptyGraphsCellls,
 })
 
-function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
+function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): void {
   renderGUI()
   canvasInput.registerClickEventToCanvas(canvas)
   canvasInput.callEventRegistars()
@@ -122,16 +122,16 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
 
   convigureCanvas(canvas, globalSize)
 
-  function clearGame() {
+  function clearGame(): void {
     context.clearRect(0, 0, globalSize.w, globalSize.h)
   }
 
-  function runLogic({ state: nextState }: { state: State, tick: number }) {
+  function runLogic({ state: nextState }: { state: State, tick: number }): void {
     const nextSnakes: Array<Snake> = []
     const graph = Graph.extend(nextState.graph)
     let { foods } = nextState
 
-    function handleEatFood({ snake, nextPosition, foodId }: { snake: Snake, nextPosition: Coords, foodId: string }) {
+    function handleEatFood({ snake, nextPosition, foodId }: { snake: Snake, nextPosition: Coords, foodId: string }): Snake {
       const nextSnake = addPeaceOfSnake(
         setScore(snake, snake.score + 1),
         nextPosition
@@ -158,7 +158,7 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
       return nextSnake
     }
 
-    function reCreateSnakeInGraph(prevSnake: Snake, nextSnake: Snake) {
+    function reCreateSnakeInGraph(prevSnake: Snake, nextSnake: Snake): void {
       const tail = tailSnake(prevSnake)
       const head = headSnake(nextSnake)
 
@@ -192,17 +192,17 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
           },
         })
 
+        let nextSnake = snake
+
         const nextIndex = getIndexByPosition(nextPosition)
         const nextVertex = graph.getVertex(nextIndex)
-
-        let nextSnake = snake
 
         if (meta && snake.isAi) {
           nextSnake = setMeta(snake, meta)
         }
 
-        if (nextVertex) {
-          switch (nextVertex.value.type) {
+        
+          switch (nextVertex?.value?.type) {
             case PLACE_TYPE.FOOD: {
               nextSnake = handleEatFood({
                 snake: nextSnake,
@@ -228,7 +228,7 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
               )
             }
           }
-        }
+        
 
         reCreateSnakeInGraph(snake, nextSnake)
 
@@ -238,7 +238,7 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
     updateStates({ snakes: nextSnakes, foods })
   }
 
-  function runRender({ state: nextState }: { state: State, tick: number }) {
+  function runRender({ state: nextState }: { state: State, tick: number }): void {
     const {
       computedSnakes,
       foods,
@@ -247,7 +247,7 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
       needFillEmptyGraphsCellls,
     } = nextState
 
-    function fillEmptyCell() {
+    function fillEmptyCell(): void {
       graph
         .getVertexes()
         .filter((v) => v.value.type === PLACE_TYPE.EMPTY)
