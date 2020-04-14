@@ -22,7 +22,7 @@ export function getNextPositionByDirection(
 export function getDirectionByPosition(
   currentPosition: Coords,
   nextPosition: Coords
-) {
+): DIRECTIONS {
   if (
     currentPosition[0] < nextPosition[0] &&
     currentPosition[1] === nextPosition[1]
@@ -65,16 +65,16 @@ export class CanvasInput {
     this.isMouseDown = false
   }
 
-  registerEventRegistar(eventBuilder: () => void) {
+  registerEventRegistar(eventBuilder: () => void): void {
     this.eventRegistar.push(eventBuilder)
   }
 
-  callEventRegistars() {
+  callEventRegistars(): void {
     this.eventRegistar.forEach((builder) => builder())
   }
 
-  registerClickEventToCanvas(canvas: HTMLCanvasElement) {
-    function getTargetIndex(event: MouseEvent) {
+  registerClickEventToCanvas(canvas: HTMLCanvasElement): void {
+    function getTargetIndex(event: MouseEvent): number {
       const x = event.pageX - canvas.offsetLeft
       const y = event.pageY - canvas.offsetTop
       const targetPosition: Coords = [
@@ -110,11 +110,11 @@ export class CanvasInput {
     })
   }
 
-  addMouseDownEvent(eventListener: (index: number) => void) {
+  addMouseDownEvent(eventListener: (index: number) => void): void {
     this.events.push({ type: 'mousedown', eventListener })
   }
 
-  addMouseMoveEvent(eventListener: (index: number) => void) {
+  addMouseMoveEvent(eventListener: (index: number) => void): void {
     this.events.push({ type: 'mousemove', eventListener })
   }
 }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ElementType } from 'react'
 import styled from 'styled-components'
 
 const IconWrapper = styled.div`
@@ -10,7 +10,13 @@ const IconWrapper = styled.div`
   }
 `
 
-export function Icon({ icon, onClick }) {
+export function Icon({
+  icon,
+  onClick,
+}: {
+  icon: JSX.Element
+  onClick: () => void
+}) {
   return <IconWrapper onClick={onClick}>{icon}</IconWrapper>
 }
 

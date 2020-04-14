@@ -1,5 +1,5 @@
 import { createEvent, Event } from 'effector'
-import { Snake } from 'models/snake'
+import { Snake } from '../snake'
 
 export const play: Event<void> = createEvent()
 export const stop: Event<void> = createEvent()

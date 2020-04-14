@@ -10,7 +10,7 @@ export function renderFoods({
   context: CanvasRenderingContext2D
   foods: Array<Food>
   indexesVisible?: boolean
-}) {
+}): void {
   foods.forEach(([position]) => {
     drawSquare({ color: colorScheme.foodColor, position, context })
 

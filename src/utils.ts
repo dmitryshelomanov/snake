@@ -71,7 +71,9 @@ export function randomId(): string {
   return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString()
 }
 
-export function createOperationLogger(name: string) {
+export function createOperationLogger(
+  name: string
+): { log: () => void; increment: () => void } {
   let operation = 0
 
   return {
@@ -97,14 +99,14 @@ export function generateRandomFoodByCount(count: number): Array<Food> {
 export function getDifferenceBetweenPositions(
   [x, y]: Coords,
   [x1, y1]: Coords
-) {
+): number {
   return Math.abs(x1 + y1 - (x + y))
 }
 
 export function setValuesToGraph(
   graph: Graph,
   values: Array<{ index: number; type: PLACE_TYPE; value: string }>
-) {
+): void {
   values.forEach(({ type, value, index }) => {
     switch (type) {
       case PLACE_TYPE.FOOD: {
