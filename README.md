@@ -4,7 +4,7 @@
 
 ![preview](preview.gif)
 
-> *broken functionality in v2 - add self to game and render bricks (WIP 😝)
+> \*broken functionality in v2 - render bricks (WIP 😝)
 
 ## Introduction
 
@@ -32,18 +32,16 @@ Visualization is not designed for a large number of objects
 
 I can add deep lvl for alghoritms and this will increase productivity but I can't optimize react renders, but can controll visible state for board
 
-
 ### Data information
 
-
-* Without sidebar
+- Without sidebar
 
 Snakes count - 100
 Foos count - 100
 
 renderLoop completed for 0.40ms and logicLoop - for 5ms
 
-* With sidebar
+- With sidebar
 
 Snakes count - 100
 Foos count - 100
