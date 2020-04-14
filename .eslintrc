@@ -1,13 +1,19 @@
 {
   "parser": "@typescript-eslint/parser",
-  "extends": "@atomix/react",
+  "extends": [
+    "@atomix/react",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
+  ],
   "rules": {
     "prefer-promise-reject-errors": "off",
     "no-param-reassign": "off",
     "unicorn/no-process-exit": "off",
     "no-mixed-operators": "off",
     "import/export": "off",
-    "unicorn/prevent-abbreviations": "off"
+    "unicorn/prevent-abbreviations": "off",
+    "@typescript-eslint/ban-ts-ignore": "off"
   },
   "globals": {
     "requestAnimationFrame": true,
@@ -18,5 +24,9 @@
   "plugins": ["jest", "@typescript-eslint"],
   "env": {
     "jest/globals": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
   }
 }
