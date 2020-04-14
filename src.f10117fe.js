@@ -1872,7 +1872,7 @@ function keyboradFactory() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.colorScheme = exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.snakeCount = exports.foodCount = exports.boardLength = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
+exports.colorScheme = exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.snakeCount = exports.foodCount = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
 
 var _keyboard = require("./keyboard");
 
@@ -1883,12 +1883,10 @@ var pageWidth = window.innerWidth;
 exports.pageWidth = pageWidth;
 var pageHeight = window.innerHeight;
 exports.pageHeight = pageHeight;
-var fps = 60;
+var fps = 15;
 exports.fps = fps;
 var borderSize = 1;
 exports.borderSize = borderSize;
-var boardLength = pageWidth * pageHeight;
-exports.boardLength = boardLength;
 var foodCount = 50;
 exports.foodCount = foodCount;
 var snakeCount = 1;
@@ -5603,21 +5601,8 @@ exports.Graph = Graph;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.restorePath = restorePath;
 exports.restorePathFromMap = restorePathFromMap;
 var _effectorFileName = "/src/algorithms/restore-path.ts";
-
-function restorePath(end, start, parent) {
-  var path = [end];
-  var goal = parent[end];
-
-  while (goal !== start) {
-    path.unshift(goal);
-    goal = parent[goal];
-  }
-
-  return path;
-}
 
 function restorePathFromMap(_ref) {
   var end = _ref.end,
@@ -39425,7 +39410,7 @@ function getNextPositionForAISnake(_ref4) {
   return path[0];
 }
 
-function canTraverse(isEnabledCollisionDetect) {
+function canTraverseBuilder(isEnabledCollisionDetect) {
   return function (vertex) {
     return isEnabledCollisionDetect ? vertex.value.type === _config.PLACE_TYPE.EMPTY || vertex.value.type === _config.PLACE_TYPE.FOOD : true;
   };
@@ -39458,7 +39443,7 @@ function ai(_ref5) {
       startIndex: (0, _utils.getIndexByPosition)(currentPosition),
       endIndex: targetIndex,
       graph: graph,
-      canTraverse: canTraverse(isEnabledCollisionDetect),
+      canTraverse: canTraverseBuilder(isEnabledCollisionDetect),
       getCostByIndex: getCostByIndex,
       heuristic: heuristic,
       withLogger: withLogger
@@ -39473,7 +39458,7 @@ function ai(_ref5) {
     snake: snake,
     path: pathPositions,
     graph: graph,
-    canTraverse: canTraverse(isEnabledCollisionDetect)
+    canTraverse: canTraverseBuilder(isEnabledCollisionDetect)
   });
   var nextDirection = (0, _controll.getDirectionByPosition)((0, _snake.headSnake)(snake), nextPosition);
   var diff = (0, _utils.getDifferenceBetweenPositions)((0, _snake.headSnake)(snake), nextPosition);
@@ -39494,51 +39479,45 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.user = user;
 
+var _config = require("../config");
+
+var _controll = require("../controll");
+
+var _collision = require("../collision");
+
 var _keyboard = require("../keyboard");
+
+var _snake = require("../models/snake");
 
 var _effectorFileName = "/src/updaters/user.ts";
 var gameInput = (0, _keyboard.keyboradFactory)();
 
-function user(self) {
-  // const headPosition = getNextPositionByDirection(
-  //   headSnake(self),
-  //   self.direction
-  // )
-  // const nextPosition = checkBounds(headPosition)
-  // moveSnake({ id: self.id, nextPosition })
-  // if (
-  //   gameInput.isDown(KEYS.RIGHT_ARROW) &&
-  //   self.direction !== DIRECTIONS.LEFT
-  // ) {
-  //   setDirectionForSnake({
-  //     id: self.id,
-  //     direction: DIRECTIONS.RIGHT,
-  //   })
-  // }
-  // if (gameInput.isDown(KEYS.DOWN_ARROW) && self.direction !== DIRECTIONS.TOP) {
-  //   setDirectionForSnake({
-  //     id: self.id,
-  //     direction: DIRECTIONS.DOWN,
-  //   })
-  // }
-  // if (
-  //   gameInput.isDown(KEYS.LEFT_ARROW) &&
-  //   self.direction !== DIRECTIONS.RIGHT
-  // ) {
-  //   setDirectionForSnake({
-  //     id: self.id,
-  //     direction: DIRECTIONS.LEFT,
-  //   })
-  // }
-  // if (gameInput.isDown(KEYS.TOP_ARROW) && self.direction !== DIRECTIONS.DOWN) {
-  //   setDirectionForSnake({
-  //     id: self.id,
-  //     direction: DIRECTIONS.TOP,
-  //   })
-  // }
-  return {};
+function user(_ref) {
+  var snake = _ref.snake;
+  var direction = snake.direction;
+
+  if (gameInput.isDown(_keyboard.KEYS.RIGHT_ARROW) && snake.direction !== _config.DIRECTIONS.LEFT) {
+    direction = _config.DIRECTIONS.RIGHT;
+  }
+
+  if (gameInput.isDown(_keyboard.KEYS.DOWN_ARROW) && snake.direction !== _config.DIRECTIONS.TOP) {
+    direction = _config.DIRECTIONS.DOWN;
+  }
+
+  if (gameInput.isDown(_keyboard.KEYS.LEFT_ARROW) && snake.direction !== _config.DIRECTIONS.RIGHT) {
+    direction = _config.DIRECTIONS.LEFT;
+  }
+
+  if (gameInput.isDown(_keyboard.KEYS.TOP_ARROW) && snake.direction !== _config.DIRECTIONS.DOWN) {
+    direction = _config.DIRECTIONS.TOP;
+  }
+
+  return {
+    nextPosition: (0, _collision.checkBounds)((0, _controll.getNextPositionByDirection)((0, _snake.headSnake)(snake), direction)),
+    nextDirection: direction
+  };
 }
-},{"../keyboard":"src/keyboard.ts"}],"src/updaters/index.ts":[function(require,module,exports) {
+},{"../config":"src/config.ts","../controll":"src/controll.ts","../collision":"src/collision.ts","../keyboard":"src/keyboard.ts","../models/snake":"src/models/snake.ts"}],"src/updaters/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44687,6 +44666,12 @@ function Settings() {
   }), _react.default.createElement(_item.Name, {
     htmlFor: "collision"
   }, "handle collision state")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    id: "withUser",
+    checked: isUserInGame,
+    onChange: handleChangeUserInGameState
+  }), _react.default.createElement(_item.Name, {
+    htmlFor: "withUser"
+  }, "add user (you) to game")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "indexesvisible",
     checked: indexesVisible,
     onChange: _game.setIndexesVisible
@@ -45679,7 +45664,9 @@ function main(canvas, context) {
       var snake = _ref4.snake,
           algorithm = _ref4.algorithm;
 
-      // @ts-ignore
+      var _a; // @ts-ignore
+
+
       var _snake$updater = snake.updater(Object.assign(Object.assign({
         withLogger: nextState.isLoggerEnabled,
         isEnabledCollisionDetect: nextState.isEnabledCollisionDetect,
@@ -45694,40 +45681,38 @@ function main(canvas, context) {
           nextPosition = _snake$updater.nextPosition,
           meta = _snake$updater.meta;
 
+      var nextSnake = snake;
       var nextIndex = (0, _utils.getIndexByPosition)(nextPosition);
       var nextVertex = graph.getVertex(nextIndex);
-      var nextSnake = snake;
 
       if (meta && snake.isAi) {
         nextSnake = (0, _snake.setMeta)(snake, meta);
       }
 
-      if (nextVertex) {
-        switch (nextVertex.value.type) {
-          case _config.PLACE_TYPE.FOOD:
-            {
-              nextSnake = handleEatFood({
-                snake: nextSnake,
-                nextPosition: nextPosition,
-                foodId: nextVertex.value.foodId
-              });
+      switch ((_a = nextVertex === null || nextVertex === void 0 ? void 0 : nextVertex.value) === null || _a === void 0 ? void 0 : _a.type) {
+        case _config.PLACE_TYPE.FOOD:
+          {
+            nextSnake = handleEatFood({
+              snake: nextSnake,
+              nextPosition: nextPosition,
+              foodId: nextVertex.value.foodId
+            });
+            break;
+          }
+
+        case _config.PLACE_TYPE.GAME_OBJECT:
+          {
+            if (nextState.isEnabledCollisionDetect) {
+              nextSnake = (0, _snake.setCrash)(nextSnake, true);
               break;
             }
+          }
+        // eslint-disable-next-line no-fallthrough
 
-          case _config.PLACE_TYPE.GAME_OBJECT:
-            {
-              if (nextState.isEnabledCollisionDetect) {
-                nextSnake = (0, _snake.setCrash)(nextSnake, true);
-                break;
-              }
-            }
-          // eslint-disable-next-line no-fallthrough
-
-          default:
-            {
-              nextSnake = (0, _snake.setDirection)((0, _snake.updateBody)(nextSnake, nextPosition), nextDirection);
-            }
-        }
+        default:
+          {
+            nextSnake = (0, _snake.setDirection)((0, _snake.updateBody)(nextSnake, nextPosition), nextDirection);
+          }
       }
 
       reCreateSnakeInGraph(snake, nextSnake);
@@ -45855,7 +45840,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56207" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57792" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
