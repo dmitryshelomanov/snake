@@ -1,6 +1,6 @@
 import { getIndexByPosition } from '../utils'
+import { Snake } from '../models/snake'
 import { drawSquare, renderText } from './shapes'
-import { Snake } from 'models/snake'
 
 export function renderSnake({
   context,
@@ -10,7 +10,7 @@ export function renderSnake({
   context: CanvasRenderingContext2D
   snake: Snake
   indexesVisible?: boolean
-}) {
+}): void {
   for (let i = 0; i < snake.body.length; i++) {
     const isHead = i === snake.body.length - 1
     const color = isHead ? snake.colors.head : snake.colors.tail
@@ -39,7 +39,7 @@ export function renderSnakes({
 }: {
   context: CanvasRenderingContext2D
   snakes: Array<Snake>
-}) {
+}): void {
   snakes.forEach((snake) => {
     renderSnake({ context, snake })
   })
