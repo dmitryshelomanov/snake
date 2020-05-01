@@ -1,6 +1,6 @@
 import { KEYS } from './keyboard'
 
-export const cellSize = 10
+export const cellSize = 20
 export const pageWidth = window.innerWidth
 export const pageHeight = window.innerHeight
 export const fps = 15
@@ -31,4 +31,5 @@ export const colorScheme = {
   emptyCells: '#0080007d',
   borderColor: 'rgba(0, 0, 0, 0.2)',
   foodColor: 'rgb(238, 68, 0)',
+  brikColor: '#795d5d',
 }

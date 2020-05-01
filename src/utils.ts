@@ -1,5 +1,5 @@
 import { cellSize, pageHeight, pageWidth, PLACE_TYPE } from './config'
-import { Graph, VertexValue } from 'algorithms'
+import { Graph } from './algorithms'
 
 /**
   cellSize = 20
@@ -46,7 +46,7 @@ export function convertGlobalPositionToLocal([x, y]: Coords): Coords {
 export function randomPosition(): Coords {
   const { w, h } = getLocalSize(pageWidth, pageHeight)
 
-  function intNumber(n: number) {
+  function intNumber(n: number): number {
     return Math.floor(Math.random() * n)
   }
 
@@ -127,6 +127,14 @@ export function setValuesToGraph(
         break
       }
 
+      case PLACE_TYPE.BRICK: {
+        graph.setValueByIndex(index, {
+          type,
+        })
+
+        break
+      }
+
       default: {
         graph.setValueByIndex(index, {
           type: PLACE_TYPE.EMPTY,
@@ -134,4 +142,8 @@ export function setValuesToGraph(
       }
     }
   })
+}
+
+export function pointsAreEquals([x, y]: Coords, [x1, y1]: Coords): boolean {
+  return x === x1 && y === y1
 }
