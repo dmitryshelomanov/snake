@@ -32,15 +32,3 @@ export function renderSnake({
     }
   }
 }
-
-export function renderSnakes({
-  context,
-  snakes = [],
-}: {
-  context: CanvasRenderingContext2D
-  snakes: Array<Snake>
-}): void {
-  snakes.forEach((snake) => {
-    renderSnake({ context, snake })
-  })
-}
