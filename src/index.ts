@@ -34,8 +34,8 @@ import {
 import { Graph, Vertex } from './algorithms'
 import { renderGUI } from './GUI'
 import { $snakes, $settingsForSnakes } from './models/snakes'
-import { $graph } from './models/graph'
-import { $foods } from './models/objects'
+import { $graph, adddBrickToGraph } from './models/graph'
+import { $foods, $bricks } from './models/objects'
 import { createTick } from './models/tick'
 import {
   $isLoggerEnabled,
@@ -45,28 +45,30 @@ import {
   $needFillEmptyGraphsCellls,
 } from './models/game'
 import { renderFoods } from './renderer/foods'
+import { renderBricks } from './renderer/bricks'
 import { $algorithms, $heuristics } from './models/algorithms'
 import 'reset-css'
 
 const defaultSettings = buildSettingsForSnake()
 
 type ComputedSnake = {
-  snake: Snake,
-  settings: { [key: string]: SnakeSettings },
+  snake: Snake
+  settings: { [key: string]: SnakeSettings }
   algorithm: {
-    traverseAlgorithm: TraverseAlgorithmFunction<Graph, Vertex> | void,
-    heuristic: HeuristicFunction | void,
-  },
+    traverseAlgorithm: TraverseAlgorithmFunction<Graph, Vertex> | void
+    heuristic: HeuristicFunction | void
+  }
 }
 
 type State = {
-  isLoggerEnabled: boolean,
-  indexesVisible: boolean,
-  graph: Graph,
-  foods: Array<Food>,
-  computedSnakes: Array<ComputedSnake>,
-  isEnabledCollisionDetect: boolean,
-  needFillEmptyGraphsCellls: boolean,
+  isLoggerEnabled: boolean
+  indexesVisible: boolean
+  graph: Graph
+  foods: Array<Food>
+  computedSnakes: Array<ComputedSnake>
+  isEnabledCollisionDetect: boolean
+  needFillEmptyGraphsCellls: boolean
+  bricks: Array<Coords>
 }
 
 const $computedSnakes = combine(
@@ -91,8 +93,8 @@ const $computedSnakes = combine(
           snake,
           settings: settingsForSnake,
           algorithm: {
-            traverseAlgorithm: traverseAlgorithm?.alg,
-            heuristic: heuristic?.alg,
+            traverseAlgorithm: traverseAlgorithm && traverseAlgorithm.alg,
+            heuristic: heuristic && heuristic.alg,
           },
         }
       }
@@ -106,14 +108,24 @@ const $state = combine({
   indexesVisible: $indexesVisible,
   graph: $graph,
   foods: $foods,
+  bricks: $bricks,
   computedSnakes: $computedSnakes,
   isEnabledCollisionDetect: $isEnabledCollisionDetect,
   needFillEmptyGraphsCellls: $needFillEmptyGraphsCellls,
 })
 
-function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): void {
+function main(
+  canvas: HTMLCanvasElement,
+  context: CanvasRenderingContext2D
+): void {
   renderGUI()
+
   canvasInput.registerClickEventToCanvas(canvas)
+
+  canvasInput.addMouseMoveEvent((index) => {
+    adddBrickToGraph(getPositionByIndex(index))
+  })
+
   canvasInput.callEventRegistars()
 
   const gridData = buildGrid(context)
@@ -126,12 +138,26 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): voi
     context.clearRect(0, 0, globalSize.w, globalSize.h)
   }
 
-  function runLogic({ state: nextState }: { state: State, tick: number }): void {
+  function runLogic({
+    state: nextState,
+  }: {
+    state: State
+    tick: number
+  }): void {
     const nextSnakes: Array<Snake> = []
     const graph = Graph.extend(nextState.graph)
+
     let { foods } = nextState
 
-    function handleEatFood({ snake, nextPosition, foodId }: { snake: Snake, nextPosition: Coords, foodId: string }): Snake {
+    function handleEatFood({
+      snake,
+      nextPosition,
+      foodId,
+    }: {
+      snake: Snake
+      nextPosition: Coords
+      foodId: string
+    }): Snake {
       const nextSnake = addPeaceOfSnake(
         setScore(snake, snake.score + 1),
         nextPosition
@@ -166,7 +192,7 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): voi
         {
           type: PLACE_TYPE.EMPTY,
           index: getIndexByPosition(tail),
-          value: "",
+          value: '',
         },
         {
           type: PLACE_TYPE.GAME_OBJECT,
@@ -179,6 +205,7 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): voi
     nextState.computedSnakes
       .filter(({ snake }) => !snake.isCrash)
       .forEach(({ snake, algorithm }) => {
+        console.time('alg')
         // @ts-ignore
         const { nextDirection, nextPosition, meta } = snake.updater({
           withLogger: nextState.isLoggerEnabled,
@@ -191,44 +218,46 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): voi
             foods,
           },
         })
+        console.timeEnd('alg')
 
         let nextSnake = snake
 
         const nextIndex = getIndexByPosition(nextPosition)
         const nextVertex = graph.getVertex(nextIndex)
+        const type = nextVertex && nextVertex.value.type
 
         if (meta && snake.isAi) {
           nextSnake = setMeta(snake, meta)
         }
 
-        
-          switch (nextVertex?.value?.type) {
-            case PLACE_TYPE.FOOD: {
-              nextSnake = handleEatFood({
-                snake: nextSnake,
-                nextPosition,
-                foodId: nextVertex.value.foodId,
-              })
+        switch (type) {
+          case PLACE_TYPE.FOOD: {
+            nextSnake = handleEatFood({
+              snake: nextSnake,
+              nextPosition,
+              // @ts-ignore
+              foodId: nextVertex.value.foodId,
+            })
+            break
+          }
+
+          case PLACE_TYPE.GAME_OBJECT:
+          case PLACE_TYPE.BRICK: {
+            if (nextState.isEnabledCollisionDetect) {
+              nextSnake = setCrash(nextSnake, true)
+
               break
             }
-  
-            case PLACE_TYPE.GAME_OBJECT: {
-              if (nextState.isEnabledCollisionDetect) {
-                nextSnake = setCrash(nextSnake, true)
-  
-                break
-              }
-            }
-  
-            // eslint-disable-next-line no-fallthrough
-            default: {
-              nextSnake = setDirection(
-                updateBody(nextSnake, nextPosition),
-                nextDirection
-              )
-            }
           }
-        
+
+          // eslint-disable-next-line no-fallthrough
+          default: {
+            nextSnake = setDirection(
+              updateBody(nextSnake, nextPosition),
+              nextDirection
+            )
+          }
+        }
 
         reCreateSnakeInGraph(snake, nextSnake)
 
@@ -238,13 +267,19 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): voi
     updateStates({ snakes: nextSnakes, foods })
   }
 
-  function runRender({ state: nextState }: { state: State, tick: number }): void {
+  function runRender({
+    state: nextState,
+  }: {
+    state: State
+    tick: number
+  }): void {
     const {
       computedSnakes,
       foods,
       indexesVisible,
       graph,
       needFillEmptyGraphsCellls,
+      bricks,
     } = nextState
 
     function fillEmptyCell(): void {
@@ -272,17 +307,27 @@ function main(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): voi
 
         if (showProcessedCells) {
           // @ts-ignore
-          renderProcessed({ context, processed: snake.meta.processed, color: snake.colors.processed })
+          renderProcessed({
+            context,
+            processed: snake.meta.processed,
+            color: snake.colors.processed,
+          })
         }
 
         if (showAIPathToTarget) {
           // @ts-ignore
-          renderPath({ context, path: snake.meta.path, color: snake.colors.head })
+          renderPath({
+            context,
+            path: snake.meta.path,
+            color: snake.colors.head,
+          })
         }
       } else {
         renderSnake({ context, snake, indexesVisible })
       }
     })
+
+    renderBricks({ context, bricks, indexesVisible })
 
     if (needFillEmptyGraphsCellls) {
       fillEmptyCell()

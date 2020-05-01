@@ -58,11 +58,13 @@ export class CanvasInput {
   events: Array<{ type: string; eventListener: (index: number) => void }>
   eventRegistar: Array<() => void>
   isMouseDown: boolean
+  lastIndex: number
 
   constructor() {
     this.events = []
     this.eventRegistar = []
     this.isMouseDown = false
+    this.lastIndex = -1
   }
 
   registerEventRegistar(eventBuilder: () => void): void {
@@ -100,8 +102,10 @@ export class CanvasInput {
     })
 
     canvas.addEventListener('mousemove', (event) => {
-      if (this.isMouseDown) {
-        const index = getTargetIndex(event)
+      const index = getTargetIndex(event)
+
+      if (this.isMouseDown && this.lastIndex !== index) {
+        this.lastIndex = index
 
         this.events
           .filter((userEvent) => userEvent.type === 'mousemove')
