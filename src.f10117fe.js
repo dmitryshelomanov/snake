@@ -1877,7 +1877,7 @@ exports.colorScheme = exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIO
 var _keyboard = require("./keyboard");
 
 var _effectorFileName = "/src/config.ts";
-var cellSize = 10;
+var cellSize = 20;
 exports.cellSize = cellSize;
 var pageWidth = window.innerWidth;
 exports.pageWidth = pageWidth;
@@ -1922,7 +1922,8 @@ exports.PLACE_TYPE = PLACE_TYPE;
 var colorScheme = {
   emptyCells: '#0080007d',
   borderColor: 'rgba(0, 0, 0, 0.2)',
-  foodColor: 'rgb(238, 68, 0)'
+  foodColor: 'rgb(238, 68, 0)',
+  brikColor: '#795d5d'
 };
 exports.colorScheme = colorScheme;
 },{"./keyboard":"src/keyboard.ts"}],"src/utils.ts":[function(require,module,exports) {
@@ -1943,6 +1944,7 @@ exports.createOperationLogger = createOperationLogger;
 exports.generateRandomFoodByCount = generateRandomFoodByCount;
 exports.getDifferenceBetweenPositions = getDifferenceBetweenPositions;
 exports.setValuesToGraph = setValuesToGraph;
+exports.pointsAreEquals = pointsAreEquals;
 
 var _config = require("./config");
 
@@ -2104,6 +2106,14 @@ function setValuesToGraph(graph, values) {
           break;
         }
 
+      case _config.PLACE_TYPE.BRICK:
+        {
+          graph.setValueByIndex(index, {
+            type: type
+          });
+          break;
+        }
+
       default:
         {
           graph.setValueByIndex(index, {
@@ -2112,6 +2122,18 @@ function setValuesToGraph(graph, values) {
         }
     }
   });
+}
+
+function pointsAreEquals(_ref12, _ref13) {
+  var _ref14 = _slicedToArray(_ref12, 2),
+      x = _ref14[0],
+      y = _ref14[1];
+
+  var _ref15 = _slicedToArray(_ref13, 2),
+      x1 = _ref15[0],
+      y1 = _ref15[1];
+
+  return x === x1 && y === y1;
 }
 },{"./config":"src/config.ts"}],"src/renderer/grid.ts":[function(require,module,exports) {
 "use strict";
@@ -2267,7 +2289,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.renderSnake = renderSnake;
-exports.renderSnakes = renderSnakes;
 
 var _utils = require("../utils");
 
@@ -2300,18 +2321,6 @@ function renderSnake(_ref) {
       });
     }
   }
-}
-
-function renderSnakes(_ref2) {
-  var context = _ref2.context,
-      _ref2$snakes = _ref2.snakes,
-      snakes = _ref2$snakes === void 0 ? [] : _ref2$snakes;
-  snakes.forEach(function (snake) {
-    renderSnake({
-      context: context,
-      snake: snake
-    });
-  });
 }
 },{"../utils":"src/utils.ts","./shapes":"src/renderer/shapes.ts"}],"src/renderer/index.ts":[function(require,module,exports) {
 "use strict";
@@ -2437,6 +2446,7 @@ function () {
     this.events = [];
     this.eventRegistar = [];
     this.isMouseDown = false;
+    this.lastIndex = -1;
   }
 
   _createClass(CanvasInput, [{
@@ -2478,8 +2488,10 @@ function () {
         _this.isMouseDown = false;
       });
       canvas.addEventListener('mousemove', function (event) {
-        if (_this.isMouseDown) {
-          var index = getTargetIndex(event);
+        var index = getTargetIndex(event);
+
+        if (_this.isMouseDown && _this.lastIndex !== index) {
+          _this.lastIndex = index;
 
           _this.events.filter(function (userEvent) {
             return userEvent.type === 'mousemove';
@@ -44972,7 +44984,7 @@ function renderGUI() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$foods = void 0;
+exports.$bricks = exports.$foods = void 0;
 
 var _effector = require("effector");
 
@@ -44991,13 +45003,23 @@ var $foods = (0, _effector.createStore)((0, _utils.generateRandomFoodByCount)(_c
   sid: "naghw1"
 });
 exports.$foods = $foods;
+var $bricks = (0, _effector.createStore)([], {
+  loc: {
+    file: _effectorFileName,
+    line: 5,
+    column: 23
+  },
+  name: "$bricks",
+  sid: "-j1p9sm"
+});
+exports.$bricks = $bricks;
 },{"effector":"node_modules/effector/effector.es.js","../../utils":"src/utils.ts","../../config":"src/config.ts"}],"src/models/objects/events.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.generateFoods = void 0;
+exports.addBrick = exports.generateFoods = void 0;
 
 var _effector = require("effector");
 
@@ -45012,14 +45034,28 @@ var generateFoods = (0, _effector.createEvent)("generateFoods", {
   sid: "-rs4yuf"
 });
 exports.generateFoods = generateFoods;
+var addBrick = (0, _effector.createEvent)("addBrick", {
+  loc: {
+    file: _effectorFileName,
+    line: 3,
+    column: 24
+  },
+  name: "addBrick",
+  sid: "oa14kd"
+});
+exports.addBrick = addBrick;
 },{"effector":"node_modules/effector/effector.es.js"}],"src/models/objects/model.ts":[function(require,module,exports) {
 "use strict";
 
 var _uniqBy = _interopRequireDefault(require("lodash-es/uniqBy"));
 
+var _utils = require("../../utils");
+
 var _game = require("../game");
 
 var _store = require("./store");
+
+var _events = require("./events");
 
 var _effectorFileName = "/src/models/objects/model.ts";
 
@@ -45038,8 +45074,22 @@ _store.$foods.on(_game.updateStates, function (prevFoods, _ref) {
   return (0, _uniqBy.default)([].concat(_toConsumableArray(foods), _toConsumableArray(prevFoods)), function (food) {
     return food[1];
   });
-});
-},{"lodash-es/uniqBy":"node_modules/lodash-es/uniqBy.js","../game":"src/models/game/index.ts","./store":"src/models/objects/store.ts"}],"src/models/objects/index.ts":[function(require,module,exports) {
+}).reset(_game.restart);
+
+_store.$bricks.on(_events.addBrick, function (bricks, brick) {
+  var hasBrick = bricks.find(function (pos) {
+    return (0, _utils.pointsAreEquals)(pos, brick);
+  });
+
+  if (hasBrick) {
+    return bricks.filter(function (pos) {
+      return !(0, _utils.pointsAreEquals)(pos, brick);
+    });
+  }
+
+  return [].concat(_toConsumableArray(bricks), [brick]);
+}).reset(_game.restart);
+},{"lodash-es/uniqBy":"node_modules/lodash-es/uniqBy.js","../../utils":"src/utils.ts","../game":"src/models/game/index.ts","./store":"src/models/objects/store.ts","./events":"src/models/objects/events.ts"}],"src/models/objects/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45111,20 +45161,12 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
 var localSize = (0, _utils.getLocalSize)(_config.pageWidth, _config.pageHeight);
 
 function markFoodOnGraph(_ref) {
   var graph = _ref.graph,
       foods = _ref.foods;
-  (0, _utils.setValuesToGraph)(graph, _toConsumableArray(foods.map(function (_ref2) {
+  (0, _utils.setValuesToGraph)(graph, foods.map(function (_ref2) {
     var _ref3 = _slicedToArray(_ref2, 2),
         position = _ref3[0],
         id = _ref3[1];
@@ -45134,40 +45176,54 @@ function markFoodOnGraph(_ref) {
       value: id,
       index: (0, _utils.getIndexByPosition)(position)
     };
-  })));
+  }));
 }
 
 function markSnakesOnGraph(_ref4) {
   var snakes = _ref4.snakes,
       graph = _ref4.graph;
   snakes.forEach(function (snake) {
-    (0, _utils.setValuesToGraph)(graph, _toConsumableArray(snake.body.map(function (position) {
+    (0, _utils.setValuesToGraph)(graph, snake.body.map(function (position) {
       return {
         type: _config.PLACE_TYPE.GAME_OBJECT,
         index: (0, _utils.getIndexByPosition)(position),
         value: snake.id
       };
-    })));
+    }));
   });
+}
+
+function markBricksOnGraph(_ref5) {
+  var graph = _ref5.graph,
+      bricks = _ref5.bricks;
+  (0, _utils.setValuesToGraph)(graph, bricks.map(function (position) {
+    return {
+      type: _config.PLACE_TYPE.BRICK,
+      index: (0, _utils.getIndexByPosition)(position),
+      value: ''
+    };
+  }));
 }
 
 var $graph = (0, _effector.combine)({
   ɔ: [{
     snakes: _snakes.$snakes,
-    foods: _objects.$foods
+    foods: _objects.$foods,
+    bricks: _objects.$bricks
   }],
   config: {
     loc: {
       file: _effectorFileName,
-      line: 32,
+      line: 37,
       column: 22
     },
     name: "$graph",
-    sid: "rxixtt"
+    sid: "uar1ss"
   }
-}).map(function (_ref5, graph) {
-  var foods = _ref5.foods,
-      snakes = _ref5.snakes;
+}).map(function (_ref6, graph) {
+  var foods = _ref6.foods,
+      snakes = _ref6.snakes,
+      bricks = _ref6.bricks;
   graph.clear();
   markFoodOnGraph({
     graph: graph,
@@ -45177,10 +45233,90 @@ var $graph = (0, _effector.combine)({
     graph: graph,
     snakes: snakes
   });
+  markBricksOnGraph({
+    graph: graph,
+    bricks: bricks
+  });
   return _algorithms.Graph.extend(graph);
 }, new _algorithms.Graph(localSize));
 exports.$graph = $graph;
-},{"effector":"node_modules/effector/effector.es.js","../../algorithms":"src/algorithms/index.ts","../../utils":"src/utils.ts","../../config":"src/config.ts","../snakes":"src/models/snakes/index.ts","../objects":"src/models/objects/index.ts"}],"src/models/graph/index.ts":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","../../algorithms":"src/algorithms/index.ts","../../utils":"src/utils.ts","../../config":"src/config.ts","../snakes":"src/models/snakes/index.ts","../objects":"src/models/objects/index.ts"}],"src/models/graph/events.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.adddBrickToGraph = void 0;
+
+var _effector = require("effector");
+
+var _effectorFileName = "/src/models/graph/events.ts";
+var adddBrickToGraph = (0, _effector.createEvent)("adddBrickToGraph", {
+  loc: {
+    file: _effectorFileName,
+    line: 2,
+    column: 32
+  },
+  name: "adddBrickToGraph",
+  sid: "-j2ssls"
+});
+exports.adddBrickToGraph = adddBrickToGraph;
+},{"effector":"node_modules/effector/effector.es.js"}],"src/models/graph/model.ts":[function(require,module,exports) {
+"use strict";
+
+var _effector = require("effector");
+
+var _objects = require("../objects");
+
+var _utils = require("../../utils");
+
+var _config = require("../../config");
+
+var _store = require("./store");
+
+var _events = require("./events");
+
+var _effectorFileName = "/src/models/graph/model.ts";
+(0, _effector.guard)({
+  ɔ: [(0, _effector.sample)({
+    ɔ: [_store.$graph, _events.adddBrickToGraph, function (graph, brick) {
+      return {
+        graph: graph,
+        brick: brick
+      };
+    }],
+    config: {
+      loc: {
+        file: _effectorFileName,
+        line: 7,
+        column: 6
+      },
+      name: "\u0254",
+      sid: "-pqsyzp"
+    }
+  }), {
+    filter: function filter(_ref) {
+      var graph = _ref.graph,
+          brick = _ref.brick;
+      var vertex = graph.getVertex((0, _utils.getIndexByPosition)(brick));
+      return vertex ? vertex.value.type === _config.PLACE_TYPE.EMPTY || vertex.value.type === _config.PLACE_TYPE.BRICK : false;
+    },
+    target: _objects.addBrick.prepend(function (_ref2) {
+      var brick = _ref2.brick;
+      return brick;
+    })
+  }],
+  config: {
+    loc: {
+      file: _effectorFileName,
+      line: 7,
+      column: 0
+    },
+    name: "",
+    sid: "e1e0nh"
+  }
+});
+},{"effector":"node_modules/effector/effector.es.js","../objects":"src/models/objects/index.ts","../../utils":"src/utils.ts","../../config":"src/config.ts","./store":"src/models/graph/store.ts","./events":"src/models/graph/events.ts"}],"src/models/graph/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45198,7 +45334,31 @@ Object.keys(_store).forEach(function (key) {
     }
   });
 });
-},{"./store":"src/models/graph/store.ts"}],"src/models/tick.ts":[function(require,module,exports) {
+
+var _model = require("./model");
+
+Object.keys(_model).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _model[key];
+    }
+  });
+});
+
+var _events = require("./events");
+
+Object.keys(_events).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _events[key];
+    }
+  });
+});
+},{"./store":"src/models/graph/store.ts","./model":"src/models/graph/model.ts","./events":"src/models/graph/events.ts"}],"src/models/tick.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45429,6 +45589,43 @@ function renderFoods(_ref) {
     }
   });
 }
+},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts"}],"src/renderer/bricks.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.renderBricks = renderBricks;
+
+var _utils = require("../utils");
+
+var _config = require("../config");
+
+var _shapes = require("./shapes");
+
+var _effectorFileName = "/src/renderer/bricks.ts";
+
+function renderBricks(_ref) {
+  var context = _ref.context,
+      bricks = _ref.bricks,
+      _ref$indexesVisible = _ref.indexesVisible,
+      indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
+  bricks.forEach(function (position) {
+    (0, _shapes.drawSquare)({
+      color: _config.colorScheme.brikColor,
+      position: position,
+      context: context
+    });
+
+    if (indexesVisible) {
+      (0, _shapes.renderText)({
+        context: context,
+        text: (0, _utils.getIndexByPosition)(position).toString(),
+        position: position
+      });
+    }
+  });
+}
 },{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
@@ -45535,6 +45732,8 @@ var _game = require("./models/game");
 
 var _foods = require("./renderer/foods");
 
+var _bricks = require("./renderer/bricks");
+
 var _algorithms2 = require("./models/algorithms");
 
 require("reset-css");
@@ -45556,8 +45755,8 @@ var $computedSnakes = (0, _effector.combine)({
           snake: snake,
           settings: settingsForSnake,
           algorithm: {
-            traverseAlgorithm: traverseAlgorithm === null || traverseAlgorithm === void 0 ? void 0 : traverseAlgorithm.alg,
-            heuristic: heuristic === null || heuristic === void 0 ? void 0 : heuristic.alg
+            traverseAlgorithm: traverseAlgorithm && traverseAlgorithm.alg,
+            heuristic: heuristic && heuristic.alg
           }
         };
       }
@@ -45570,11 +45769,11 @@ var $computedSnakes = (0, _effector.combine)({
   config: {
     loc: {
       file: _effectorFileName,
-      line: 20,
+      line: 21,
       column: 24
     },
     name: "$computedSnakes",
-    sid: "-d5qvuz"
+    sid: "-cop9gs"
   }
 });
 var $state = (0, _effector.combine)({
@@ -45583,6 +45782,7 @@ var $state = (0, _effector.combine)({
     indexesVisible: _game.$indexesVisible,
     graph: _graph.$graph,
     foods: _objects.$foods,
+    bricks: _objects.$bricks,
     computedSnakes: $computedSnakes,
     isEnabledCollisionDetect: _game.$isEnabledCollisionDetect,
     needFillEmptyGraphsCellls: _game.$needFillEmptyGraphsCellls
@@ -45590,11 +45790,11 @@ var $state = (0, _effector.combine)({
   config: {
     loc: {
       file: _effectorFileName,
-      line: 36,
+      line: 37,
       column: 15
     },
     name: "$state",
-    sid: "py97b9"
+    sid: "qfatpg"
   }
 });
 
@@ -45602,6 +45802,10 @@ function main(canvas, context) {
   (0, _GUI.renderGUI)();
 
   _controll.canvasInput.registerClickEventToCanvas(canvas);
+
+  _controll.canvasInput.addMouseMoveEvent(function (index) {
+    (0, _graph.adddBrickToGraph)((0, _utils.getPositionByIndex)(index));
+  });
 
   _controll.canvasInput.callEventRegistars();
 
@@ -45649,7 +45853,7 @@ function main(canvas, context) {
       (0, _utils.setValuesToGraph)(graph, [{
         type: _config.PLACE_TYPE.EMPTY,
         index: (0, _utils.getIndexByPosition)(tail),
-        value: ""
+        value: ''
       }, {
         type: _config.PLACE_TYPE.GAME_OBJECT,
         index: (0, _utils.getIndexByPosition)(head),
@@ -45663,9 +45867,7 @@ function main(canvas, context) {
     }).forEach(function (_ref4) {
       var snake = _ref4.snake,
           algorithm = _ref4.algorithm;
-
-      var _a; // @ts-ignore
-
+      console.time('alg'); // @ts-ignore
 
       var _snake$updater = snake.updater(Object.assign(Object.assign({
         withLogger: nextState.isLoggerEnabled,
@@ -45681,26 +45883,30 @@ function main(canvas, context) {
           nextPosition = _snake$updater.nextPosition,
           meta = _snake$updater.meta;
 
+      console.timeEnd('alg');
       var nextSnake = snake;
       var nextIndex = (0, _utils.getIndexByPosition)(nextPosition);
       var nextVertex = graph.getVertex(nextIndex);
+      var type = nextVertex && nextVertex.value.type;
 
       if (meta && snake.isAi) {
         nextSnake = (0, _snake.setMeta)(snake, meta);
       }
 
-      switch ((_a = nextVertex === null || nextVertex === void 0 ? void 0 : nextVertex.value) === null || _a === void 0 ? void 0 : _a.type) {
+      switch (type) {
         case _config.PLACE_TYPE.FOOD:
           {
             nextSnake = handleEatFood({
               snake: nextSnake,
               nextPosition: nextPosition,
+              // @ts-ignore
               foodId: nextVertex.value.foodId
             });
             break;
           }
 
         case _config.PLACE_TYPE.GAME_OBJECT:
+        case _config.PLACE_TYPE.BRICK:
           {
             if (nextState.isEnabledCollisionDetect) {
               nextSnake = (0, _snake.setCrash)(nextSnake, true);
@@ -45730,7 +45936,8 @@ function main(canvas, context) {
         foods = nextState.foods,
         indexesVisible = nextState.indexesVisible,
         graph = nextState.graph,
-        needFillEmptyGraphsCellls = nextState.needFillEmptyGraphsCellls;
+        needFillEmptyGraphsCellls = nextState.needFillEmptyGraphsCellls,
+        bricks = nextState.bricks;
 
     function fillEmptyCell() {
       graph.getVertexes().filter(function (v) {
@@ -45788,6 +45995,11 @@ function main(canvas, context) {
         });
       }
     });
+    (0, _bricks.renderBricks)({
+      context: context,
+      bricks: bricks,
+      indexesVisible: indexesVisible
+    });
 
     if (needFillEmptyGraphsCellls) {
       fillEmptyCell();
@@ -45812,7 +46024,7 @@ if (canvas) {
 
   main(canvas, context);
 }
-},{"effector":"node_modules/effector/effector.es.js","./utils":"src/utils.ts","./renderer":"src/renderer/index.ts","./config":"src/config.ts","./controll":"src/controll.ts","./canvas":"src/canvas.ts","./models/snake":"src/models/snake.ts","./algorithms":"src/algorithms/index.ts","./GUI":"src/GUI/index.tsx","./models/snakes":"src/models/snakes/index.ts","./models/graph":"src/models/graph/index.ts","./models/objects":"src/models/objects/index.ts","./models/tick":"src/models/tick.ts","./models/game":"src/models/game/index.ts","./renderer/foods":"src/renderer/foods.ts","./models/algorithms":"src/models/algorithms/index.ts","reset-css":"node_modules/reset-css/reset.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","./utils":"src/utils.ts","./renderer":"src/renderer/index.ts","./config":"src/config.ts","./controll":"src/controll.ts","./canvas":"src/canvas.ts","./models/snake":"src/models/snake.ts","./algorithms":"src/algorithms/index.ts","./GUI":"src/GUI/index.tsx","./models/snakes":"src/models/snakes/index.ts","./models/graph":"src/models/graph/index.ts","./models/objects":"src/models/objects/index.ts","./models/tick":"src/models/tick.ts","./models/game":"src/models/game/index.ts","./renderer/foods":"src/renderer/foods.ts","./renderer/bricks":"src/renderer/bricks.ts","./models/algorithms":"src/models/algorithms/index.ts","reset-css":"node_modules/reset-css/reset.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -45840,7 +46052,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57792" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50770" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
