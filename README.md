@@ -4,8 +4,6 @@
 
 ![preview](preview.gif)
 
-> \*broken functionality in v2 - render bricks (WIP 😝)
-
 ## Introduction
 
 Simple snake game with bot wich looking for shorter path to target
