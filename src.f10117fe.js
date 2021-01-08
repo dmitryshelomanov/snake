@@ -5385,12 +5385,10 @@ function buildSnake(headPosition, _ref) {
     colors: colors,
     isAi: isAi,
     updater: updater,
-    // need only for ai snake type
-    // tmp params for store proccessed cells & path to target
-    meta: {
+    meta: isAi ? {
       processed: [],
       path: []
-    }
+    } : undefined
   };
 }
 
@@ -38975,7 +38973,7 @@ var global = arguments[3];
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.boardWasUpdatedByEvent = exports.fillEmptyGraphCells = exports.changeFps = exports.updateStates = exports.setLoggerState = exports.setIndexesVisible = exports.setCollisionState = exports.removeUserFromGame = exports.addUserToGame = exports.restart = exports.stop = exports.play = void 0;
+exports.fillEmptyGraphCells = exports.changeFps = exports.updateStates = exports.setLoggerState = exports.setIndexesVisible = exports.setCollisionState = exports.removeUserFromGame = exports.addUserToGame = exports.restart = exports.stop = exports.play = void 0;
 
 var _effector = require("effector");
 
@@ -39058,7 +39056,7 @@ var setLoggerState = (0, _effector.createEvent)("setLoggerState", {
   },
   name: "setLoggerState",
   sid: "7n3ia9"
-}); // update foods & snakes
+}); // update all states per one update
 
 exports.setLoggerState = setLoggerState;
 var updateStates = (0, _effector.createEvent)("updateStates", {
@@ -39091,15 +39089,13 @@ var fillEmptyGraphCells = (0, _effector.createEvent)("fillEmptyGraphCells", {
   sid: "uxkpzp"
 });
 exports.fillEmptyGraphCells = fillEmptyGraphCells;
-var boardWasUpdatedByEvent = (0, _effector.merge)([play, stop, restart, addUserToGame, removeUserFromGame, setCollisionState, setIndexesVisible, setLoggerState, changeFps, fillEmptyGraphCells, updateStates]);
-exports.boardWasUpdatedByEvent = boardWasUpdatedByEvent;
 },{"effector":"node_modules/effector/effector.es.js"}],"src/models/game/store.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$board = exports.$needFillEmptyGraphsCellls = exports.$fps = exports.$isLoggerEnabled = exports.$indexesVisible = exports.$isEnabledCollisionDetect = void 0;
+exports.$maxPeerfomanceIsEnabled = exports.$needFillEmptyGraphsCellls = exports.$fps = exports.$isLoggerEnabled = exports.$indexesVisible = exports.$isEnabledCollisionDetect = exports.$gameState = void 0;
 
 var _effector = require("effector");
 
@@ -39108,73 +39104,76 @@ var _config = require("../../config");
 var _events = require("./events");
 
 var _effectorFileName = "/src/models/game/store.ts";
-var $isEnabledCollisionDetect = (0, _effector.createStore)(true, {
+var $gameState = (0, _effector.createStore)(_config.GAME_STATE.IS_PAUSE, {
   loc: {
     file: _effectorFileName,
     line: 4,
+    column: 26
+  },
+  name: "$gameState",
+  sid: "-wmsgez"
+});
+exports.$gameState = $gameState;
+var $isEnabledCollisionDetect = (0, _effector.createStore)(true, {
+  loc: {
+    file: _effectorFileName,
+    line: 5,
     column: 41
   },
   name: "$isEnabledCollisionDetect",
-  sid: "-trfv3h"
+  sid: "-tae8pa"
 });
 exports.$isEnabledCollisionDetect = $isEnabledCollisionDetect;
 var $indexesVisible = (0, _effector.createStore)(false, {
   loc: {
     file: _effectorFileName,
-    line: 5,
+    line: 6,
     column: 31
   },
   name: "$indexesVisible",
-  sid: "-5n1bcr"
+  sid: "-55zoyk"
 });
 exports.$indexesVisible = $indexesVisible;
 var $isLoggerEnabled = (0, _effector.createStore)(false, {
   loc: {
     file: _effectorFileName,
-    line: 6,
+    line: 7,
     column: 32
   },
   name: "$isLoggerEnabled",
-  sid: "sk0jsg"
+  sid: "t1266n"
 });
 exports.$isLoggerEnabled = $isLoggerEnabled;
 var $fps = (0, _effector.restore)(_events.changeFps, _config.fps, {
   loc: {
     file: _effectorFileName,
-    line: 7,
+    line: 8,
     column: 20
   },
   name: "$fps",
-  sid: "xgke5u"
+  sid: "xxm0k1"
 });
 exports.$fps = $fps;
 var $needFillEmptyGraphsCellls = (0, _effector.createStore)(false, {
   loc: {
     file: _effectorFileName,
-    line: 8,
+    line: 9,
     column: 42
   },
   name: "$needFillEmptyGraphsCellls",
-  sid: "-ls8g52"
+  sid: "-lb6tqv"
 });
 exports.$needFillEmptyGraphsCellls = $needFillEmptyGraphsCellls;
-var $board = (0, _effector.createStore)({
-  fps: _config.fps,
-  gameState: _config.GAME_STATE.IS_PAUSE,
-  isEnabledCollisionDetect: true,
-  indexesVisible: false,
-  isLoggerEnabled: false,
-  needFillEmptyGraphsCellls: false
-}, {
+var $maxPeerfomanceIsEnabled = (0, _effector.createStore)(false, {
   loc: {
     file: _effectorFileName,
-    line: 9,
-    column: 22
+    line: 10,
+    column: 40
   },
-  name: "$board",
-  sid: "-lu2i39"
+  name: "$maxPeerfomanceIsEnabled",
+  sid: "-di8fqp"
 });
-exports.$board = $board;
+exports.$maxPeerfomanceIsEnabled = $maxPeerfomanceIsEnabled;
 },{"effector":"node_modules/effector/effector.es.js","../../config":"src/config.ts","./events":"src/models/game/events.ts"}],"src/models/game/model.ts":[function(require,module,exports) {
 "use strict";
 
@@ -39186,35 +39185,29 @@ var _store = require("./store");
 
 var _effectorFileName = "/src/models/game/model.ts";
 
-_store.$board.on(_events.play, function (state) {
-  return Object.assign(Object.assign({}, state), {
-    gameState: _config.GAME_STATE.IS_PLAY
-  });
-}).on(_events.stop, function (state) {
-  return Object.assign(Object.assign({}, state), {
-    gameState: _config.GAME_STATE.IS_PAUSE
-  });
-}).on(_events.fillEmptyGraphCells, function (state) {
-  return Object.assign(Object.assign({}, state), {
-    needFillEmptyGraphsCellls: !state.needFillEmptyGraphsCellls
-  });
-}).on(_events.setCollisionState, function (state) {
-  return Object.assign(Object.assign({}, state), {
-    isEnabledCollisionDetect: !state.isEnabledCollisionDetect
-  });
-}).on(_events.setLoggerState, function (state) {
-  return Object.assign(Object.assign({}, state), {
-    isLoggerEnabled: !state.isLoggerEnabled
-  });
-}).on(_events.setIndexesVisible, function (state) {
-  return Object.assign(Object.assign({}, state), {
-    indexesVisible: !state.indexesVisible
-  });
-}).on(_events.changeFps, function (state, fps) {
-  return Object.assign(Object.assign({}, state), {
-    fps: fps
-  });
+_store.$gameState.on(_events.play, function () {
+  return _config.GAME_STATE.IS_PLAY;
+}).on(_events.stop, function () {
+  return _config.GAME_STATE.IS_PAUSE;
 }).reset(_events.restart);
+
+_store.$needFillEmptyGraphsCellls.on(_events.fillEmptyGraphCells, function (state) {
+  return !state;
+}).reset(_events.restart);
+
+_store.$isEnabledCollisionDetect.on(_events.setCollisionState, function (state) {
+  return !state;
+}).reset(_events.restart);
+
+_store.$isLoggerEnabled.on(_events.setLoggerState, function (state) {
+  return !state;
+}).reset(_events.restart);
+
+_store.$indexesVisible.on(_events.setIndexesVisible, function (state) {
+  return !state;
+}).reset(_events.restart);
+
+_store.$fps.reset(_events.restart);
 },{"../../config":"src/config.ts","./events":"src/models/game/events.ts","./store":"src/models/game/store.ts"}],"src/models/game/index.ts":[function(require,module,exports) {
 "use strict";
 
@@ -39533,8 +39526,7 @@ function user(_ref) {
 
   return {
     nextPosition: (0, _collision.checkBounds)((0, _controll.getNextPositionByDirection)((0, _snake.headSnake)(snake), direction)),
-    nextDirection: direction,
-    meta: snake.meta
+    nextDirection: direction
   };
 }
 },{"../config":"src/config.ts","../controll":"src/controll.ts","../collision":"src/collision.ts","../keyboard":"src/keyboard.ts","../models/snake":"src/models/snake.ts"}],"src/updaters/index.ts":[function(require,module,exports) {
@@ -43840,6 +43832,7 @@ _store.$snakes.on(_game.updateStates, function (prev, _ref) {
     colors: (0, _snake.getColorsForSnake)(),
     id: snakeId,
     isAi: isAi,
+    // @ts-ignore
     updater: isAi ? _updaters.updaters.ai : _updaters.updaters.user
   })]);
 }).on(_events.removeSnake, function (snakes, snakeId) {
@@ -43878,11 +43871,11 @@ _store.$settingsForSnakes.on(_events.removeSnake, function (settings, id) {
   config: {
     loc: {
       file: _effectorFileName,
-      line: 46,
+      line: 47,
       column: 0
     },
     name: "",
-    sid: "y0gmxf"
+    sid: "y10fis"
   }
 });
 (0, _effector.forward)({
@@ -43895,16 +43888,14 @@ _store.$settingsForSnakes.on(_events.removeSnake, function (settings, id) {
   config: {
     loc: {
       file: _effectorFileName,
-      line: 50,
+      line: 51,
       column: 0
     },
     name: "",
-    sid: "ye7hrg"
+    sid: "yeract"
   }
 });
-},{"effector":"node_modules/effector/effector.es.js","lodash-es/uniqBy":"node_modules/lodash-es/uniqBy.js","../../utils":"src/utils.ts","../snake":"src/models/snake.ts","../game":"src/models/game/index.ts","../../updaters":"src/updaters/index.ts","./events":"src/models/snakes/events.ts","./store":"src/models/snakes/store.ts"}],"src/models/snakes/types.ts":[function(require,module,exports) {
-
-},{}],"src/models/snakes/index.ts":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","lodash-es/uniqBy":"node_modules/lodash-es/uniqBy.js","../../utils":"src/utils.ts","../snake":"src/models/snake.ts","../game":"src/models/game/index.ts","../../updaters":"src/updaters/index.ts","./events":"src/models/snakes/events.ts","./store":"src/models/snakes/store.ts"}],"src/models/snakes/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43946,158 +43937,7 @@ Object.keys(_model).forEach(function (key) {
     }
   });
 });
-
-var _types = require("./types");
-
-Object.keys(_types).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _types[key];
-    }
-  });
-});
-},{"./events":"src/models/snakes/events.ts","./store":"src/models/snakes/store.ts","./model":"src/models/snakes/model.ts","./types":"src/models/snakes/types.ts"}],"src/models/time-travel.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createTimeTravel = createTimeTravel;
-
-var _effector = require("effector");
-
-var _game = require("./game");
-
-var _effectorFileName = "/src/models/time-travel.ts";
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function createTimeTravel() {
-  var next = (0, _effector.createEvent)("next", {
-    loc: {
-      file: _effectorFileName,
-      line: 4,
-      column: 17
-    },
-    name: "next",
-    sid: "-1eac97"
-  });
-  var prev = (0, _effector.createEvent)("prev", {
-    loc: {
-      file: _effectorFileName,
-      line: 5,
-      column: 17
-    },
-    name: "prev",
-    sid: "-3mq3ak"
-  });
-  var $step = (0, _effector.createStore)(0, {
-    loc: {
-      file: _effectorFileName,
-      line: 6,
-      column: 18
-    },
-    name: "$step",
-    sid: "-sksiff"
-  });
-  var $boardHistory = (0, _effector.createStore)([_game.$board.defaultState], {
-    loc: {
-      file: _effectorFileName,
-      line: 7,
-      column: 26
-    },
-    name: "$boardHistory",
-    sid: "-n06zxn"
-  });
-  var $travel = (0, _effector.combine)({
-    ɔ: [[$boardHistory, $step]],
-    config: {
-      loc: {
-        file: _effectorFileName,
-        line: 8,
-        column: 20
-      },
-      name: "$travel",
-      sid: "-jfts2a"
-    }
-  });
-  var goPrevWithBoard = (0, _effector.sample)({
-    ɔ: [$travel, prev, function (_ref) {
-      var _ref2 = _slicedToArray(_ref, 2),
-          board = _ref2[0],
-          step = _ref2[1];
-
-      return board[step - 1];
-    }],
-    config: {
-      loc: {
-        file: _effectorFileName,
-        line: 9,
-        column: 28
-      },
-      name: "goPrevWithBoard",
-      sid: "-r6az6q"
-    }
-  });
-  var boardWasUpdated = (0, _effector.sample)({
-    ɔ: [_game.$board, _game.boardWasUpdatedByEvent],
-    config: {
-      loc: {
-        file: _effectorFileName,
-        line: 10,
-        column: 28
-      },
-      name: "boardWasUpdated",
-      sid: "ijge3n"
-    }
-  });
-  $step.on(boardWasUpdated, function (s) {
-    return s + 1;
-  }).on(goPrevWithBoard, function (s, board) {
-    return board ? s - 1 : s;
-  });
-  $boardHistory.on(boardWasUpdated, function (history, board) {
-    return [].concat(_toConsumableArray(history), [board]);
-  });
-  (0, _effector.guard)({
-    ɔ: [{
-      source: goPrevWithBoard,
-      filter: Boolean,
-      target: _game.$board
-    }],
-    config: {
-      loc: {
-        file: _effectorFileName,
-        line: 15,
-        column: 4
-      },
-      name: "",
-      sid: "lxhx6i"
-    }
-  });
-  return {
-    $boardHistory: $boardHistory,
-    prev: prev,
-    next: next
-  };
-}
-},{"effector":"node_modules/effector/effector.es.js","./game":"src/models/game/index.ts"}],"src/GUI/common.tsx":[function(require,module,exports) {
+},{"./events":"src/models/snakes/events.ts","./store":"src/models/snakes/store.ts","./model":"src/models/snakes/model.ts"}],"src/GUI/common.tsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44795,9 +44635,13 @@ var NumberInput = _styledComponents.default.input.attrs({
 exports.NumberInput = NumberInput;
 var $state = (0, _effector.combine)({
   ɔ: [{
-    board: _game.$board,
+    isEnabledCollisionDetect: _game.$isEnabledCollisionDetect,
     isUserInGame: _snakes.$isUserInGame,
-    snakesIterator: _snakes.$snakesIterator
+    indexesVisible: _game.$indexesVisible,
+    isLoggerEnabled: _game.$isLoggerEnabled,
+    snakesIterator: _snakes.$snakesIterator,
+    fps: _game.$fps,
+    needFillEmptyGraphsCellls: _game.$needFillEmptyGraphsCellls
   }],
   config: {
     loc: {
@@ -44812,9 +44656,13 @@ var $state = (0, _effector.combine)({
 
 function Settings() {
   var _useStore = (0, _effectorReact.useStore)($state),
+      isEnabledCollisionDetect = _useStore.isEnabledCollisionDetect,
       isUserInGame = _useStore.isUserInGame,
+      indexesVisible = _useStore.indexesVisible,
+      isLoggerEnabled = _useStore.isLoggerEnabled,
       snakesIterator = _useStore.snakesIterator,
-      board = _useStore.board;
+      fps = _useStore.fps,
+      needFillEmptyGraphsCellls = _useStore.needFillEmptyGraphsCellls;
 
   var handleChangeUserInGameState = (0, _react.useCallback)(function () {
     if (isUserInGame) {
@@ -44825,10 +44673,8 @@ function Settings() {
   }, [isUserInGame]);
   return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Common Settings"), _react.default.createElement(_item.Wrapper, null, _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "collision",
-    checked: board.isEnabledCollisionDetect,
-    onChange: function onChange() {
-      (0, _game.setCollisionState)();
-    }
+    checked: isEnabledCollisionDetect,
+    onChange: _game.setCollisionState
   }), _react.default.createElement(_item.Name, {
     htmlFor: "collision"
   }, "handle collision state")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
@@ -44839,33 +44685,27 @@ function Settings() {
     htmlFor: "withUser"
   }, "add user (you) to game")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "indexesvisible",
-    checked: board.indexesVisible,
-    onChange: function onChange() {
-      (0, _game.setIndexesVisible)();
-    }
+    checked: indexesVisible,
+    onChange: _game.setIndexesVisible
   }), _react.default.createElement(_item.Name, {
     htmlFor: "indexesvisible"
   }, "visible indexes")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "needFillEmptyGraphsCellls",
-    checked: board.needFillEmptyGraphsCellls,
-    onChange: function onChange() {
-      (0, _game.fillEmptyGraphCells)();
-    }
+    checked: needFillEmptyGraphsCellls,
+    onChange: _game.fillEmptyGraphCells
   }), _react.default.createElement(_item.Name, {
     htmlFor: "needFillEmptyGraphsCellls"
   }, "fill graph's empty cells")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
     id: "logger",
-    checked: board.isLoggerEnabled,
-    onChange: function onChange() {
-      (0, _game.setLoggerState)();
-    }
+    checked: isLoggerEnabled,
+    onChange: _game.setLoggerState
   }), _react.default.createElement(_item.Name, {
     htmlFor: "logger"
   }, "show operations count in console")), _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(NumberInput, {
     max: 120,
     min: 1,
     step: 2,
-    value: board.fps,
+    value: fps,
     onChange: function onChange(_ref) {
       var target = _ref.target;
       (0, _game.changeFps)(Number.parseInt(target.value));
@@ -45001,8 +44841,6 @@ var _game = require("../models/game");
 
 var _snakes = require("../models/snakes");
 
-var _timeTravel = require("../models/time-travel");
-
 var _rightPanel = require("./right-panel");
 
 var _controlPannel = require("./control-pannel");
@@ -45055,8 +44893,6 @@ function _templateObject() {
 
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-var timeTravel = (0, _timeTravel.createTimeTravel)();
-
 var SideBarWrapper = _styledComponents.default.div(_templateObject());
 
 exports.SideBarWrapper = SideBarWrapper;
@@ -45067,25 +44903,13 @@ exports.SideBarInner = SideBarInner;
 
 var Button = _styledComponents.default.button(_templateObject3());
 
-function TimeTravelControler() {
-  var board = (0, _effectorReact.useStore)(timeTravel.$boardHistory);
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(Button, {
-    onClick: function onClick() {
-      timeTravel.prev();
-      console.log('prev');
-    }
-  }, "go to prev step"));
-}
-
 function SideBar() {
   var _useState = (0, _react.useState)(true),
       _useState2 = _slicedToArray(_useState, 2),
       isVisibleBoard = _useState2[0],
       setVisibleState = _useState2[1];
 
-  var _useStore = (0, _effectorReact.useStore)(_game.$board),
-      gameState = _useStore.gameState;
-
+  var gameState = (0, _effectorReact.useStore)(_game.$gameState);
   var snakesIterator = (0, _effectorReact.useStore)(_snakes.$snakesIterator);
   var isPlay = gameState === _config.GAME_STATE.IS_PLAY;
   var playOrPause = isPlay ? _game.stop : _game.play;
@@ -45109,9 +44933,9 @@ function SideBar() {
     onClick: addSnakeToGame
   }, "add snake"), _react.default.createElement(Button, {
     onClick: toggleBoardVisibleState
-  }, isVisibleBoard ? 'hide board' : 'show board')), _react.default.createElement(TimeTravelControler, null))));
+  }, isVisibleBoard ? 'hide board' : 'show board')))));
 }
-},{"react":"node_modules/react/index.js","effector-react":"node_modules/effector-react/effector-react.es.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","react-draggable":"node_modules/react-draggable/dist/react-draggable.js","../models/game":"src/models/game/index.ts","../models/snakes":"src/models/snakes/index.ts","../models/time-travel":"src/models/time-travel.ts","./right-panel":"src/GUI/right-panel.tsx","./control-pannel":"src/GUI/control-pannel.tsx","../config":"src/config.ts"}],"src/GUI/index.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","effector-react":"node_modules/effector-react/effector-react.es.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","react-draggable":"node_modules/react-draggable/dist/react-draggable.js","../models/game":"src/models/game/index.ts","../models/snakes":"src/models/snakes/index.ts","./right-panel":"src/GUI/right-panel.tsx","./control-pannel":"src/GUI/control-pannel.tsx","../config":"src/config.ts"}],"src/GUI/index.tsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45154,92 +44978,7 @@ var root = document.querySelector('#root');
 function renderGUI() {
   _reactDom.default.render(_react.default.createElement(App, null), root);
 }
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./side-bar":"src/GUI/side-bar.tsx"}],"src/renderer/foods.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.renderFoods = renderFoods;
-
-var _utils = require("../utils");
-
-var _config = require("../config");
-
-var _shapes = require("./shapes");
-
-var _effectorFileName = "/src/renderer/foods.ts";
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function renderFoods(_ref) {
-  var context = _ref.context,
-      foods = _ref.foods,
-      _ref$indexesVisible = _ref.indexesVisible,
-      indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
-  foods.forEach(function (_ref2) {
-    var _ref3 = _slicedToArray(_ref2, 1),
-        position = _ref3[0];
-
-    (0, _shapes.drawSquare)({
-      color: _config.colorScheme.foodColor,
-      position: position,
-      context: context
-    });
-
-    if (indexesVisible) {
-      (0, _shapes.renderText)({
-        context: context,
-        text: (0, _utils.getIndexByPosition)(position).toString(),
-        position: position
-      });
-    }
-  });
-}
-},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts"}],"src/renderer/bricks.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.renderBricks = renderBricks;
-
-var _utils = require("../utils");
-
-var _config = require("../config");
-
-var _shapes = require("./shapes");
-
-var _effectorFileName = "/src/renderer/bricks.ts";
-
-function renderBricks(_ref) {
-  var context = _ref.context,
-      bricks = _ref.bricks,
-      _ref$indexesVisible = _ref.indexesVisible,
-      indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
-  bricks.forEach(function (position) {
-    (0, _shapes.drawSquare)({
-      color: _config.colorScheme.brikColor,
-      position: position,
-      context: context
-    });
-
-    if (indexesVisible) {
-      (0, _shapes.renderText)({
-        context: context,
-        text: (0, _utils.getIndexByPosition)(position).toString(),
-        position: position
-      });
-    }
-  });
-}
-},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts"}],"src/models/objects/store.ts":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","styled-components":"node_modules/styled-components/dist/styled-components.browser.esm.js","./side-bar":"src/GUI/side-bar.tsx"}],"src/models/objects/store.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45635,26 +45374,22 @@ var _game = require("./game");
 
 var _effectorFileName = "/src/models/tick.ts";
 
-var $isPlay = _game.$board.map(function (s) {
-  return s.gameState === _config.GAME_STATE.IS_PLAY;
+var $isPlay = _game.$gameState.map(function (s) {
+  return s === _config.GAME_STATE.IS_PLAY;
 });
 
-var $isPause = _game.$board.map(function (s) {
-  return s.gameState === _config.GAME_STATE.IS_PAUSE;
-});
-
-var $fps = _game.$board.map(function (s) {
-  return s.fps;
+var $isPause = _game.$gameState.map(function (s) {
+  return s === _config.GAME_STATE.IS_PAUSE;
 });
 
 var tickFx = (0, _effector.createEffect)("tickFx", {
   loc: {
     file: _effectorFileName,
-    line: 7,
+    line: 6,
     column: 15
   },
   name: "tickFx",
-  sid: "-q8lu3n"
+  sid: "-qpnghu"
 }).use(function (fps) {
   return new Promise(function (rs) {
     setTimeout(rs, 1000 / fps);
@@ -45668,29 +45403,29 @@ function createTick(_ref) {
   var $tick = (0, _effector.createStore)(0, {
     loc: {
       file: _effectorFileName,
-      line: 11,
+      line: 10,
       column: 18
     },
     name: "$tick",
-    sid: "-7i5prz"
+    sid: "-7z7c66"
   });
   var render = (0, _effector.createEvent)("render", {
     loc: {
       file: _effectorFileName,
-      line: 12,
+      line: 11,
       column: 19
     },
     name: "render",
-    sid: "-erinxy"
+    sid: "-f8kac5"
   });
   var start = (0, _effector.createEvent)("start", {
     loc: {
       file: _effectorFileName,
-      line: 13,
+      line: 12,
       column: 18
     },
     name: "start",
-    sid: "-gtlmrm"
+    sid: "-han95t"
   });
   var $combinedState = (0, _effector.combine)({
     ɔ: [$tick, $state, function (tick, state) {
@@ -45702,16 +45437,16 @@ function createTick(_ref) {
     config: {
       loc: {
         file: _effectorFileName,
-        line: 14,
+        line: 13,
         column: 27
       },
       name: "$combinedState",
-      sid: "-gk464n"
+      sid: "-h15siu"
     }
   });
   var nextTickFx = (0, _effector.attach)({
     effect: tickFx,
-    source: $fps,
+    source: _game.$fps,
     mapParams: function mapParams(_, fps) {
       return fps;
     }
@@ -45723,11 +45458,11 @@ function createTick(_ref) {
     config: {
       loc: {
         file: _effectorFileName,
-        line: 23,
+        line: 22,
         column: 24
       },
       name: "triggerTick",
-      sid: "bquocx"
+      sid: "b9t1yq"
     }
   });
   var triggerRender = (0, _effector.guard)({
@@ -45737,11 +45472,11 @@ function createTick(_ref) {
     config: {
       loc: {
         file: _effectorFileName,
-        line: 24,
+        line: 23,
         column: 26
       },
       name: "triggerRender",
-      sid: "t9g85x"
+      sid: "sselrq"
     }
   });
   $tick.on(nextTickFx.done, function (previous) {
@@ -45752,11 +45487,11 @@ function createTick(_ref) {
     config: {
       loc: {
         file: _effectorFileName,
-        line: 26,
+        line: 25,
         column: 4
       },
       name: "",
-      sid: "nkrzsx"
+      sid: "nk877k"
     }
   }).watch(runLogic);
   (0, _effector.sample)({
@@ -45764,11 +45499,11 @@ function createTick(_ref) {
     config: {
       loc: {
         file: _effectorFileName,
-        line: 27,
+        line: 26,
         column: 4
       },
       name: "",
-      sid: "nlbsea"
+      sid: "nkrzsx"
     }
   }).watch(runRender);
   (0, _effector.forward)({
@@ -45779,11 +45514,11 @@ function createTick(_ref) {
     config: {
       loc: {
         file: _effectorFileName,
-        line: 28,
+        line: 27,
         column: 4
       },
       name: "",
-      sid: "nlvkzn"
+      sid: "nlbsea"
     }
   });
   (0, _effector.forward)({
@@ -45794,11 +45529,11 @@ function createTick(_ref) {
     config: {
       loc: {
         file: _effectorFileName,
-        line: 32,
+        line: 31,
         column: 4
       },
       name: "",
-      sid: "nzmfto"
+      sid: "nz2n8b"
     }
   });
   return {
@@ -45806,7 +45541,92 @@ function createTick(_ref) {
     start: start
   };
 }
-},{"effector":"node_modules/effector/effector.es.js","../config":"src/config.ts","./game":"src/models/game/index.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","../config":"src/config.ts","./game":"src/models/game/index.ts"}],"src/renderer/foods.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.renderFoods = renderFoods;
+
+var _utils = require("../utils");
+
+var _config = require("../config");
+
+var _shapes = require("./shapes");
+
+var _effectorFileName = "/src/renderer/foods.ts";
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function renderFoods(_ref) {
+  var context = _ref.context,
+      foods = _ref.foods,
+      _ref$indexesVisible = _ref.indexesVisible,
+      indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
+  foods.forEach(function (_ref2) {
+    var _ref3 = _slicedToArray(_ref2, 1),
+        position = _ref3[0];
+
+    (0, _shapes.drawSquare)({
+      color: _config.colorScheme.foodColor,
+      position: position,
+      context: context
+    });
+
+    if (indexesVisible) {
+      (0, _shapes.renderText)({
+        context: context,
+        text: (0, _utils.getIndexByPosition)(position).toString(),
+        position: position
+      });
+    }
+  });
+}
+},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts"}],"src/renderer/bricks.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.renderBricks = renderBricks;
+
+var _utils = require("../utils");
+
+var _config = require("../config");
+
+var _shapes = require("./shapes");
+
+var _effectorFileName = "/src/renderer/bricks.ts";
+
+function renderBricks(_ref) {
+  var context = _ref.context,
+      bricks = _ref.bricks,
+      _ref$indexesVisible = _ref.indexesVisible,
+      indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
+  bricks.forEach(function (position) {
+    (0, _shapes.drawSquare)({
+      color: _config.colorScheme.brikColor,
+      position: position,
+      context: context
+    });
+
+    if (indexesVisible) {
+      (0, _shapes.renderText)({
+        context: context,
+        text: (0, _utils.getIndexByPosition)(position).toString(),
+        position: position
+      });
+    }
+  });
+}
+},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -45900,10 +45720,6 @@ var _algorithms = require("./algorithms");
 
 var _GUI = require("./GUI");
 
-var _foods = require("./renderer/foods");
-
-var _bricks = require("./renderer/bricks");
-
 var _snakes = require("./models/snakes");
 
 var _graph = require("./models/graph");
@@ -45913,6 +45729,10 @@ var _objects = require("./models/objects");
 var _tick = require("./models/tick");
 
 var _game = require("./models/game");
+
+var _foods = require("./renderer/foods");
+
+var _bricks = require("./renderer/bricks");
 
 var _algorithms2 = require("./models/algorithms");
 
@@ -45958,11 +45778,14 @@ var $computedSnakes = (0, _effector.combine)({
 });
 var $state = (0, _effector.combine)({
   ɔ: [{
-    board: _game.$board,
+    isLoggerEnabled: _game.$isLoggerEnabled,
+    indexesVisible: _game.$indexesVisible,
     graph: _graph.$graph,
     foods: _objects.$foods,
     bricks: _objects.$bricks,
-    computedSnakes: $computedSnakes
+    computedSnakes: $computedSnakes,
+    isEnabledCollisionDetect: _game.$isEnabledCollisionDetect,
+    needFillEmptyGraphsCellls: _game.$needFillEmptyGraphsCellls
   }],
   config: {
     loc: {
@@ -46002,7 +45825,6 @@ function main(canvas, context) {
     var graph = _algorithms.Graph.extend(nextState.graph);
 
     var foods = nextState.foods;
-    var board = nextState.board;
 
     function handleEatFood(_ref2) {
       var snake = _ref2.snake,
@@ -46048,8 +45870,8 @@ function main(canvas, context) {
 
       // @ts-ignore
       var _snake$updater = snake.updater(Object.assign(Object.assign({
-        withLogger: board.isLoggerEnabled,
-        isEnabledCollisionDetect: board.isEnabledCollisionDetect,
+        withLogger: nextState.isLoggerEnabled,
+        isEnabledCollisionDetect: nextState.isEnabledCollisionDetect,
         snake: snake
       }, algorithm), {
         state: Object.assign(Object.assign({}, nextState), {
@@ -46085,7 +45907,7 @@ function main(canvas, context) {
         case _config.PLACE_TYPE.GAME_OBJECT:
         case _config.PLACE_TYPE.BRICK:
           {
-            if (board.isEnabledCollisionDetect) {
+            if (nextState.isEnabledCollisionDetect) {
               nextSnake = (0, _snake.setCrash)(nextSnake, true);
               break;
             }
@@ -46111,9 +45933,10 @@ function main(canvas, context) {
     var nextState = _ref5.state;
     var computedSnakes = nextState.computedSnakes,
         foods = nextState.foods,
+        indexesVisible = nextState.indexesVisible,
         graph = nextState.graph,
-        bricks = nextState.bricks,
-        board = nextState.board;
+        needFillEmptyGraphsCellls = nextState.needFillEmptyGraphsCellls,
+        bricks = nextState.bricks;
 
     function fillEmptyCell() {
       graph.getVertexes().filter(function (v) {
@@ -46131,7 +45954,7 @@ function main(canvas, context) {
     (0, _foods.renderFoods)({
       context: context,
       foods: foods,
-      indexesVisible: board.indexesVisible
+      indexesVisible: indexesVisible
     });
     computedSnakes.forEach(function (_ref6) {
       var snake = _ref6.snake,
@@ -46143,7 +45966,7 @@ function main(canvas, context) {
         (0, _renderer.renderSnake)({
           context: context,
           snake: snake,
-          indexesVisible: board.indexesVisible
+          indexesVisible: indexesVisible
         });
 
         if (showProcessedCells) {
@@ -46167,17 +45990,17 @@ function main(canvas, context) {
         (0, _renderer.renderSnake)({
           context: context,
           snake: snake,
-          indexesVisible: board.indexesVisible
+          indexesVisible: indexesVisible
         });
       }
     });
     (0, _bricks.renderBricks)({
       context: context,
       bricks: bricks,
-      indexesVisible: board.indexesVisible
+      indexesVisible: indexesVisible
     });
 
-    if (board.needFillEmptyGraphsCellls) {
+    if (needFillEmptyGraphsCellls) {
       fillEmptyCell();
     }
 
@@ -46200,7 +46023,7 @@ if (canvas) {
 
   main(canvas, context);
 }
-},{"effector":"node_modules/effector/effector.es.js","./utils":"src/utils.ts","./renderer":"src/renderer/index.ts","./config":"src/config.ts","./controll":"src/controll.ts","./canvas":"src/canvas.ts","./models/snake":"src/models/snake.ts","./algorithms":"src/algorithms/index.ts","./GUI":"src/GUI/index.tsx","./renderer/foods":"src/renderer/foods.ts","./renderer/bricks":"src/renderer/bricks.ts","./models/snakes":"src/models/snakes/index.ts","./models/graph":"src/models/graph/index.ts","./models/objects":"src/models/objects/index.ts","./models/tick":"src/models/tick.ts","./models/game":"src/models/game/index.ts","./models/algorithms":"src/models/algorithms/index.ts","reset-css":"node_modules/reset-css/reset.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"effector":"node_modules/effector/effector.es.js","./utils":"src/utils.ts","./renderer":"src/renderer/index.ts","./config":"src/config.ts","./controll":"src/controll.ts","./canvas":"src/canvas.ts","./models/snake":"src/models/snake.ts","./algorithms":"src/algorithms/index.ts","./GUI":"src/GUI/index.tsx","./models/snakes":"src/models/snakes/index.ts","./models/graph":"src/models/graph/index.ts","./models/objects":"src/models/objects/index.ts","./models/tick":"src/models/tick.ts","./models/game":"src/models/game/index.ts","./renderer/foods":"src/renderer/foods.ts","./renderer/bricks":"src/renderer/bricks.ts","./models/algorithms":"src/models/algorithms/index.ts","reset-css":"node_modules/reset-css/reset.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -46228,7 +46051,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55858" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64714" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
