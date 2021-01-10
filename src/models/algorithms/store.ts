@@ -54,4 +54,12 @@ export const $algorithms = createStore([
     activeHeuristic: 'manhattan',
     hasHeuristic: true,
   },
+  {
+    id: 'Empty',
+    alg: () => ({
+      processed: [],
+      path: [],
+    }),
+    name: 'Disable aloghorithm',
+  },
 ])

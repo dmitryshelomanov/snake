@@ -47,6 +47,10 @@ import {
 import { renderFoods } from './renderer/foods'
 import { renderBricks } from './renderer/bricks'
 import { $algorithms, $heuristics } from './models/algorithms'
+import {
+  $trimmedEditorCode,
+  $customCodeIsEnabled,
+} from './models/custom-alghorithm'
 import 'reset-css'
 
 const defaultSettings = buildSettingsForSnake()
@@ -69,6 +73,31 @@ type State = {
   isEnabledCollisionDetect: boolean
   needFillEmptyGraphsCellls: boolean
   bricks: Array<Coords>
+  trimmedEditorCode: string
+  customCodeIsEnabled: boolean
+}
+
+function buildOwnAlgorithm(code: string) {
+  return {
+    traverseAlgorithm: (
+      params: TraverseAlgorithmProps<Graph, Vertex>
+    ): TraverseAlgorithmResult => {
+      try {
+        const fn = new Function('params', code)
+
+        return fn(params)
+      } catch (error) {
+        console.warn('custom algorithm was failed')
+        console.warn(error)
+        console.warn(code)
+
+        return {
+          path: [],
+          processed: [],
+        }
+      }
+    },
+  }
 }
 
 const $computedSnakes = combine(
@@ -112,6 +141,8 @@ const $state = combine({
   computedSnakes: $computedSnakes,
   isEnabledCollisionDetect: $isEnabledCollisionDetect,
   needFillEmptyGraphsCellls: $needFillEmptyGraphsCellls,
+  trimmedEditorCode: $trimmedEditorCode,
+  customCodeIsEnabled: $customCodeIsEnabled,
 })
 
 function main(
@@ -202,23 +233,26 @@ function main(
       ])
     }
 
+    const { customCodeIsEnabled, trimmedEditorCode } = nextState
+
+    const customAlgorithm = buildOwnAlgorithm(trimmedEditorCode)
+
     nextState.computedSnakes
       .filter(({ snake }) => !snake.isCrash)
       .forEach(({ snake, algorithm }) => {
-        console.time('alg')
+        const preparedAlgh = customCodeIsEnabled ? customAlgorithm : algorithm
         // @ts-ignore
         const { nextDirection, nextPosition, meta } = snake.updater({
           withLogger: nextState.isLoggerEnabled,
           isEnabledCollisionDetect: nextState.isEnabledCollisionDetect,
           snake,
-          ...algorithm,
+          ...preparedAlgh,
           state: {
             ...nextState,
             graph,
             foods,
           },
         })
-        console.timeEnd('alg')
 
         let nextSnake = snake
 
