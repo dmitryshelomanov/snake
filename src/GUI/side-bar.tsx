@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react'
 import { useStore } from 'effector-react'
 import styled from 'styled-components'
 import Draggable from 'react-draggable'
+import { Link } from 'react-router-dom'
 import { $gameState, play, stop, restart } from '../models/game'
 import { addSnake, $snakesIterator } from '../models/snakes'
 import { RightPanel } from './right-panel'
@@ -45,6 +46,13 @@ const Button = styled.button<any>`
     background: #fff;
     cursor: not-allowed;
   }
+
+  &.isEditor {
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    margin-top: 12px;
+    width: 100%;
+  }
 `
 
 export function SideBar() {
@@ -76,6 +84,11 @@ export function SideBar() {
               {isVisibleBoard ? 'hide board' : 'show board'}
             </Button>
           </ControllPanel>
+          {!isPlay && (
+            <Link to="/alghorithm-editor" role="button">
+              <Button className="isEditor">open editor</Button>
+            </Link>
+          )}
         </SideBarInner>
       </SideBarWrapper>
     </Draggable>

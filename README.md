@@ -1,8 +1,15 @@
-# Snake Game
+# Snake Game 🤯
 
-[Try it](https://dmitryshelomanov.github.io/snake/)
+[Try it 👻](https://dmitryshelomanov.github.io/snake/)
 
 ![preview](preview.gif)
+
+## New Feature 🥳!
+
+- Added own to game
+- Added differents alghorithms
+- Added Code editor for custom user algorimth
+- Snakes have become very tenacious (without algorithm)
 
 ## Introduction
 

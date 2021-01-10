@@ -13,7 +13,9 @@
     "no-mixed-operators": "off",
     "import/export": "off",
     "unicorn/prevent-abbreviations": "off",
-    "@typescript-eslint/ban-ts-ignore": "off"
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "no-eval": "warn",
+    "no-new-func": "warn"
   },
   "globals": {
     "requestAnimationFrame": true,

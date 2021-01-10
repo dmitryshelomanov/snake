@@ -28,6 +28,8 @@
     "@types/lodash-es": "^4.17.3",
     "@types/react": "^16.9.33",
     "@types/react-dom": "^16.9.6",
+    "@types/react-router": "^5.1.11",
+    "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.0.1",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.28.0",
@@ -46,6 +48,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "ace-builds": "^1.4.12",
     "color": "^3.1.2",
     "effector": "^20.13.4",
     "effector-logger": "^0.5.0",
@@ -53,8 +56,11 @@
     "fastpriorityqueue": "^0.6.3",
     "lodash-es": "^4.17.15",
     "react": "^16.8.6",
+    "react-ace": "^9.2.1",
     "react-dom": "^16.8.6",
     "react-draggable": "^3.3.2",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
     "reset-css": "^4.0.1",
     "shallowequal": "^1.1.0",
     "styled-components": "^4.3.2"
