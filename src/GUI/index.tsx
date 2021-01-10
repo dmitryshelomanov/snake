@@ -1,7 +1,9 @@
 import React from 'react'
 import ReactDom from 'react-dom'
 import { createGlobalStyle } from 'styled-components'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { SideBar } from './side-bar'
+import { Editor } from './editor'
 
 const GlobalStyle = createGlobalStyle`
   body, canvas {
@@ -27,5 +29,11 @@ function App() {
 const root = document.querySelector('#root')
 
 export function renderGUI() {
-  ReactDom.render(<App />, root)
+  ReactDom.render(
+    <BrowserRouter>
+      <Route path="/" component={App} />
+      <Route path="/alghorithm-editor" component={Editor} />
+    </BrowserRouter>,
+    root
+  )
 }

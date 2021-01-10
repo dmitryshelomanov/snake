@@ -83,7 +83,7 @@ export function SettingsForSnake({ snakeId }: { snakeId: string }) {
       <Wrapper>
         <SettingWrapper>
           <Checkbox
-            disabled={isCrash}
+            disabled={!!isCrash}
             id={`path-${snakeId}`}
             checked={showAIPathToTarget}
             onChange={() => {
@@ -99,7 +99,7 @@ export function SettingsForSnake({ snakeId }: { snakeId: string }) {
         </SettingWrapper>
         <SettingWrapper>
           <Checkbox
-            disabled={isCrash}
+            disabled={!!isCrash}
             id={`processed-${snakeId}`}
             checked={showProcessedCells}
             onChange={() => {
@@ -115,7 +115,7 @@ export function SettingsForSnake({ snakeId }: { snakeId: string }) {
         </SettingWrapper>
         <SettingWrapper dir="column">
           <Select
-            disabled={isCrash}
+            disabled={!!isCrash}
             onChange={({ target }) => {
               updateSettingForSnake({
                 snakeId,
@@ -135,7 +135,7 @@ export function SettingsForSnake({ snakeId }: { snakeId: string }) {
           </Select>
           {currentAlgorithm && currentAlgorithm.hasHeuristic && (
             <Select
-              disabled={isCrash}
+              disabled={!!isCrash}
               onChange={({ target }) => {
                 updateSettingForSnake({
                   snakeId,

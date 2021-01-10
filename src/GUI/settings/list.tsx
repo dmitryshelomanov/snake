@@ -17,6 +17,10 @@ import {
   fillEmptyGraphCells,
 } from '../../models/game'
 import { $isUserInGame, $snakesIterator } from '../../models/snakes'
+import {
+  $customCodeIsEnabled,
+  toggleCustomCode,
+} from '../../models/custom-alghorithm'
 import { Title, Checkbox } from '../common'
 import { SettingsForSnake, Wrapper, SettingWrapper, Name } from './item'
 
@@ -35,6 +39,7 @@ const $state = combine({
   snakesIterator: $snakesIterator,
   fps: $fps,
   needFillEmptyGraphsCellls: $needFillEmptyGraphsCellls,
+  customCodeIsEnabled: $customCodeIsEnabled,
 })
 
 export function Settings() {
@@ -46,6 +51,7 @@ export function Settings() {
     snakesIterator,
     fps,
     needFillEmptyGraphsCellls,
+    customCodeIsEnabled,
   } = useStore($state)
 
   const handleChangeUserInGameState = useCallback(() => {
@@ -56,52 +62,61 @@ export function Settings() {
     }
   }, [isUserInGame])
 
+  const checkboxes = [
+    {
+      id: 'collision',
+      state: isEnabledCollisionDetect,
+      change: setCollisionState,
+      description: 'handle collision state',
+    },
+    {
+      id: 'withUser',
+      state: isUserInGame,
+      change: handleChangeUserInGameState,
+      description: 'add user (you) to game',
+    },
+    {
+      id: 'indexesvisible',
+      state: indexesVisible,
+      change: setIndexesVisible,
+      description: 'visible indexes',
+    },
+    {
+      id: 'needFillEmptyGraphsCellls',
+      state: needFillEmptyGraphsCellls,
+      change: fillEmptyGraphCells,
+      description: "fill graph's empty cells",
+    },
+    {
+      id: 'logger',
+      state: isLoggerEnabled,
+      change: setLoggerState,
+      description: 'show operations count in console',
+    },
+    {
+      id: 'Enable custom code',
+      state: customCodeIsEnabled,
+      change: toggleCustomCode,
+      description: 'If it it enabled - your code will run',
+    },
+  ]
+
   return (
     <>
       <Title>Common Settings</Title>
       <Wrapper>
-        <SettingWrapper>
-          <Checkbox
-            id="collision"
-            checked={isEnabledCollisionDetect}
-            onChange={setCollisionState}
-          />
-          <Name htmlFor="collision">handle collision state</Name>
-        </SettingWrapper>
-        <SettingWrapper>
-          <Checkbox
-            id="withUser"
-            checked={isUserInGame}
-            onChange={handleChangeUserInGameState}
-          />
-          <Name htmlFor="withUser">add user (you) to game</Name>
-        </SettingWrapper>
-        <SettingWrapper>
-          <Checkbox
-            id="indexesvisible"
-            checked={indexesVisible}
-            onChange={setIndexesVisible}
-          />
-          <Name htmlFor="indexesvisible">visible indexes</Name>
-        </SettingWrapper>
-        <SettingWrapper>
-          <Checkbox
-            id="needFillEmptyGraphsCellls"
-            checked={needFillEmptyGraphsCellls}
-            onChange={fillEmptyGraphCells}
-          />
-          <Name htmlFor="needFillEmptyGraphsCellls">
-            fill graph's empty cells
-          </Name>
-        </SettingWrapper>
-        <SettingWrapper>
-          <Checkbox
-            id="logger"
-            checked={isLoggerEnabled}
-            onChange={setLoggerState}
-          />
-          <Name htmlFor="logger">show operations count in console</Name>
-        </SettingWrapper>
+        {checkboxes.map((it) => (
+          <SettingWrapper>
+            <Checkbox
+              id={it.id}
+              checked={it.state}
+              onChange={() => {
+                it.change()
+              }}
+            />
+            <Name htmlFor={it.id}>{it.description}</Name>
+          </SettingWrapper>
+        ))}
         <SettingWrapper>
           <NumberInput
             max={120}
