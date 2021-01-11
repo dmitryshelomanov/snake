@@ -23,6 +23,14 @@ declare type TraverseAlgorithmProps<G, V> = {
   getCostByIndex: (arg0: V) => number
   withLogger: boolean
   heuristic: HeuristicFunction
+} as params in global
+
+!!Так же может понадобиться утилита для получения координат по индексу
+В графе всем соседям присвоен индекс (https://github.com/dmitryshelomanov/snake/blob/master/src/algorithms/graph.ts)
+доступные утилиты находятся в utils (in global)
+{
+  getPositionByIndex: (index: number) => Coords,
+  getIndexByPosition: (index: Coords) => number
 }
 
 declare type TraverseAlgorithmResult = {
@@ -53,11 +61,49 @@ declare type TraverseAlgorithmResult = {
 const {
   startIndex,
   endIndex,
+  graph,
 } = params // !important this is bridge between your code and snake vars
 
+const { getPositionByIndex } = utils
+
+function manhattanDistance({
+  p: [x, y],
+  p1: [x1, y1],
+}) {
+  return Math.abs(x1 - x) + Math.abs(y1 - y)
+}
+
+let path = []
+let processed = []
+
+const vertex = graph.getVertex(startIndex)
+
+if(vertex) {
+  const positions = vertex.neigbors
+    .filter((index) => {
+      // нужно что бы змейка не пошла в блок или в себя
+      // для теста можно отключать коллизию
+      const nvertex = graph.getVertex(index)
+
+      // https://github.com/dmitryshelomanov/snake/blob/master/src/config.ts#L23
+      return nvertex.value.type === 0 || nvertex.value.type === 3 // EMPTY or FOOD (PLACE_TYPE)
+    })
+    .map((index) => {
+      return [
+        index,
+        manhattanDistance({ p: getPositionByIndex(index), p1: getPositionByIndex(endIndex) })
+      ]
+    })
+    // get nearest index
+    .sort((a, b) => a[1] - b[1])
+
+  path = positions[0] ? [positions[0][0]] : path
+  processed = vertex.neigbors
+}
+
 return {
-  path: [],
-  processed: []
+  path,
+  processed
 }
 
 ${emptyRow}
