@@ -55,6 +55,11 @@ import 'reset-css'
 
 const defaultSettings = buildSettingsForSnake()
 
+const utilsForEditor = {
+  getIndexByPosition,
+  getPositionByIndex,
+}
+
 type ComputedSnake = {
   snake: Snake
   settings: { [key: string]: SnakeSettings }
@@ -83,9 +88,9 @@ function buildOwnAlgorithm(code: string) {
       params: TraverseAlgorithmProps<Graph, Vertex>
     ): TraverseAlgorithmResult => {
       try {
-        const fn = new Function('params', code)
+        const fn = new Function('params', 'utils', code)
 
-        return fn(params)
+        return fn(params, utilsForEditor)
       } catch (error) {
         console.warn('custom algorithm was failed')
         console.warn(error)
