@@ -65,6 +65,7 @@ ${emptyRow}
 
 export const changeEditorCode = createEvent<string>()
 export const toggleCustomCode = createEvent()
+export const changeTheme = createEvent<string>()
 
 export const $editorCode = restore(changeEditorCode, code)
 
@@ -74,3 +75,5 @@ export const $customCodeIsEnabled = createStore(false).on(
   toggleCustomCode,
   (state) => !state
 )
+
+export const $editorTheme = restore(changeTheme, 'xcode')
