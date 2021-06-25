@@ -1877,6 +1877,11 @@ exports.colorScheme = exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIO
 var _keyboard = require("./keyboard");
 
 var _effectorFileName = "/src/config.ts";
+
+var _ref = new URL(window.location.href),
+    search = _ref.search;
+
+var parsedParams = new URLSearchParams(search);
 var cellSize = 20;
 exports.cellSize = cellSize;
 var pageWidth = window.innerWidth;
@@ -1889,7 +1894,7 @@ var borderSize = 1;
 exports.borderSize = borderSize;
 var foodCount = 50;
 exports.foodCount = foodCount;
-var snakeCount = 1;
+var snakeCount = parsedParams.get('snakeCount') ? Number(parsedParams.get('snakeCount')) : 1;
 exports.snakeCount = snakeCount;
 var DIRECTIONS;
 exports.DIRECTIONS = DIRECTIONS;
@@ -80807,7 +80812,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52872" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62274" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
