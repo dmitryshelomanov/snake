@@ -1,12 +1,23 @@
 import { KEYS } from './keyboard'
 
-export const cellSize = 20
+const { search } = new URL(window.location.href)
+const parsedParams = new URLSearchParams(search)
+
+export const cellSize = parsedParams.get('cellSize')
+  ? Number(parsedParams.get('cellSize'))
+  : 20
 export const pageWidth = window.innerWidth
 export const pageHeight = window.innerHeight
-export const fps = 15
+export const fps = parsedParams.get('fps')
+  ? Number(parsedParams.get('fps'))
+  : 15
 export const borderSize = 1
-export const foodCount = 50
-export const snakeCount = 1
+export const foodCount = parsedParams.get('foodCount')
+  ? Number(parsedParams.get('foodCount'))
+  : 50
+export const snakeCount = parsedParams.get('snakeCount')
+  ? Number(parsedParams.get('snakeCount'))
+  : 1
 
 export enum DIRECTIONS {
   LEFT = KEYS.LEFT_ARROW,
