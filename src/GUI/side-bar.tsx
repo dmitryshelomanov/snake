@@ -55,8 +55,14 @@ const Button = styled.button<any>`
   }
 `
 
+const { search } = new URL(window.location.href)
+const parsedParams = new URLSearchParams(search)
+const initalState = parsedParams.get('isVisibleBoard')
+  ? JSON.parse(parsedParams.get('isVisibleBoard'))
+  : true
+
 export function SideBar() {
-  const [isVisibleBoard, setVisibleState] = useState(true)
+  const [isVisibleBoard, setVisibleState] = useState(initalState)
   const gameState = useStore($gameState)
   const snakesIterator = useStore($snakesIterator)
   const isPlay = gameState === GAME_STATE.IS_PLAY
