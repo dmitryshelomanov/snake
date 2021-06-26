@@ -46,7 +46,7 @@ export const ScoreItem = memo(({ snakeId }: { snakeId: string }) => {
   const colors = useSnakeColorState(snakeId)
 
   return (
-    <Score isCrash={isCrash} color={colors.head}>
+    <Score isCrash={Boolean(isCrash)} color={colors.head}>
       <DroppedOutBlock hidden={!isCrash}>Dropped out !</DroppedOutBlock>
       <Name>{snakeId}</Name>
       <Counter>{score}</Counter>

@@ -6,12 +6,18 @@ const parsedParams = new URLSearchParams(search)
 export const cellSize = parsedParams.get('cellSize')
   ? Number(parsedParams.get('cellSize'))
   : 20
-export const pageWidth = window.innerWidth
-export const pageHeight = window.innerHeight
+export const pageWidth = parsedParams.get('pageWidth')
+  ? Number(parsedParams.get('pageWidth'))
+  : window.innerWidth
+export const pageHeight = parsedParams.get('pageHeight')
+  ? Number(parsedParams.get('pageHeight'))
+  : window.innerHeight
 export const fps = parsedParams.get('fps')
   ? Number(parsedParams.get('fps'))
   : 15
-export const borderSize = 1
+export const borderSize = parsedParams.get('borderSize')
+  ? Number(parsedParams.get('borderSize'))
+  : 1
 export const foodCount = parsedParams.get('foodCount')
   ? Number(parsedParams.get('foodCount'))
   : 50
