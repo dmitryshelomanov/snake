@@ -10,6 +10,7 @@
 - Added differents alghorithms
 - Added Code editor for custom user algorimth
 - Snakes have become very tenacious (without algorithm)
+- Config from URL params
 
 ## Introduction
 
@@ -30,6 +31,16 @@ Feature
 Notes
 
 _Use keyword [/_ Note:](https://github.com/dmitryshelomanov/snake/search?q=%2F*+Note%3A&unscoped_q=%2F*+Note%3A) if you want to read algorigthm details\*
+
+## URL Params
+
+- <b>cellSize</b>: number = 50 - Cell with/height
+- <b>pageWidth/pageHeight</b>: number = window size - Canvas size
+- <b>fps</b>: number = 15 - frame tick
+- <b>borderSize</b>: number = 1 - cell border size
+- <b>foodCount</b>: number = 50 - food count
+- <b>snakeCount</b>: number = 1 - snake count
+- <b>isVisibleBoard</b>: boolean = true - board visbile state
 
 ## Perfomance warning
 
