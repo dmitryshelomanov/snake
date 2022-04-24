@@ -1,5 +1,4 @@
-import { createEvent, restore } from 'effector'
-import { createStore } from 'effector-logger'
+import { createEvent, restore, createStore } from 'effector'
 
 const emptyRow = Array.from(
   { length: 25 },

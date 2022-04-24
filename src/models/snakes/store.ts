@@ -1,14 +1,18 @@
 import { createStore, Store } from 'effector'
 import { updaters } from '../../updaters'
 import {
-  buildSettingsForSnake,
   getColorsForSnake,
   buildSnake,
   SnakeSettings,
   Snake,
+  buildSettingsForSnake,
 } from '../snake'
 import { randomPosition } from '../../utils'
 import { snakeCount } from '../../config'
+
+export type SettingsStore = {
+  [key: string]: SnakeSettings
+}
 
 function buildSnakesByCount(count: number): Array<Snake> {
   const snakes = []
@@ -28,30 +32,30 @@ function buildSnakesByCount(count: number): Array<Snake> {
   return snakes
 }
 
-export const $snakes = createStore(buildSnakesByCount(snakeCount))
+export function applySettingsToSnales(ids: string[], settings: SettingsStore) {
+  return ids.reduce((nextSettings, id) => {
+    if (!nextSettings[id]) {
+      nextSettings[id] = buildSettingsForSnake()
+    }
 
-export const $snakeIdsAsString = $snakes.map(
-  (snakes) => snakes.map((snake) => snake.id).join(','),
-  ''
+    return nextSettings
+  }, settings)
+}
+
+const initalSnakes = buildSnakesByCount(snakeCount)
+
+export const $snakes = createStore(initalSnakes)
+
+export const $settingsForSnakes: Store<SettingsStore> = createStore(
+  applySettingsToSnales(initalSnakes.map((snake) => snake.id), {})
 )
 
-export const $snakesIterator = $snakeIdsAsString.map(
-  (idsAsString) => idsAsString.split(','),
-  []
+export const $snakeIdsAsString = $snakes.map((snakes) =>
+  snakes.map((snake) => snake.id).join(',')
 )
 
-export const $settingsForSnakes: Store<{
-  [key: string]: SnakeSettings
-}> = $snakesIterator.map(
-  (ids, settings) =>
-    ids.reduce((nextSettiings, id) => {
-      if (!settings[id]) {
-        nextSettiings[id] = buildSettingsForSnake()
-      }
-
-      return nextSettiings
-    }, settings),
-  {}
+export const $snakesIterator = $snakeIdsAsString.map((idsAsString) =>
+  idsAsString.split(',')
 )
 
 export const $isUserInGame = $snakes.map(

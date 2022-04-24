@@ -345,19 +345,17 @@ function main(
         renderSnake({ context, snake, indexesVisible })
 
         if (showProcessedCells) {
-          // @ts-ignore
           renderProcessed({
             context,
-            processed: snake.meta.processed,
+            processed: snake.meta ? snake.meta.processed : [],
             color: snake.colors.processed,
           })
         }
 
         if (showAIPathToTarget) {
-          // @ts-ignore
           renderPath({
             context,
-            path: snake.meta.path,
+            path: snake.meta ? snake.meta.path : [],
             color: snake.colors.head,
           })
         }
