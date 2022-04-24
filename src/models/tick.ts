@@ -1,15 +1,14 @@
 import {
   createStore,
   createEffect,
-  forward,
   sample,
-  guard,
   attach,
-  merge,
   createEvent,
   combine,
   Store,
   Event,
+  guard,
+  merge,
 } from 'effector'
 import { GAME_STATE } from '../config'
 import { $gameState, $fps, restart, play } from './game'
@@ -52,23 +51,26 @@ export function createTick<State>({
     mapParams: (_, fps) => fps,
   })
 
-  const triggerTick = guard(merge([nextTickFx.done, play]), { filter: $isPlay })
+  const triggerTick = guard({
+    clock: merge([nextTickFx.done, play]),
+    filter: $isPlay,
+  })
 
-  const triggerRender = guard($state, { filter: $isPause })
+  const triggerRender = guard({ clock: $state, filter: $isPause })
 
   $tick.on(nextTickFx.done, (previous) => previous + 1).reset(restart)
 
-  sample($combinedState, nextTickFx).watch(runLogic)
-  sample($combinedState, render).watch(runRender)
+  sample({ source: $combinedState, clock: nextTickFx }).watch(runLogic)
+  sample({ source: $combinedState, clock: render }).watch(runRender)
 
-  forward({
-    from: merge([start, triggerTick]),
-    to: nextTickFx,
+  sample({
+    clock: [start, triggerTick],
+    target: nextTickFx,
   })
 
-  forward({
-    from: merge([triggerRender, nextTickFx.done]),
-    to: render,
+  sample({
+    clock: [triggerRender, nextTickFx.done],
+    target: render,
   })
 
   return {

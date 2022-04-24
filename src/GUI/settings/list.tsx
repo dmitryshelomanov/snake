@@ -106,7 +106,7 @@ export function Settings() {
       <Title>Common Settings</Title>
       <Wrapper>
         {checkboxes.map((it) => (
-          <SettingWrapper>
+          <SettingWrapper key={it.id}>
             <Checkbox
               id={it.id}
               checked={it.state}

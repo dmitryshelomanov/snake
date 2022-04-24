@@ -1,4 +1,4 @@
-import { combine } from 'effector'
+import { combine, createStore } from 'effector'
 import { Graph } from '../../algorithms'
 import { getLocalSize, setValuesToGraph, getIndexByPosition } from '../../utils'
 import { pageWidth, pageHeight, PLACE_TYPE } from '../../config'
@@ -8,7 +8,7 @@ import { Snake } from '../snake'
 
 const localSize = getLocalSize(pageWidth, pageHeight)
 
-function markFoodOnGraph({
+export function markFoodOnGraph({
   graph,
   foods,
 }: {
@@ -27,7 +27,7 @@ function markFoodOnGraph({
   )
 }
 
-function markSnakesOnGraph({
+export function markSnakesOnGraph({
   snakes,
   graph,
 }: {
@@ -48,7 +48,7 @@ function markSnakesOnGraph({
   })
 }
 
-function markBricksOnGraph({
+export function markBricksOnGraph({
   graph,
   bricks,
 }: {
@@ -67,16 +67,10 @@ function markBricksOnGraph({
   )
 }
 
-export const $graph = combine({
+export const $graph = createStore(new Graph(localSize))
+
+export const $entities = combine({
   snakes: $snakes,
   foods: $foods,
   bricks: $bricks,
-}).map(({ foods, snakes, bricks }, graph) => {
-  graph.clear()
-
-  markFoodOnGraph({ graph, foods })
-  markSnakesOnGraph({ graph, snakes })
-  markBricksOnGraph({ graph, bricks })
-
-  return Graph.extend(graph)
-}, new Graph(localSize))
+})

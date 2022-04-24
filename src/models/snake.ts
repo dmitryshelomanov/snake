@@ -27,7 +27,7 @@ export type SnakeColors = {
   processed: string
 }
 
-export type SnakeMeta = { processed: Array<number>; path: Array<number> }
+export type SnakeMeta = { processed: Array<Coords>; path: Array<Coords> }
 
 export type Updater = () => {
   nextPosition: Coords
