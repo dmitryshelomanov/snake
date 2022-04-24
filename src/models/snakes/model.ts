@@ -1,7 +1,7 @@
-import { forward } from 'effector'
+import { sample } from 'effector'
 import uniqBy from 'lodash-es/uniqBy'
 import { randomPosition } from '../../utils'
-import { Snake, getColorsForSnake, buildSnake } from '../snake'
+import { getColorsForSnake, buildSnake } from '../snake'
 import {
   addUserToGame,
   removeUserFromGame,
@@ -54,12 +54,12 @@ $settingsForSnakes
   })
   .reset(restart)
 
-forward({
-  from: addUserToGame,
-  to: addSnake.prepend(() => ({ snakeId: 'user', isAi: false })),
+sample({
+  clock: addUserToGame,
+  target: addSnake.prepend(() => ({ snakeId: 'user', isAi: false })),
 })
 
-forward({
-  from: removeUserFromGame,
-  to: removeSnake.prepend(() => 'user'),
+sample({
+  clock: removeUserFromGame,
+  target: removeSnake.prepend(() => 'user'),
 })
