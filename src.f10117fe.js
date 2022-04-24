@@ -43100,7 +43100,8 @@ exports.updaters = updaters;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$isUserInGame = exports.$settingsForSnakes = exports.$snakesIterator = exports.$snakeIdsAsString = exports.$snakes = void 0;
+exports.applySettingsToSnales = applySettingsToSnales;
+exports.$isUserInGame = exports.$snakesIterator = exports.$snakeIdsAsString = exports.$settingsForSnakes = exports.$snakes = void 0;
 
 var _effector = require("effector");
 
@@ -43130,36 +43131,49 @@ function buildSnakesByCount(count) {
   return snakes;
 }
 
-var $snakes = (0, _effector.createStore)(buildSnakesByCount(_config.snakeCount), {
+function applySettingsToSnales(ids, settings) {
+  return ids.reduce(function (nextSettings, id) {
+    if (!nextSettings[id]) {
+      nextSettings[id] = (0, _snake.buildSettingsForSnake)();
+    }
+
+    return nextSettings;
+  }, settings);
+}
+
+var initalSnakes = buildSnakesByCount(_config.snakeCount);
+var $snakes = (0, _effector.createStore)(initalSnakes, {
   loc: {
     file: _effectorFileName,
-    line: 19,
+    line: 28,
     column: 23
   },
   name: "$snakes",
-  sid: "-pfyxvz"
+  sid: "-b8ma25"
 });
 exports.$snakes = $snakes;
+var $settingsForSnakes = (0, _effector.createStore)(applySettingsToSnales(initalSnakes.map(function (snake) {
+  return snake.id;
+}), {}), {
+  loc: {
+    file: _effectorFileName,
+    line: 29,
+    column: 34
+  },
+  name: "$settingsForSnakes",
+  sid: "-58q2zw"
+});
+exports.$settingsForSnakes = $settingsForSnakes;
 var $snakeIdsAsString = $snakes.map(function (snakes) {
   return snakes.map(function (snake) {
     return snake.id;
   }).join(',');
-}, '');
+});
 exports.$snakeIdsAsString = $snakeIdsAsString;
 var $snakesIterator = $snakeIdsAsString.map(function (idsAsString) {
   return idsAsString.split(',');
-}, []);
+});
 exports.$snakesIterator = $snakesIterator;
-var $settingsForSnakes = $snakesIterator.map(function (ids, settings) {
-  return ids.reduce(function (nextSettiings, id) {
-    if (!settings[id]) {
-      nextSettiings[id] = (0, _snake.buildSettingsForSnake)();
-    }
-
-    return nextSettiings;
-  }, settings);
-}, {});
-exports.$settingsForSnakes = $settingsForSnakes;
 var $isUserInGame = $snakes.map(function (snakes) {
   return !!snakes.find(function (snake) {
     return snake.id === 'user';
@@ -47406,16 +47420,15 @@ _store.$settingsForSnakes.on(_events.removeSnake, function (settings, id) {
   return state;
 }).reset(_game.restart);
 
-(0, _effector.forward)({
-  and: {
-    from: _game.addUserToGame,
-    to: _events.addSnake.prepend(function () {
-      return {
-        snakeId: 'user',
-        isAi: false
-      };
-    })
-  },
+(0, _effector.sample)({
+  and: [{
+    source: _store.$settingsForSnakes,
+    clock: _store.$snakesIterator,
+    fn: function fn(settings, ids) {
+      return (0, _store.applySettingsToSnales)(ids, settings);
+    },
+    target: _store.$settingsForSnakes
+  }],
   or: {
     loc: {
       file: _effectorFileName,
@@ -47425,20 +47438,39 @@ _store.$settingsForSnakes.on(_events.removeSnake, function (settings, id) {
     sid: "y10fis"
   }
 });
-(0, _effector.forward)({
-  and: {
-    from: _game.removeUserFromGame,
-    to: _events.removeSnake.prepend(function () {
-      return 'user';
+(0, _effector.sample)({
+  and: [{
+    clock: _game.addUserToGame,
+    target: _events.addSnake.prepend(function () {
+      return {
+        snakeId: 'user',
+        isAi: false
+      };
     })
-  },
+  }],
   or: {
     loc: {
       file: _effectorFileName,
-      line: 51,
+      line: 53,
       column: 0
     },
-    sid: "yeract"
+    sid: "yfuvjj"
+  }
+});
+(0, _effector.sample)({
+  and: [{
+    clock: _game.removeUserFromGame,
+    target: _events.removeSnake.prepend(function () {
+      return 'user';
+    })
+  }],
+  or: {
+    loc: {
+      file: _effectorFileName,
+      line: 57,
+      column: 0
+    },
+    sid: "yi21wz"
   }
 });
 },{"effector":"node_modules/effector/effector.mjs","lodash-es/uniqBy":"node_modules/lodash-es/uniqBy.js","../../utils":"src/utils.ts","../snake":"src/models/snake.ts","../game":"src/models/game/index.ts","../../updaters":"src/updaters/index.ts","./events":"src/models/snakes/events.ts","./store":"src/models/snakes/store.ts"}],"src/models/snakes/index.ts":[function(require,module,exports) {
@@ -48345,7 +48377,9 @@ function Settings() {
     description: 'If it it enabled - your code will run'
   }];
   return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_common.Title, null, "Common Settings"), _react.default.createElement(_item.Wrapper, null, checkboxes.map(function (it) {
-    return _react.default.createElement(_item.SettingWrapper, null, _react.default.createElement(_common.Checkbox, {
+    return _react.default.createElement(_item.SettingWrapper, {
+      key: it.id
+    }, _react.default.createElement(_common.Checkbox, {
       id: it.id,
       checked: it.state,
       onChange: function onChange() {
@@ -78435,7 +78469,10 @@ Object.keys(_model).forEach(function (key) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$graph = void 0;
+exports.markFoodOnGraph = markFoodOnGraph;
+exports.markSnakesOnGraph = markSnakesOnGraph;
+exports.markBricksOnGraph = markBricksOnGraph;
+exports.$entities = exports.$graph = void 0;
 
 var _effector = require("effector");
 
@@ -78503,7 +78540,17 @@ function markBricksOnGraph(_ref5) {
   }));
 }
 
-var $graph = (0, _effector.combine)({
+var $graph = (0, _effector.createStore)(new _algorithms.Graph(localSize), {
+  loc: {
+    file: _effectorFileName,
+    line: 37,
+    column: 22
+  },
+  name: "$graph",
+  sid: "uar1ss"
+});
+exports.$graph = $graph;
+var $entities = (0, _effector.combine)({
   and: [{
     snakes: _snakes.$snakes,
     foods: _objects.$foods,
@@ -78512,32 +78559,14 @@ var $graph = (0, _effector.combine)({
   or: {
     loc: {
       file: _effectorFileName,
-      line: 37,
-      column: 22
+      line: 38,
+      column: 25
     },
-    name: "$graph",
-    sid: "uar1ss"
+    name: "$entities",
+    sid: "-qpvqel"
   }
-}).map(function (_ref6, graph) {
-  var foods = _ref6.foods,
-      snakes = _ref6.snakes,
-      bricks = _ref6.bricks;
-  graph.clear();
-  markFoodOnGraph({
-    graph: graph,
-    foods: foods
-  });
-  markSnakesOnGraph({
-    graph: graph,
-    snakes: snakes
-  });
-  markBricksOnGraph({
-    graph: graph,
-    bricks: bricks
-  });
-  return _algorithms.Graph.extend(graph);
-}, new _algorithms.Graph(localSize));
-exports.$graph = $graph;
+});
+exports.$entities = $entities;
 },{"effector":"node_modules/effector/effector.mjs","../../algorithms":"src/algorithms/index.ts","../../utils":"src/utils.ts","../../config":"src/config.ts","../snakes":"src/models/snakes/index.ts","../objects":"src/models/objects/index.ts"}],"src/models/graph/events.ts":[function(require,module,exports) {
 "use strict";
 
@@ -78564,56 +78593,108 @@ exports.adddBrickToGraph = adddBrickToGraph;
 
 var _effector = require("effector");
 
-var _objects = require("../objects");
-
 var _utils = require("../../utils");
 
 var _config = require("../../config");
+
+var _algorithms = require("../../algorithms");
+
+var _snakes = require("../snakes");
+
+var _objects = require("../objects");
 
 var _store = require("./store");
 
 var _events = require("./events");
 
 var _effectorFileName = "/src/models/graph/model.ts";
-(0, _effector.guard)({
-  and: [(0, _effector.sample)({
-    and: [_store.$graph, _events.adddBrickToGraph, function (graph, brick) {
-      return {
+var updateGraphFx = (0, _effector.attach)({
+  and: {
+    source: _store.$graph,
+    effect: function effect(graph, entities) {
+      graph.clear();
+      (0, _store.markFoodOnGraph)({
         graph: graph,
-        brick: brick
-      };
-    }],
-    or: {
-      loc: {
-        file: _effectorFileName,
-        line: 7,
-        column: 6
-      },
-      name: "and",
-      sid: "-gd58iq"
+        foods: entities.foods
+      });
+      (0, _store.markSnakesOnGraph)({
+        graph: graph,
+        snakes: entities.snakes
+      });
+      (0, _store.markBricksOnGraph)({
+        graph: graph,
+        bricks: entities.bricks
+      });
+      return _algorithms.Graph.extend(graph);
     }
-  }), {
-    filter: function filter(_ref) {
-      var graph = _ref.graph,
-          brick = _ref.brick;
-      var vertex = graph.getVertex((0, _utils.getIndexByPosition)(brick));
-      return vertex ? vertex.value.type === _config.PLACE_TYPE.EMPTY || vertex.value.type === _config.PLACE_TYPE.BRICK : false;
+  },
+  or: {
+    loc: {
+      file: _effectorFileName,
+      line: 9,
+      column: 22
     },
-    target: _objects.addBrick.prepend(function (_ref2) {
-      var brick = _ref2.brick;
-      return brick;
-    })
+    name: "updateGraphFx",
+    sid: "-fbzsrg"
+  }
+});
+
+_store.$graph.on(updateGraphFx.doneData, function (_, next) {
+  return next;
+});
+
+(0, _effector.sample)({
+  and: [{
+    clock: (0, _effector.combine)({
+      and: [{
+        snakes: _snakes.$snakes,
+        foods: _objects.$foods,
+        bricks: _objects.$bricks
+      }],
+      or: {
+        loc: {
+          file: _effectorFileName,
+          line: 21,
+          column: 11
+        },
+        name: "clock",
+        sid: "5evnal"
+      }
+    }),
+    target: updateGraphFx
   }],
   or: {
     loc: {
       file: _effectorFileName,
-      line: 7,
+      line: 20,
       column: 0
     },
-    sid: "e1e0nh"
+    sid: "6pklqi"
   }
 });
-},{"effector":"node_modules/effector/effector.mjs","../objects":"src/models/objects/index.ts","../../utils":"src/utils.ts","../../config":"src/config.ts","./store":"src/models/graph/store.ts","./events":"src/models/graph/events.ts"}],"src/models/graph/index.ts":[function(require,module,exports) {
+(0, _effector.sample)({
+  and: [{
+    source: _store.$graph,
+    clock: _events.adddBrickToGraph,
+    filter: function filter(graph, brick) {
+      var vertex = graph.getVertex((0, _utils.getIndexByPosition)(brick));
+      return vertex ? vertex.value.type === _config.PLACE_TYPE.EMPTY || vertex.value.type === _config.PLACE_TYPE.BRICK : false;
+    },
+    fn: function fn(_, brick) {
+      return brick;
+    },
+    target: _objects.addBrick
+  }],
+  or: {
+    loc: {
+      file: _effectorFileName,
+      line: 28,
+      column: 0
+    },
+    sid: "6tyyhe"
+  }
+});
+},{"effector":"node_modules/effector/effector.mjs","../../utils":"src/utils.ts","../../config":"src/config.ts","../../algorithms":"src/algorithms/index.ts","../snakes":"src/models/snakes/index.ts","../objects":"src/models/objects/index.ts","./store":"src/models/graph/store.ts","./events":"src/models/graph/events.ts"}],"src/models/graph/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78760,15 +78841,16 @@ function createTick(_ref) {
     }
   });
   var triggerTick = (0, _effector.guard)({
-    and: [(0, _effector.merge)([nextTickFx.done, _game.play], {
-      loc: {
-        file: _effectorFileName,
-        line: 22,
-        column: 30
-      },
-      name: "and",
-      sid: "82s311"
-    }), {
+    and: [{
+      clock: (0, _effector.merge)([nextTickFx.done, _game.play], {
+        loc: {
+          file: _effectorFileName,
+          line: 23,
+          column: 15
+        },
+        name: "clock",
+        sid: "tjityu"
+      }),
       filter: $isPlay
     }],
     or: {
@@ -78782,86 +78864,77 @@ function createTick(_ref) {
     }
   });
   var triggerRender = (0, _effector.guard)({
-    and: [$state, {
+    and: [{
+      clock: $state,
       filter: $isPause
     }],
     or: {
       loc: {
         file: _effectorFileName,
-        line: 23,
+        line: 26,
         column: 26
       },
       name: "triggerRender",
-      sid: "sselrq"
+      sid: "u7jgyb"
     }
   });
   $tick.on(nextTickFx.done, function (previous) {
     return previous + 1;
   }).reset(_game.restart);
   (0, _effector.sample)({
-    and: [$combinedState, nextTickFx],
+    and: [{
+      source: $combinedState,
+      clock: nextTickFx
+    }],
     or: {
       loc: {
         file: _effectorFileName,
-        line: 25,
+        line: 28,
         column: 4
       },
-      sid: "nk877k"
+      sid: "nlvkzn"
     }
   }).watch(runLogic);
   (0, _effector.sample)({
-    and: [$combinedState, render],
+    and: [{
+      source: $combinedState,
+      clock: render
+    }],
     or: {
       loc: {
         file: _effectorFileName,
-        line: 26,
+        line: 29,
         column: 4
       },
-      sid: "nkrzsx"
+      sid: "nmfdl0"
     }
   }).watch(runRender);
-  (0, _effector.forward)({
-    and: {
-      from: (0, _effector.merge)([start, triggerTick], {
-        loc: {
-          file: _effectorFileName,
-          line: 28,
-          column: 14
-        },
-        name: "from",
-        sid: "vhm906"
-      }),
-      to: nextTickFx
-    },
+  (0, _effector.sample)({
+    and: [{
+      clock: [start, triggerTick],
+      target: nextTickFx
+    }],
     or: {
       loc: {
         file: _effectorFileName,
-        line: 27,
+        line: 30,
         column: 4
       },
-      sid: "nlbsea"
+      sid: "nyiumy"
     }
   });
-  (0, _effector.forward)({
-    and: {
-      from: (0, _effector.merge)([triggerRender, nextTickFx.done], {
-        loc: {
-          file: _effectorFileName,
-          line: 32,
-          column: 14
-        },
-        name: "from",
-        sid: "-rpd943"
-      }),
-      to: render
-    },
+  (0, _effector.sample)({
+    and: [{
+      clock: [triggerRender, nextTickFx.done],
+      target: render
+    }],
     or: {
       loc: {
         file: _effectorFileName,
-        line: 31,
+        line: 34,
         column: 4
       },
-      sid: "nz2n8b"
+      sid: "o0q10e"
     }
   });
   return {
@@ -79329,19 +79402,17 @@ function main(canvas, context) {
         });
 
         if (showProcessedCells) {
-          // @ts-ignore
           (0, _renderer.renderProcessed)({
             context: context,
-            processed: snake.meta.processed,
+            processed: snake.meta ? snake.meta.processed : [],
             color: snake.colors.processed
           });
         }
 
         if (showAIPathToTarget) {
-          // @ts-ignore
           (0, _renderer.renderPath)({
             context: context,
-            path: snake.meta.path,
+            path: snake.meta ? snake.meta.path : [],
             color: snake.colors.head
           });
         }
@@ -79410,7 +79481,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60441" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57784" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
