@@ -2707,7 +2707,49 @@ function renderSnake(_ref) {
     }
   }
 }
-},{"../utils":"src/utils.ts","./shapes":"src/renderer/shapes.ts"}],"src/renderer/index.ts":[function(require,module,exports) {
+},{"../utils":"src/utils.ts","./shapes":"src/renderer/shapes.ts"}],"src/GUI/assets/apple.png":[function(require,module,exports) {
+module.exports = "/apple.288e4400.png";
+},{}],"src/GUI/assets/brick.png":[function(require,module,exports) {
+module.exports = "/brick.6c6b235d.png";
+},{}],"src/renderer/loader.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.loadAssets = loadAssets;
+exports.assets = void 0;
+
+var _apple = _interopRequireDefault(require("../GUI/assets/apple.png"));
+
+var _brick = _interopRequireDefault(require("../GUI/assets/brick.png"));
+
+var _effectorFileName = "/src/renderer/loader.ts";
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var assets = {
+  apple: new Image(),
+  brick: new Image()
+};
+exports.assets = assets;
+
+function loadImage(name, url) {
+  return new Promise(function (resolve) {
+    var image = new Image();
+    image.addEventListener('load', function () {
+      resolve(image); // @ts-ignore
+
+      assets[name] = image;
+    });
+    image.src = url;
+  });
+}
+
+function loadAssets() {
+  return Promise.all([loadImage('apple', _apple.default), loadImage('brick', _brick.default)]);
+}
+},{"../GUI/assets/apple.png":"src/GUI/assets/apple.png","../GUI/assets/brick.png":"src/GUI/assets/brick.png"}],"src/renderer/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2749,7 +2791,19 @@ Object.keys(_shapes).forEach(function (key) {
     }
   });
 });
-},{"./grid":"src/renderer/grid.ts","./snake":"src/renderer/snake.ts","./shapes":"src/renderer/shapes.ts"}],"src/controll.ts":[function(require,module,exports) {
+
+var _loader = require("./loader");
+
+Object.keys(_loader).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _loader[key];
+    }
+  });
+});
+},{"./grid":"src/renderer/grid.ts","./snake":"src/renderer/snake.ts","./shapes":"src/renderer/shapes.ts","./loader":"src/renderer/loader.ts"}],"src/controll.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -78956,6 +79010,8 @@ var _config = require("../config");
 
 var _shapes = require("./shapes");
 
+var _loader = require("./loader");
+
 var _effectorFileName = "/src/renderer/foods.ts";
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
@@ -78975,11 +79031,13 @@ function renderFoods(_ref) {
     var _ref3 = _slicedToArray(_ref2, 1),
         position = _ref3[0];
 
-    (0, _shapes.drawSquare)({
-      color: _config.colorScheme.foodColor,
-      position: position,
-      context: context
-    });
+    var _convertLocalPosition = (0, _utils.convertLocalPositionToGlobal)(position),
+        _convertLocalPosition2 = _slicedToArray(_convertLocalPosition, 2),
+        x = _convertLocalPosition2[0],
+        y = _convertLocalPosition2[1];
+
+    var size = _config.cellSize - _config.borderSize * 2;
+    context.drawImage(_loader.assets.apple, x + _config.borderSize * 2, y + _config.borderSize * 2, size, size);
 
     if (indexesVisible) {
       (0, _shapes.renderText)({
@@ -78990,7 +79048,7 @@ function renderFoods(_ref) {
     }
   });
 }
-},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts"}],"src/renderer/bricks.ts":[function(require,module,exports) {
+},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts","./loader":"src/renderer/loader.ts"}],"src/renderer/bricks.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79004,7 +79062,17 @@ var _config = require("../config");
 
 var _shapes = require("./shapes");
 
+var _loader = require("./loader");
+
 var _effectorFileName = "/src/renderer/bricks.ts";
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function renderBricks(_ref) {
   var context = _ref.context,
@@ -79012,11 +79080,13 @@ function renderBricks(_ref) {
       _ref$indexesVisible = _ref.indexesVisible,
       indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
   bricks.forEach(function (position) {
-    (0, _shapes.drawSquare)({
-      color: _config.colorScheme.brikColor,
-      position: position,
-      context: context
-    });
+    var _convertLocalPosition = (0, _utils.convertLocalPositionToGlobal)(position),
+        _convertLocalPosition2 = _slicedToArray(_convertLocalPosition, 2),
+        x = _convertLocalPosition2[0],
+        y = _convertLocalPosition2[1];
+
+    var size = _config.cellSize - _config.borderSize * 2;
+    context.drawImage(_loader.assets.brick, x + _config.borderSize * 2, y + _config.borderSize * 2, size, size);
 
     if (indexesVisible) {
       (0, _shapes.renderText)({
@@ -79027,7 +79097,7 @@ function renderBricks(_ref) {
     }
   });
 }
-},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"../utils":"src/utils.ts","../config":"src/config.ts","./shapes":"src/renderer/shapes.ts","./loader":"src/renderer/loader.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -79449,9 +79519,11 @@ function main(canvas, context) {
 var canvas = document.querySelector('canvas');
 
 if (canvas) {
-  var context = canvas.getContext('2d'); // @ts-ignore
-
-  main(canvas, context);
+  var context = canvas.getContext('2d');
+  (0, _renderer.loadAssets)().then(function () {
+    // @ts-ignore
+    main(canvas, context);
+  });
 }
 },{"effector":"node_modules/effector/effector.mjs","./utils":"src/utils.ts","./renderer":"src/renderer/index.ts","./config":"src/config.ts","./controll":"src/controll.ts","./canvas":"src/canvas.ts","./models/snake":"src/models/snake.ts","./algorithms":"src/algorithms/index.ts","./GUI":"src/GUI/index.tsx","./models/snakes":"src/models/snakes/index.ts","./models/graph":"src/models/graph/index.ts","./models/objects":"src/models/objects/index.ts","./models/tick":"src/models/tick.ts","./models/game":"src/models/game/index.ts","./renderer/foods":"src/renderer/foods.ts","./renderer/bricks":"src/renderer/bricks.ts","./models/algorithms":"src/models/algorithms/index.ts","./models/custom-alghorithm":"src/models/custom-alghorithm.ts","reset-css":"node_modules/reset-css/reset.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -79481,7 +79553,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57784" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60457" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
