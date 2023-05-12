@@ -14,6 +14,7 @@ import {
   renderProcessed,
   renderSnake,
   drawSquare,
+  loadAssets,
 } from './renderer'
 import { pageHeight, pageWidth, PLACE_TYPE, colorScheme } from './config'
 import { canvasInput } from './controll'
@@ -387,6 +388,8 @@ const canvas = document.querySelector('canvas')
 if (canvas) {
   const context = canvas.getContext('2d')
 
-  // @ts-ignore
-  main(canvas, context)
+  loadAssets().then(() => {
+    // @ts-ignore
+    main(canvas, context)
+  })
 }

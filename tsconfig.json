@@ -20,7 +20,6 @@
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
     "target": "es2016",
     "types": ["react", "jest"]
   },
