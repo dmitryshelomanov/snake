@@ -1,6 +1,7 @@
-import { getIndexByPosition } from '../utils'
-import { colorScheme } from '../config'
-import { drawSquare, renderText } from './shapes'
+import { getIndexByPosition, convertLocalPositionToGlobal } from '../utils'
+import { borderSize, cellSize } from '../config'
+import { renderText } from './shapes'
+import { assets } from './loader'
 
 export function renderFoods({
   context,
@@ -12,7 +13,16 @@ export function renderFoods({
   indexesVisible?: boolean
 }): void {
   foods.forEach(([position]) => {
-    drawSquare({ color: colorScheme.foodColor, position, context })
+    const [x, y] = convertLocalPositionToGlobal(position)
+    const size = cellSize - borderSize * 2
+
+    context.drawImage(
+      assets.apple,
+      x + borderSize * 2,
+      y + borderSize * 2,
+      size,
+      size
+    )
 
     if (indexesVisible) {
       renderText({

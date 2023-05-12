@@ -2,6 +2,8 @@
 
 [Try it 👻](https://dmitryshelomanov.github.io/snake/)
 
+[Stress test](https://dmitryshelomanov.github.io/snake/?cellSize=10&fps=60&isVisibleBoard=false&snakeCount=40)
+
 ![preview](preview.gif)
 
 ## New Feature 🥳!
