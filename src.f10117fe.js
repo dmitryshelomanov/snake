@@ -2252,7 +2252,7 @@ function keyboradFactory() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.colorScheme = exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.snakeCount = exports.foodCount = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
+exports.colorScheme = exports.PLACE_TYPE = exports.GAME_STATE = exports.DIRECTIONS = exports.teleportCount = exports.snakeCount = exports.foodCount = exports.borderSize = exports.fps = exports.pageHeight = exports.pageWidth = exports.cellSize = void 0;
 
 var _keyboard = require("./keyboard");
 
@@ -2262,7 +2262,7 @@ var _ref = new URL(window.location.href),
     search = _ref.search;
 
 var parsedParams = new URLSearchParams(search);
-var cellSize = parsedParams.get('cellSize') ? Number(parsedParams.get('cellSize')) : 20;
+var cellSize = parsedParams.get('cellSize') ? Number(parsedParams.get('cellSize')) : 30;
 exports.cellSize = cellSize;
 var pageWidth = parsedParams.get('pageWidth') ? Number(parsedParams.get('pageWidth')) : window.innerWidth;
 exports.pageWidth = pageWidth;
@@ -2272,10 +2272,12 @@ var fps = parsedParams.get('fps') ? Number(parsedParams.get('fps')) : 15;
 exports.fps = fps;
 var borderSize = parsedParams.get('borderSize') ? Number(parsedParams.get('borderSize')) : 1;
 exports.borderSize = borderSize;
-var foodCount = parsedParams.get('foodCount') ? Number(parsedParams.get('foodCount')) : 50;
+var foodCount = parsedParams.get('foodCount') ? Number(parsedParams.get('foodCount')) : 25;
 exports.foodCount = foodCount;
 var snakeCount = parsedParams.get('snakeCount') ? Number(parsedParams.get('snakeCount')) : 1;
 exports.snakeCount = snakeCount;
+var teleportCount = parsedParams.get('teleportCount') ? Number(parsedParams.get('foodCount')) : 10;
+exports.teleportCount = teleportCount;
 var DIRECTIONS;
 exports.DIRECTIONS = DIRECTIONS;
 
@@ -2302,6 +2304,7 @@ exports.PLACE_TYPE = PLACE_TYPE;
   PLACE_TYPE[PLACE_TYPE["GAME_OBJECT"] = 1] = "GAME_OBJECT";
   PLACE_TYPE[PLACE_TYPE["BRICK"] = 2] = "BRICK";
   PLACE_TYPE[PLACE_TYPE["FOOD"] = 3] = "FOOD";
+  PLACE_TYPE[PLACE_TYPE["TELEPORT"] = 4] = "TELEPORT";
 })(PLACE_TYPE || (exports.PLACE_TYPE = PLACE_TYPE = {}));
 
 var colorScheme = {
@@ -2327,6 +2330,7 @@ exports.getPositionByIndex = getPositionByIndex;
 exports.randomId = randomId;
 exports.createOperationLogger = createOperationLogger;
 exports.generateRandomFoodByCount = generateRandomFoodByCount;
+exports.generateRandomTeleports = generateRandomTeleports;
 exports.getDifferenceBetweenPositions = getDifferenceBetweenPositions;
 exports.setValuesToGraph = setValuesToGraph;
 exports.pointsAreEquals = pointsAreEquals;
@@ -2454,6 +2458,24 @@ function generateRandomFoodByCount(count) {
   return foods;
 }
 
+function generateRandomTeleports(pairCount) {
+  var teleports = [];
+
+  for (var i = 0; i < pairCount; i++) {
+    var current = randomPosition();
+    var target = randomPosition();
+    teleports.push({
+      current: current,
+      target: target
+    }, {
+      current: target,
+      target: current
+    });
+  }
+
+  return teleports;
+}
+
 function getDifferenceBetweenPositions(_ref7, _ref8) {
   var _ref9 = _slicedToArray(_ref7, 2),
       x = _ref9[0],
@@ -2478,6 +2500,17 @@ function setValuesToGraph(graph, values) {
           graph.setValueByIndex(index, {
             type: type,
             foodId: value
+          });
+          break;
+        }
+
+      case _config.PLACE_TYPE.TELEPORT:
+        {
+          graph.setValueByIndex(index, {
+            type: type,
+            payload: value.split(',').map(function (it) {
+              return Number(it);
+            })
           });
           break;
         }
@@ -2711,6 +2744,8 @@ function renderSnake(_ref) {
 module.exports = "/apple.288e4400.png";
 },{}],"src/GUI/assets/brick.png":[function(require,module,exports) {
 module.exports = "/brick.6c6b235d.png";
+},{}],"src/GUI/assets/hole.png":[function(require,module,exports) {
+module.exports = "/hole.4da868d7.png";
 },{}],"src/renderer/loader.ts":[function(require,module,exports) {
 "use strict";
 
@@ -2724,13 +2759,16 @@ var _apple = _interopRequireDefault(require("../GUI/assets/apple.png"));
 
 var _brick = _interopRequireDefault(require("../GUI/assets/brick.png"));
 
+var _hole = _interopRequireDefault(require("../GUI/assets/hole.png"));
+
 var _effectorFileName = "/src/renderer/loader.ts";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var assets = {
   apple: new Image(),
-  brick: new Image()
+  brick: new Image(),
+  hole: new Image()
 };
 exports.assets = assets;
 
@@ -2747,9 +2785,60 @@ function loadImage(name, url) {
 }
 
 function loadAssets() {
-  return Promise.all([loadImage('apple', _apple.default), loadImage('brick', _brick.default)]);
+  return Promise.all([loadImage('apple', _apple.default), loadImage('brick', _brick.default), loadImage('hole', _hole.default)]);
 }
-},{"../GUI/assets/apple.png":"src/GUI/assets/apple.png","../GUI/assets/brick.png":"src/GUI/assets/brick.png"}],"src/renderer/index.ts":[function(require,module,exports) {
+},{"../GUI/assets/apple.png":"src/GUI/assets/apple.png","../GUI/assets/brick.png":"src/GUI/assets/brick.png","../GUI/assets/hole.png":"src/GUI/assets/hole.png"}],"src/renderer/teleport.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.renderTeleports = renderTeleports;
+
+var _config = require("../config");
+
+var _utils = require("../utils");
+
+var _shapes = require("./shapes");
+
+var _loader = require("./loader");
+
+var _effectorFileName = "/src/renderer/teleport.ts";
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function renderTeleports(_ref) {
+  var context = _ref.context,
+      teleports = _ref.teleports,
+      _ref$indexesVisible = _ref.indexesVisible,
+      indexesVisible = _ref$indexesVisible === void 0 ? false : _ref$indexesVisible;
+  teleports.forEach(function (teleport) {
+    var position = teleport.current;
+
+    var _convertLocalPosition = (0, _utils.convertLocalPositionToGlobal)(position),
+        _convertLocalPosition2 = _slicedToArray(_convertLocalPosition, 2),
+        x = _convertLocalPosition2[0],
+        y = _convertLocalPosition2[1];
+
+    var size = _config.cellSize - _config.borderSize * 2;
+    context.drawImage(_loader.assets.hole, x + _config.borderSize * 2, y + _config.borderSize * 2, size, size);
+
+    if (indexesVisible) {
+      (0, _shapes.renderText)({
+        context: context,
+        text: (0, _utils.getIndexByPosition)(position).toString(),
+        position: position
+      });
+    }
+  });
+}
+},{"../config":"src/config.ts","../utils":"src/utils.ts","./shapes":"src/renderer/shapes.ts","./loader":"src/renderer/loader.ts"}],"src/renderer/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2803,7 +2892,19 @@ Object.keys(_loader).forEach(function (key) {
     }
   });
 });
-},{"./grid":"src/renderer/grid.ts","./snake":"src/renderer/snake.ts","./shapes":"src/renderer/shapes.ts","./loader":"src/renderer/loader.ts"}],"src/controll.ts":[function(require,module,exports) {
+
+var _teleport = require("./teleport");
+
+Object.keys(_teleport).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _teleport[key];
+    }
+  });
+});
+},{"./grid":"src/renderer/grid.ts","./snake":"src/renderer/snake.ts","./shapes":"src/renderer/shapes.ts","./loader":"src/renderer/loader.ts","./teleport":"src/renderer/teleport.ts"}],"src/controll.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43026,7 +43127,7 @@ function getNextPositionForAISnake(_ref4) {
 
 function canTraverseBuilder(isEnabledCollisionDetect) {
   return function (vertex) {
-    return isEnabledCollisionDetect ? vertex.value.type === _config.PLACE_TYPE.EMPTY || vertex.value.type === _config.PLACE_TYPE.FOOD : true;
+    return isEnabledCollisionDetect ? [_config.PLACE_TYPE.EMPTY, _config.PLACE_TYPE.TELEPORT, _config.PLACE_TYPE.FOOD].includes(vertex.value.type) : true;
   };
 }
 
@@ -78370,7 +78471,7 @@ function renderGUI() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$bricks = exports.$foods = void 0;
+exports.$bricks = exports.$teleports = exports.$foods = void 0;
 
 var _effector = require("effector");
 
@@ -78389,14 +78490,24 @@ var $foods = (0, _effector.createStore)((0, _utils.generateRandomFoodByCount)(_c
   sid: "naghw1"
 });
 exports.$foods = $foods;
-var $bricks = (0, _effector.createStore)([], {
+var $teleports = (0, _effector.createStore)((0, _utils.generateRandomTeleports)(_config.teleportCount), {
   loc: {
     file: _effectorFileName,
     line: 5,
+    column: 26
+  },
+  name: "$teleports",
+  sid: "faqldl"
+});
+exports.$teleports = $teleports;
+var $bricks = (0, _effector.createStore)([], {
+  loc: {
+    file: _effectorFileName,
+    line: 6,
     column: 23
   },
   name: "$bricks",
-  sid: "-j1p9sm"
+  sid: "-iknnef"
 });
 exports.$bricks = $bricks;
 },{"effector":"node_modules/effector/effector.mjs","../../utils":"src/utils.ts","../../config":"src/config.ts"}],"src/models/objects/events.ts":[function(require,module,exports) {
@@ -78526,6 +78637,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.markFoodOnGraph = markFoodOnGraph;
 exports.markSnakesOnGraph = markSnakesOnGraph;
 exports.markBricksOnGraph = markBricksOnGraph;
+exports.markTeleportsOnGraph = markTeleportsOnGraph;
 exports.$entities = exports.$graph = void 0;
 
 var _effector = require("effector");
@@ -78594,30 +78706,45 @@ function markBricksOnGraph(_ref5) {
   }));
 }
 
+function markTeleportsOnGraph(_ref6) {
+  var graph = _ref6.graph,
+      teleports = _ref6.teleports;
+  (0, _utils.setValuesToGraph)(graph, teleports.map(function (_ref7) {
+    var current = _ref7.current,
+        target = _ref7.target;
+    return {
+      type: _config.PLACE_TYPE.TELEPORT,
+      index: (0, _utils.getIndexByPosition)(current),
+      value: target.join(',')
+    };
+  }));
+}
+
 var $graph = (0, _effector.createStore)(new _algorithms.Graph(localSize), {
   loc: {
     file: _effectorFileName,
-    line: 37,
+    line: 46,
     column: 22
   },
   name: "$graph",
-  sid: "uar1ss"
+  sid: "-qj0cci"
 });
 exports.$graph = $graph;
 var $entities = (0, _effector.combine)({
   and: [{
     snakes: _snakes.$snakes,
     foods: _objects.$foods,
-    bricks: _objects.$bricks
+    bricks: _objects.$bricks,
+    teleports: _objects.$teleports
   }],
   or: {
     loc: {
       file: _effectorFileName,
-      line: 38,
+      line: 47,
       column: 25
     },
     name: "$entities",
-    sid: "-qpvqel"
+    sid: "-cij2kr"
   }
 });
 exports.$entities = $entities;
@@ -78679,6 +78806,10 @@ var updateGraphFx = (0, _effector.attach)({
         graph: graph,
         bricks: entities.bricks
       });
+      (0, _store.markTeleportsOnGraph)({
+        graph: graph,
+        teleports: entities.teleports
+      });
       return _algorithms.Graph.extend(graph);
     }
   },
@@ -78703,16 +78834,17 @@ _store.$graph.on(updateGraphFx.doneData, function (_, next) {
       and: [{
         snakes: _snakes.$snakes,
         foods: _objects.$foods,
-        bricks: _objects.$bricks
+        bricks: _objects.$bricks,
+        teleports: _objects.$teleports
       }],
       or: {
         loc: {
           file: _effectorFileName,
-          line: 21,
+          line: 22,
           column: 11
         },
         name: "clock",
-        sid: "5evnal"
+        sid: "5vx9os"
       }
     }),
     target: updateGraphFx
@@ -78720,10 +78852,10 @@ _store.$graph.on(updateGraphFx.doneData, function (_, next) {
   or: {
     loc: {
       file: _effectorFileName,
-      line: 20,
+      line: 21,
       column: 0
     },
-    sid: "6pklqi"
+    sid: "6q4ebv"
   }
 });
 (0, _effector.sample)({
@@ -78742,10 +78874,10 @@ _store.$graph.on(updateGraphFx.doneData, function (_, next) {
   or: {
     loc: {
       file: _effectorFileName,
-      line: 28,
+      line: 30,
       column: 0
     },
-    sid: "6tyyhe"
+    sid: "76m84p"
   }
 });
 },{"effector":"node_modules/effector/effector.mjs","../../utils":"src/utils.ts","../../config":"src/config.ts","../../algorithms":"src/algorithms/index.ts","../snakes":"src/models/snakes/index.ts","../objects":"src/models/objects/index.ts","./store":"src/models/graph/store.ts","./events":"src/models/graph/events.ts"}],"src/models/graph/index.ts":[function(require,module,exports) {
@@ -79279,6 +79411,7 @@ var $state = (0, _effector.combine)({
     indexesVisible: _game.$indexesVisible,
     graph: _graph.$graph,
     foods: _objects.$foods,
+    teleports: _objects.$teleports,
     bricks: _objects.$bricks,
     computedSnakes: $computedSnakes,
     isEnabledCollisionDetect: _game.$isEnabledCollisionDetect,
@@ -79369,6 +79502,9 @@ function main(canvas, context) {
     }).forEach(function (_ref4) {
       var snake = _ref4.snake,
           algorithm = _ref4.algorithm;
+
+      var _a;
+
       var preparedAlgh = customCodeIsEnabled ? customAlgorithm : algorithm; // @ts-ignore
 
       var _snake$updater = snake.updater(Object.assign(Object.assign({
@@ -79388,13 +79524,12 @@ function main(canvas, context) {
       var nextSnake = snake;
       var nextIndex = (0, _utils.getIndexByPosition)(nextPosition);
       var nextVertex = graph.getVertex(nextIndex);
-      var type = nextVertex && nextVertex.value.type;
 
       if (meta && snake.isAi) {
         nextSnake = (0, _snake.setMeta)(snake, meta);
       }
 
-      switch (type) {
+      switch ((_a = nextVertex === null || nextVertex === void 0 ? void 0 : nextVertex.value) === null || _a === void 0 ? void 0 : _a.type) {
         case _config.PLACE_TYPE.FOOD:
           {
             nextSnake = handleEatFood({
@@ -79403,6 +79538,12 @@ function main(canvas, context) {
               // @ts-ignore
               foodId: nextVertex.value.foodId
             });
+            break;
+          }
+
+        case _config.PLACE_TYPE.TELEPORT:
+          {
+            nextSnake = (0, _snake.setDirection)((0, _snake.updateBody)(nextSnake, nextVertex.value.payload), nextDirection);
             break;
           }
 
@@ -79435,6 +79576,7 @@ function main(canvas, context) {
     var nextState = _ref5.state;
     var computedSnakes = nextState.computedSnakes,
         foods = nextState.foods,
+        teleports = nextState.teleports,
         indexesVisible = nextState.indexesVisible,
         graph = nextState.graph,
         needFillEmptyGraphsCellls = nextState.needFillEmptyGraphsCellls,
@@ -79456,6 +79598,11 @@ function main(canvas, context) {
     (0, _foods.renderFoods)({
       context: context,
       foods: foods,
+      indexesVisible: indexesVisible
+    });
+    (0, _renderer.renderTeleports)({
+      context: context,
+      teleports: teleports,
       indexesVisible: indexesVisible
     });
     computedSnakes.forEach(function (_ref6) {
@@ -79553,7 +79700,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60457" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63820" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
