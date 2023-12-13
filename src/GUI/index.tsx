@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { createGlobalStyle } from 'styled-components'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import { SideBar } from './side-bar'
 import { Editor } from './editor'
 
@@ -29,11 +29,11 @@ const root = document.querySelector('#root')!
 
 export function renderGUI() {
   createRoot(root).render(
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/alghorithm-editor" element={<Editor />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
