@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build --base=/snake/",
     "test:lint": "eslint --quiet src",
     "test:tsc": "tsc --noEmit",
     "test:code": "jest src --env=jsdom",
