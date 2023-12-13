@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react'
-import { useStore } from 'effector-react'
+import { useState, useCallback } from 'react'
+import { useUnit } from 'effector-react'
 import styled from 'styled-components'
 import Draggable from 'react-draggable'
 import { Link } from 'react-router-dom'
@@ -58,13 +58,13 @@ const Button = styled.button<any>`
 const { search } = new URL(window.location.href)
 const parsedParams = new URLSearchParams(search)
 const initalState = parsedParams.get('isVisibleBoard')
-  ? JSON.parse(parsedParams.get('isVisibleBoard'))
+  ? (JSON.parse(parsedParams.get('isVisibleBoard')!) as boolean)
   : true
 
 export function SideBar() {
   const [isVisibleBoard, setVisibleState] = useState(initalState)
-  const gameState = useStore($gameState)
-  const snakesIterator = useStore($snakesIterator)
+  const gameState = useUnit($gameState)
+  const snakesIterator = useUnit($snakesIterator)
   const isPlay = gameState === GAME_STATE.IS_PLAY
   const playOrPause = isPlay ? stop : play
   const text = isPlay ? 'pause' : 'play'

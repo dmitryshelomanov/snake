@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/prevent-abbreviations */
 import { combine } from 'effector'
 import {
   getLocalSize,
@@ -264,19 +263,17 @@ function main(
 
         const nextIndex = getIndexByPosition(nextPosition)
         const nextVertex = graph.getVertex(nextIndex)
-        const type = nextVertex && nextVertex.value.type
 
         if (meta && snake.isAi) {
           nextSnake = setMeta(snake, meta)
         }
 
-        switch (type) {
+        switch (nextVertex?.value?.type) {
           case PLACE_TYPE.FOOD: {
             nextSnake = handleEatFood({
               snake: nextSnake,
               nextPosition,
-              // @ts-ignore
-              foodId: nextVertex.value.foodId,
+              foodId: nextVertex?.value?.foodId,
             })
             break
           }
@@ -285,9 +282,9 @@ function main(
           case PLACE_TYPE.BRICK: {
             if (nextState.isEnabledCollisionDetect) {
               nextSnake = setCrash(nextSnake, true)
-
-              break
             }
+
+            break
           }
 
           // eslint-disable-next-line no-fallthrough
@@ -383,13 +380,15 @@ function main(
   }).start()
 }
 
-const canvas = document.querySelector('canvas')
+export function initialize() {
+  const canvas = document.querySelector('canvas')
 
-if (canvas) {
-  const context = canvas.getContext('2d')
+  if (canvas) {
+    const context = canvas.getContext('2d')
 
-  loadAssets().then(() => {
-    // @ts-ignore
-    main(canvas, context)
-  })
+    loadAssets().then(() => {
+      // @ts-ignore
+      main(canvas, context)
+    })
+  }
 }

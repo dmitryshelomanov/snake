@@ -1,9 +1,7 @@
 language: node_js
 
 node_js:
-  - 8
-  - 9
-  - 10
+  - 18
 
 cache:
   yarn: false
@@ -19,4 +17,4 @@ jobs:
       script: npm run test:lint
     - stage: Code
       name: Test code stage
-      script: npm run test:code:prod
+      script: npm run test:code

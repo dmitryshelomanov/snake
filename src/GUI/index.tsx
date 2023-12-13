@@ -1,7 +1,6 @@
-import React from 'react'
-import ReactDom from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { createGlobalStyle } from 'styled-components'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { SideBar } from './side-bar'
 import { Editor } from './editor'
 
@@ -26,14 +25,15 @@ function App() {
   )
 }
 
-const root = document.querySelector('#root')
+const root = document.querySelector('#root')!
 
 export function renderGUI() {
-  ReactDom.render(
+  createRoot(root).render(
     <BrowserRouter>
-      <Route path="/" component={App} />
-      <Route path="/alghorithm-editor" component={Editor} />
-    </BrowserRouter>,
-    root
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/alghorithm-editor" element={<Editor />} />
+      </Routes>
+    </BrowserRouter>
   )
 }

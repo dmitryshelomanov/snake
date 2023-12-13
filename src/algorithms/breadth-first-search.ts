@@ -1,4 +1,3 @@
-/* eslint-disable no-loop-func */
 import { createOperationLogger } from '../utils'
 import { restorePathFromMap } from './restore-path'
 import { Vertex, Graph } from './graph'
@@ -126,7 +125,6 @@ export function breadthFirstSearch({
     const currentIndex = queue.shift()
     const vertex = graph.getVertex(currentIndex)
 
-    // eslint-disable-next-line unicorn/no-for-loop
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
       const nextIndex = vertex.neigbors[i]
       const nextVertex = graph.getVertex(nextIndex)
