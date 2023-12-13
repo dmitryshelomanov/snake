@@ -6,8 +6,7 @@ import {
   createEvent,
   combine,
   Store,
-  Event,
-  guard,
+  EventCallable,
   merge,
 } from 'effector'
 import { GAME_STATE } from '../config'
@@ -29,7 +28,7 @@ type Props<State> = {
   runRender: (arg0: { state: State; tick: number }) => void
 }
 
-type TickResult = { $tick: Store<number>; start: Event<void> }
+type TickResult = { $tick: Store<number>; start: EventCallable<void> }
 
 export function createTick<State>({
   $state,
@@ -51,12 +50,12 @@ export function createTick<State>({
     mapParams: (_, fps) => fps,
   })
 
-  const triggerTick = guard({
+  const triggerTick = sample({
     clock: merge([nextTickFx.done, play]),
     filter: $isPlay,
   })
 
-  const triggerRender = guard({ clock: $state, filter: $isPause })
+  const triggerRender = sample({ clock: $state, filter: $isPause })
 
   $tick.on(nextTickFx.done, (previous) => previous + 1).reset(restart)
 

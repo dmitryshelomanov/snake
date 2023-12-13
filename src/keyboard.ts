@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/prefer-event-key */
 export enum KEYS {
   LEFT_ARROW = 65,
   RIGHT_ARROW = 68,
@@ -7,7 +6,7 @@ export enum KEYS {
 }
 
 export function keyboradFactory(): { isDown: (arg0: number) => boolean } {
-  let pressedKeys = {}
+  let pressedKeys: Record<number, boolean> = {}
 
   document.addEventListener('keydown', (event) => {
     pressedKeys = {}

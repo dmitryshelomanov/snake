@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import styled from 'styled-components'
-import { useStore } from 'effector-react'
+import { useUnit } from 'effector-react'
 import { combine } from 'effector'
 import {
   $isEnabledCollisionDetect,
@@ -52,7 +52,7 @@ export function Settings() {
     fps,
     needFillEmptyGraphsCellls,
     customCodeIsEnabled,
-  } = useStore($state)
+  } = useUnit($state)
 
   const handleChangeUserInGameState = useCallback(() => {
     if (isUserInGame) {
