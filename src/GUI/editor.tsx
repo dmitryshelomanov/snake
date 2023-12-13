@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { useStore } from 'effector-react'
+import { useUnit } from 'effector-react'
 import styled from 'styled-components'
 import AceEditor from 'react-ace'
 import 'ace-builds/src-noconflict/mode-javascript'
@@ -51,8 +50,8 @@ const themes = [
 ]
 
 export function Editor() {
-  const code = useStore($editorCode)
-  const activeTheme = useStore($editorTheme)
+  const code = useUnit($editorCode)
+  const activeTheme = useUnit($editorTheme)
 
   return (
     <Wrapper>

@@ -1,4 +1,3 @@
-/* eslint-disable no-loop-func */
 import PriorityQueue from 'fastpriorityqueue'
 import { createOperationLogger, getPositionByIndex } from '../utils'
 import { restorePathFromMap } from './restore-path'
@@ -30,7 +29,6 @@ export function aStar({
     const [currentIndex] = queue.poll() || []
     const vertex = graph.getVertex(currentIndex)
 
-    // eslint-disable-next-line unicorn/no-for-loop
     for (let i = 0; vertex && i < vertex.neigbors.length; i++) {
       const nextIndex = vertex.neigbors[i]
       const nextVertex = graph.getVertex(nextIndex)
