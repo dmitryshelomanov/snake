@@ -84,7 +84,7 @@ export type SnakeSettings = {
 }
 
 export function updateBody(snake: Snake, nextPosition: Coords) {
-  const [_, ...rest] = snake.body
+  const [, ...rest] = snake.body
 
   if (nextPosition) {
     return {

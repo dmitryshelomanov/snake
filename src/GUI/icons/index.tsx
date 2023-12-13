@@ -1,4 +1,3 @@
-import React, { ElementType } from 'react'
 import styled from 'styled-components'
 
 const IconWrapper = styled.div`
