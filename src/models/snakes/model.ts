@@ -1,7 +1,7 @@
 import { sample } from 'effector'
 import uniqBy from 'lodash-es/uniqBy'
 import { randomPosition } from '../../utils'
-import { getColorsForSnake, buildSnake, buildSettingsForSnake } from '../snake'
+import { getColorsForSnake, buildSnake } from '../snake'
 import {
   addUserToGame,
   removeUserFromGame,

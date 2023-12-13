@@ -1,6 +1,6 @@
-import React, { useMemo, useCallback } from 'react'
+import { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { useStore } from 'effector-react'
+import { useUnit } from 'effector-react'
 import { Title, Checkbox } from '../common'
 import { $algorithms, $heuristics } from '../../models/algorithms'
 import {
@@ -53,8 +53,8 @@ export const TitlesWrapper = styled.div`
 export function SettingsForSnake({ snakeId }: { snakeId: string }) {
   const isCrash = useSnakeIsCrahedState(snakeId)
   const colors = useSnakeColorState(snakeId)
-  const algorithms = useStore($algorithms)
-  const heuristics = useStore($heuristics)
+  const algorithms = useUnit($algorithms)
+  const heuristics = useUnit($heuristics)
   const {
     showProcessedCells,
     activeAlgorithm,

@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 import { ScoreBoard } from './score-board'
 import { Settings } from './settings'

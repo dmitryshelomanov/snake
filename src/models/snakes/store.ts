@@ -1,4 +1,4 @@
-import { createStore, Store } from 'effector'
+import { createStore, StoreWritable } from 'effector'
 import { updaters } from '../../updaters'
 import {
   getColorsForSnake,
@@ -46,8 +46,11 @@ const initalSnakes = buildSnakesByCount(snakeCount)
 
 export const $snakes = createStore(initalSnakes)
 
-export const $settingsForSnakes: Store<SettingsStore> = createStore(
-  applySettingsToSnales(initalSnakes.map((snake) => snake.id), {})
+export const $settingsForSnakes: StoreWritable<SettingsStore> = createStore(
+  applySettingsToSnales(
+    initalSnakes.map((snake) => snake.id),
+    {}
+  )
 )
 
 export const $snakeIdsAsString = $snakes.map((snakes) =>

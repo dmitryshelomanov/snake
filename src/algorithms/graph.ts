@@ -123,7 +123,7 @@ export class Graph {
   }
 
   getVertex(index: number | void): Vertex | void {
-    if (index) {
+    if (typeof index !== 'undefined') {
       return this.graph[index]
     }
 

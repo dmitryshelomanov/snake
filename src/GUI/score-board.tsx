@@ -1,5 +1,5 @@
-import React, { memo } from 'react'
-import { useStore } from 'effector-react'
+import { memo } from 'react'
+import { useUnit } from 'effector-react'
 import styled from 'styled-components'
 import { $snakesIterator } from '../models/snakes'
 import { Title, Name } from './common'
@@ -55,7 +55,7 @@ export const ScoreItem = memo(({ snakeId }: { snakeId: string }) => {
 })
 
 export const ScoreBoard = memo(() => {
-  const snakesIds = useStore($snakesIterator)
+  const snakesIds = useUnit($snakesIterator)
 
   return (
     <>

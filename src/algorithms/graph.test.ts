@@ -18,11 +18,35 @@ describe('Graph', () => {
   it('should get all neighbors graph', () => {
     const graph = new Graph({ w: 10, h: 6 })
 
-    expect(graph.getVertex(0)).toEqual([50, 9, 10, 1])
-    expect(graph.getVertex(10)).toEqual([0, 19, 20, 11])
-    expect(graph.getVertex(54)).toEqual([44, 53, 4, 55])
-    expect(graph.getVertex(58)).toEqual([48, 57, 8, 59])
-    expect(graph.getVertex(59)).toEqual([49, 58, 9, 50])
-    expect(graph.getVertex(8)).toEqual([58, 7, 18, 9])
+    expect(graph.getVertex(0)).toEqual({
+      index: 0,
+      neigbors: [50, 9, 10, 1],
+      value: { type: 1 },
+    })
+    expect(graph.getVertex(10)).toEqual({
+      index: 10,
+      neigbors: [0, 19, 20, 11],
+      value: { type: 1 },
+    })
+    expect(graph.getVertex(54)).toEqual({
+      index: 54,
+      neigbors: [44, 53, 4, 55],
+      value: { type: 1 },
+    })
+    expect(graph.getVertex(58)).toEqual({
+      index: 58,
+      neigbors: [48, 57, 8, 59],
+      value: { type: 1 },
+    })
+    expect(graph.getVertex(59)).toEqual({
+      index: 59,
+      neigbors: [49, 58, 9, 50],
+      value: { type: 1 },
+    })
+    expect(graph.getVertex(8)).toEqual({
+      index: 8,
+      neigbors: [58, 7, 18, 9],
+      value: { type: 1 },
+    })
   })
 })
