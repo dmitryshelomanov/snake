@@ -1,5 +1,3 @@
-import React from 'react'
-
 export function Close({
   className,
   color,
