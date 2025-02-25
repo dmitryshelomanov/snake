@@ -1,4 +1,3 @@
-import { createStore } from 'effector'
 import {
   breadthFirstSearch,
   depthFirstSearch,
@@ -11,7 +10,7 @@ import {
   chebyshevDistance,
 } from '../../algorithms/heuristic'
 
-export const $heuristics = createStore([
+export const heuristics = [
   {
     id: 'manhattan',
     name: 'Manhattan',
@@ -22,9 +21,9 @@ export const $heuristics = createStore([
     name: 'Chebyshev',
     alg: chebyshevDistance,
   },
-])
+]
 
-export const $algorithms = createStore([
+export const algorithms = [
   {
     id: 'breadth',
     alg: breadthFirstSearch,
@@ -62,4 +61,4 @@ export const $algorithms = createStore([
     }),
     name: 'Disable aloghorithm',
   },
-])
+]

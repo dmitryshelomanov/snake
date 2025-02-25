@@ -13,7 +13,7 @@ import {
   setLoggerState,
   $fps,
   changeFps,
-  $needFillEmptyGraphsCellls,
+  $needFillEmptyGraphsCells,
   fillEmptyGraphCells,
 } from '../../models/game'
 import { $isUserInGame, $snakesIterator } from '../../models/snakes'
@@ -38,7 +38,7 @@ const $state = combine({
   isLoggerEnabled: $isLoggerEnabled,
   snakesIterator: $snakesIterator,
   fps: $fps,
-  needFillEmptyGraphsCellls: $needFillEmptyGraphsCellls,
+  needFillEmptyGraphsCells: $needFillEmptyGraphsCells,
   customCodeIsEnabled: $customCodeIsEnabled,
 })
 
@@ -50,7 +50,7 @@ export function Settings() {
     isLoggerEnabled,
     snakesIterator,
     fps,
-    needFillEmptyGraphsCellls,
+    needFillEmptyGraphsCells,
     customCodeIsEnabled,
   } = useUnit($state)
 
@@ -82,8 +82,8 @@ export function Settings() {
       description: 'visible indexes',
     },
     {
-      id: 'needFillEmptyGraphsCellls',
-      state: needFillEmptyGraphsCellls,
+      id: 'needFillEmptyGraphsCells',
+      state: needFillEmptyGraphsCells,
       change: fillEmptyGraphCells,
       description: "fill graph's empty cells",
     },

@@ -56,23 +56,23 @@ export function getDirectionByPosition(
 
 export class CanvasInput {
   events: Array<{ type: string; eventListener: (index: number) => void }>
-  eventRegistar: Array<() => void>
+  eventRegister: Array<() => void>
   isMouseDown: boolean
   lastIndex: number
 
   constructor() {
     this.events = []
-    this.eventRegistar = []
+    this.eventRegister = []
     this.isMouseDown = false
     this.lastIndex = -1
   }
 
-  registerEventRegistar(eventBuilder: () => void): void {
-    this.eventRegistar.push(eventBuilder)
+  registerEventRegister(eventBuilder: () => void): void {
+    this.eventRegister.push(eventBuilder)
   }
 
-  callEventRegistars(): void {
-    this.eventRegistar.forEach((builder) => builder())
+  callEventRegisters(): void {
+    this.eventRegister.forEach((builder) => builder())
   }
 
   registerClickEventToCanvas(canvas: HTMLCanvasElement): void {

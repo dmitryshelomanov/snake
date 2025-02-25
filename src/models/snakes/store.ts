@@ -1,5 +1,4 @@
 import { createStore, StoreWritable } from 'effector'
-import { updaters } from '../../updaters'
 import {
   getColorsForSnake,
   buildSnake,
@@ -22,9 +21,7 @@ function buildSnakesByCount(count: number): Array<Snake> {
       buildSnake(randomPosition(), {
         colors: getColorsForSnake(),
         id: `ai-${i}`,
-        isAi: true,
-        // @ts-ignore
-        updater: updaters.ai,
+        type: 'AI',
       })
     )
   }
@@ -32,7 +29,7 @@ function buildSnakesByCount(count: number): Array<Snake> {
   return snakes
 }
 
-export function applySettingsToSnales(ids: string[], settings: SettingsStore) {
+export function applySettingsToSnakes(ids: string[], settings: SettingsStore) {
   return ids.reduce((nextSettings, id) => {
     if (!nextSettings[id]) {
       nextSettings[id] = buildSettingsForSnake()
@@ -42,13 +39,13 @@ export function applySettingsToSnales(ids: string[], settings: SettingsStore) {
   }, settings)
 }
 
-const initalSnakes = buildSnakesByCount(snakeCount)
+const initialSnakes = buildSnakesByCount(snakeCount)
 
-export const $snakes = createStore(initalSnakes)
+export const $snakes = createStore(initialSnakes)
 
 export const $settingsForSnakes: StoreWritable<SettingsStore> = createStore(
-  applySettingsToSnales(
-    initalSnakes.map((snake) => snake.id),
+  applySettingsToSnakes(
+    initialSnakes.map((snake) => snake.id),
     {}
   )
 )

@@ -6,7 +6,7 @@ export function setCanvasSize(
   canvas.width = w
 }
 
-export function convigureCanvas(
+export function configureCanvas(
   canvas: HTMLCanvasElement,
   globalSize: { w: number; h: number }
 ): void {

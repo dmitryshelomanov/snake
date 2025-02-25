@@ -1,12 +1,11 @@
 import { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { useUnit } from 'effector-react'
 import { Title, Checkbox } from '../common'
-import { $algorithms, $heuristics } from '../../models/algorithms'
+import { algorithms, heuristics } from '../../models/algorithms'
 import {
   useSnakeColorState,
-  useSnakeSetings,
-  useSnakeIsCrahedState,
+  useSnakeSettings,
+  useSnakeIsCrashedState,
 } from '../use-snake'
 import { updateSettingForSnake, removeSnake } from '../../models/snakes'
 import { Icon, Close } from '../icons'
@@ -51,16 +50,14 @@ export const TitlesWrapper = styled.div`
 `
 
 export function SettingsForSnake({ snakeId }: { snakeId: string }) {
-  const isCrash = useSnakeIsCrahedState(snakeId)
+  const isCrash = useSnakeIsCrashedState(snakeId)
   const colors = useSnakeColorState(snakeId)
-  const algorithms = useUnit($algorithms)
-  const heuristics = useUnit($heuristics)
   const {
     showProcessedCells,
     activeAlgorithm,
     activeHeuristic,
     showAIPathToTarget,
-  } = useSnakeSetings(snakeId)
+  } = useSnakeSettings(snakeId)
 
   const currentAlgorithm = useMemo(
     () => algorithms.find((alg) => alg.id === activeAlgorithm),

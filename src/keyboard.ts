@@ -5,7 +5,7 @@ export enum KEYS {
   DOWN_ARROW = 83,
 }
 
-export function keyboradFactory(): { isDown: (arg0: number) => boolean } {
+export function keyboardFactory(): { isDown: (arg0: number) => boolean } {
   let pressedKeys: Record<number, boolean> = {}
 
   document.addEventListener('keydown', (event) => {

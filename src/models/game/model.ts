@@ -13,7 +13,7 @@ import {
   $indexesVisible,
   $isEnabledCollisionDetect,
   $isLoggerEnabled,
-  $needFillEmptyGraphsCellls,
+  $needFillEmptyGraphsCells,
   $fps,
 } from './store'
 
@@ -22,7 +22,7 @@ $gameState
   .on(stop, () => GAME_STATE.IS_PAUSE)
   .reset(restart)
 
-$needFillEmptyGraphsCellls
+$needFillEmptyGraphsCells
   .on(fillEmptyGraphCells, (state) => !state)
   .reset(restart)
 

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { $snakesIterator } from '../models/snakes'
 import { Title, Name } from './common'
 import {
-  useSnakeIsCrahedState,
+  useSnakeIsCrashedState,
   useSnakeScoreState,
   useSnakeColorState,
 } from './use-snake'
@@ -37,12 +37,12 @@ export const DroppedOutBlock = styled.div`
 `
 
 export const Counter = styled.p`
-  font-sixe: 12px;
+  font-size: 12px;
 `
 
 export const ScoreItem = memo(({ snakeId }: { snakeId: string }) => {
   const score = useSnakeScoreState(snakeId)
-  const isCrash = useSnakeIsCrahedState(snakeId)
+  const isCrash = useSnakeIsCrashedState(snakeId)
   const colors = useSnakeColorState(snakeId)
 
   return (

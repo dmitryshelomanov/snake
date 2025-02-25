@@ -1,6 +1,6 @@
 import { KEYS } from './keyboard'
 
-const { search } = new URL(window.location.href)
+const { search } = new URL(globalThis.location.href)
 const parsedParams = new URLSearchParams(search)
 
 export const cellSize = parsedParams.get('cellSize')
@@ -8,10 +8,10 @@ export const cellSize = parsedParams.get('cellSize')
   : 20
 export const pageWidth = parsedParams.get('pageWidth')
   ? Number(parsedParams.get('pageWidth'))
-  : window.innerWidth
+  : globalThis.innerWidth
 export const pageHeight = parsedParams.get('pageHeight')
   ? Number(parsedParams.get('pageHeight'))
-  : window.innerHeight
+  : globalThis.innerHeight
 export const fps = parsedParams.get('fps')
   ? Number(parsedParams.get('fps'))
   : 15
@@ -48,5 +48,4 @@ export const colorScheme = {
   emptyCells: '#0080007d',
   borderColor: 'rgba(0, 0, 0, 0.2)',
   foodColor: 'rgb(238, 68, 0)',
-  brikColor: '#795d5d',
 }

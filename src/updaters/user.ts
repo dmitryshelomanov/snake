@@ -1,16 +1,16 @@
 import { DIRECTIONS } from '../config'
 import { getNextPositionByDirection } from '../controll'
 import { checkBounds } from '../collision'
-import { keyboradFactory, KEYS } from '../keyboard'
+import { keyboardFactory, KEYS } from '../keyboard'
 import { headSnake, Snake } from '../models/snake'
 
-const gameInput = keyboradFactory()
+const gameInput = keyboardFactory()
 
-export function user({
-  snake,
-}: {
-  snake: Snake
-}): { nextPosition: Coords; nextDirection: DIRECTIONS } {
+export function user({ snake }: { snake: Snake }): {
+  nextPosition: Coords
+  nextDirection: DIRECTIONS
+  meta: void
+} {
   let { direction } = snake
 
   if (
@@ -40,5 +40,6 @@ export function user({
       getNextPositionByDirection(headSnake(snake), direction)
     ),
     nextDirection: direction,
+    meta: undefined,
   }
 }

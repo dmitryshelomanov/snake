@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import { manhattanDistance } from '../algorithms/heuristic'
 import {
   getIndexByPosition,
@@ -16,7 +15,7 @@ function getNearestFoodIndex({
   graph,
   currentPosition,
 }: {
-  foods: Array<Food>
+  foods: Food[]
   graph: Graph
   currentPosition: Coords
 }): number | void {
@@ -24,8 +23,7 @@ function getNearestFoodIndex({
     foods
       .filter(
         ([position]) =>
-          // @ts-ignore
-          graph.getVertex(getIndexByPosition(position)).value.type ===
+          graph.getVertex(getIndexByPosition(position))?.value?.type ===
           PLACE_TYPE.FOOD
       )
       .sort(
@@ -44,7 +42,7 @@ function getNextPositionForAISnake({
   canTraverse,
 }: {
   snake: Snake
-  path: Array<Coords>
+  path: Coords[]
   graph: Graph
   canTraverse: (arg0: Vertex) => boolean
 }): Coords {
@@ -89,9 +87,9 @@ function getCostByIndex(): number {
 
 type Props = {
   snake: Snake
-  state: { graph: Graph; foods: Array<Food> }
+  state: { graph: Graph; foods: Food[] }
   withLogger: boolean
-  heuristic: HeuristicFunction
+  heuristic?: HeuristicFunction
   isEnabledCollisionDetect: boolean
   traverseAlgorithm: TraverseAlgorithmFunction<Graph, Vertex>
 }
@@ -106,7 +104,7 @@ export function ai({
 }: Props): {
   nextPosition: Coords
   nextDirection: DIRECTIONS
-  meta: { processed: Array<Coords>; path: Array<Coords> }
+  meta: { processed: Coords[]; path: Coords[] }
 } {
   const { graph, foods } = state
   const currentPosition = headSnake(snake)

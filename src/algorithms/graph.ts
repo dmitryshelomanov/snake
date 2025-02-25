@@ -2,8 +2,8 @@
   Note:
 
   Представление графа в виде массива index => [top,left,down,right]
-  Это все можно узнать из одномеррного массива, но в качестве оптимизации
-    тут это статичиски построется
+  Это все можно узнать из одномерного массива, но в качестве оптимизации
+    все элементы проставляются статически (заранее)
   Вся карта змеек это представление ячеек
     [0][1][2]
     [3][4][5]
@@ -21,13 +21,12 @@ export type VertexValue =
   | { type: PLACE_TYPE.FOOD; foodId: string }
 
 export type Vertex = {
-  neigbors: Array<number>
+  neigbors: number[]
   value: VertexValue
   index: number
 }
 
-function filterNeigbors(neigbors: Array<number | void>): Array<number> {
-  // @ts-ignore
+function filterNeigbors(neigbors: Array<number | void>): number[] {
   return neigbors.filter((i) => typeof i !== 'undefined')
 }
 
@@ -35,8 +34,8 @@ export class Graph {
   w: number
   h: number
   withBounds?: boolean
-  emptyGraph: Array<Vertex>
-  graph: Array<Vertex>
+  emptyGraph: Vertex[]
+  graph: Vertex[]
 
   constructor({
     w,
@@ -48,8 +47,8 @@ export class Graph {
     w: number
     h: number
     withBounds?: boolean
-    emptyGraph?: Array<Vertex>
-    graph?: Array<Vertex>
+    emptyGraph?: Vertex[]
+    graph?: Vertex[]
   }) {
     this.w = w
     this.h = h
@@ -136,7 +135,7 @@ export class Graph {
     }
   }
 
-  getVertexes(): Array<Vertex> {
+  getVertexes(): Vertex[] {
     return this.graph
   }
 

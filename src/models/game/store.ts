@@ -12,6 +12,6 @@ export const $isLoggerEnabled = createStore(false)
 
 export const $fps = restore(changeFps, fps)
 
-export const $needFillEmptyGraphsCellls = createStore(false)
+export const $needFillEmptyGraphsCells = createStore(false)
 
 export const $maxPeerfomanceIsEnabled = createStore(false)

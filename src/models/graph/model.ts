@@ -11,7 +11,7 @@ import {
   markSnakesOnGraph,
   markBricksOnGraph,
 } from './store'
-import { adddBrickToGraph } from './events'
+import { addBrickToGraph } from './events'
 
 type Entities = StoreValue<typeof $entities>
 
@@ -41,7 +41,7 @@ sample({
 
 sample({
   source: $graph,
-  clock: adddBrickToGraph,
+  clock: addBrickToGraph,
   filter: (graph, brick) => {
     const vertex = graph.getVertex(getIndexByPosition(brick))
 

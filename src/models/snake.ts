@@ -27,23 +27,16 @@ export type SnakeColors = {
   processed: string
 }
 
-export type SnakeMeta = { processed: Array<Coords>; path: Array<Coords> }
-
-export type Updater = () => {
-  nextPosition: Coords
-  nextDirection: number
-  meta?: SnakeMeta
-}
+export type SnakeMeta = { processed: Coords[]; path: Coords[] }
 
 export type Snake = {
   id: string
-  body: Array<Coords>
+  body: Coords[]
   isCrash: boolean
   direction: number
   score: number
   colors: SnakeColors
-  isAi: boolean
-  updater: Updater
+  type: 'AI' | 'USER'
   meta: SnakeMeta | void
 }
 
@@ -52,15 +45,13 @@ export function buildSnake(
   {
     colors,
     id,
-    isAi,
-    updater,
+    type,
     body,
   }: {
     colors: SnakeColors
     id: string
-    isAi: boolean
-    updater: Updater
-    body: Array<Coords>
+    type: Snake['type']
+    body?: Coords[]
   }
 ): Snake {
   return {
@@ -70,9 +61,8 @@ export function buildSnake(
     direction: DIRECTIONS.RIGHT,
     score: 0,
     colors,
-    isAi,
-    updater,
-    meta: isAi ? { processed: [], path: [] } : undefined,
+    type,
+    meta: type === 'AI' ? { processed: [], path: [] } : undefined,
   }
 }
 

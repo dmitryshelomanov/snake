@@ -11,6 +11,7 @@ import {
 } from 'effector'
 import { GAME_STATE } from '../config'
 import { $gameState, $fps, restart, play } from './game'
+import { World } from '../world'
 
 const $isPlay = $gameState.map((s) => s === GAME_STATE.IS_PLAY)
 const $isPause = $gameState.map((s) => s === GAME_STATE.IS_PAUSE)
@@ -22,19 +23,15 @@ const tickFx = createEffect<number, void>().use(
     })
 )
 
-type Props<State> = {
-  $state: Store<State>
-  runLogic: (arg0: { state: State; tick: number }) => void
-  runRender: (arg0: { state: State; tick: number }) => void
+type Props = {
+  $state: Store<World>
+  runLogic: (arg0: { state: World; tick: number }) => void
+  runRender: (arg0: { state: World; tick: number }) => void
 }
 
 type TickResult = { $tick: Store<number>; start: EventCallable<void> }
 
-export function createTick<State>({
-  $state,
-  runLogic,
-  runRender,
-}: Props<State>): TickResult {
+export function createTick({ $state, runLogic, runRender }: Props): TickResult {
   const $tick = createStore(0)
   const render = createEvent()
   const start = createEvent()
@@ -59,8 +56,12 @@ export function createTick<State>({
 
   $tick.on(nextTickFx.done, (previous) => previous + 1).reset(restart)
 
-  sample({ source: $combinedState, clock: nextTickFx }).watch(runLogic)
-  sample({ source: $combinedState, clock: render }).watch(runRender)
+  sample({ source: $combinedState, clock: nextTickFx }).watch((state) => {
+    runLogic(state)
+  })
+  sample({ source: $combinedState, clock: render }).watch((state) => {
+    runRender(state)
+  })
 
   sample({
     clock: [start, triggerTick],

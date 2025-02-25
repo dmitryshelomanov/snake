@@ -1,7 +1,7 @@
 import { useStoreMap } from 'effector-react'
 import { $snakes, $settingsForSnakes } from '../models/snakes'
 
-export function useSnakeIsCrahedState(snakeId: string) {
+export function useSnakeIsCrashedState(snakeId: string) {
   const isCrash = useStoreMap({
     store: $snakes,
     keys: [snakeId],
@@ -43,7 +43,7 @@ export function useSnakeColorState(snakeId: string) {
   return colors
 }
 
-export function useSnakeSetings(snakeId: string) {
+export function useSnakeSettings(snakeId: string) {
   const settings = useStoreMap({
     store: $settingsForSnakes,
     keys: [snakeId],

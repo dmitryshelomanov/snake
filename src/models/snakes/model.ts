@@ -8,13 +8,12 @@ import {
   restart,
   updateStates,
 } from '../game'
-import { updaters } from '../../updaters'
 import { addSnake, removeSnake, updateSettingForSnake } from './events'
 import {
   $snakes,
   $settingsForSnakes,
   $snakesIterator,
-  applySettingsToSnales,
+  applySettingsToSnakes,
 } from './store'
 
 $snakes
@@ -26,9 +25,7 @@ $snakes
     buildSnake(randomPosition(), {
       colors: getColorsForSnake(),
       id: snakeId,
-      isAi,
-      // @ts-ignore
-      updater: isAi ? updaters.ai : updaters.user,
+      type: isAi ? 'AI' : 'USER',
     }),
   ])
   .on(removeSnake, (snakes, snakeId) =>
@@ -38,11 +35,9 @@ $snakes
 
 $settingsForSnakes
   .on(removeSnake, (settings, id) => {
-    delete settings[id]
+    const { [id]: _, ...nextSettings } = settings
 
-    const { ...nextSettiings } = settings
-
-    return nextSettiings
+    return nextSettings
   })
   .on(updateSettingForSnake, (state, { snakeId, settings }) => {
     if (state[snakeId]) {
@@ -62,16 +57,18 @@ $settingsForSnakes
 sample({
   source: $settingsForSnakes,
   clock: $snakesIterator,
-  fn: (settings, ids) => applySettingsToSnales(ids, settings),
+  fn: (settings, ids) => applySettingsToSnakes(ids, settings),
   target: $settingsForSnakes,
 })
 
 sample({
   clock: addUserToGame,
-  target: addSnake.prepend(() => ({ snakeId: 'user', isAi: false })),
+  fn: () => ({ snakeId: 'user', isAi: false }),
+  target: addSnake,
 })
 
 sample({
   clock: removeUserFromGame,
-  target: removeSnake.prepend(() => 'user'),
+  fn: () => 'user',
+  target: removeSnake,
 })
